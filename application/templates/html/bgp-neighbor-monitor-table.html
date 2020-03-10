@@ -1,0 +1,55 @@
+{% if data %}
+<div style="width: 100%" align="center" class="bd-lead">
+  <label id="bgp-refresh-time" class="bd-lead" style="font-size: 1.2rem;margin-bottom: 0px;padding-top: 16px;">
+    Last refresh: {{ data['refresh-time'] }}
+  </label>
+  <span class="badge badge-secondary" style="font-size: 0.8rem;">took {{ data['run_time'] }} seconds</span>
+  <hr>
+</div>
+
+<table class="table">
+  {% for host in data['collectors'] %}
+  <thead>
+    <tr class="table-active">
+      <th colspan="10" style="text-align: center;">
+        {{ data['collectors'][host]['name'] }} <span class="badge badge-primary">#ALLSESSIONS {{ data['collectors'][host]['total-sessions']}}</span>
+      </th>
+    </tr>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">peer id</th>
+      <th scope="col">peer as</th>
+      <th scope="col">state<br/></th>
+      <th scope="col">status<br/></th>
+      <th scope="col">time<br/></th>
+      <th scope="col">ping<br/></th>
+      <th scope="col">interface</th>
+      <th scope="col">status<br/></th>
+      <th scope="col">alias<br/></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for peer in data['collectors'][host]['peers'] %}
+    <tr>
+      {% if not data['collectors'][host]['peers'][peer]['state'] | lower == 'established' %}
+      <th scope="row">{{ loop.index }}</th>
+      <td class="table-danger">{{ peer }}</td>
+      <td>{{ data['collectors'][host]['peers'][peer]['peer_as'] }}</td>
+      <td>{{ data['collectors'][host]['peers'][peer]['state'] }}</td>
+      <td>{{ data['collectors'][host]['peers'][peer]['status'] }}</td>
+      <td>{{ data['collectors'][host]['peers'][peer]['time'] }}</td>
+      <td>{{ data['collectors'][host]['peers'][peer]['ping'] }}</td>
+      <td>{{ data['collectors'][host]['peers'][peer]['interface'] }}</td>
+      <td>{{ data['collectors'][host]['peers'][peer]['if_admin_status']| lower }} {{ data['collectors'][host]['peers'][peer]['if_oper_status'] | lower }}</td>
+      <td>{{ data['collectors'][host]['peers'][peer]['if_description'] }}</td>
+      {% endif %}
+    </tr>
+    {% endfor %}
+    <tr>
+      <td></td>
+    </tr>
+  </tbody>
+  {% endfor %}
+</table>
+
+{% endif %}

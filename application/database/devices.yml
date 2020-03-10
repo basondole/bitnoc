@@ -1,0 +1,27 @@
+---
+192.168.56.36:
+    software: junos
+    hostname: big
+    logicalsystem:
+        KUR:
+            ip: 192.168.56.55
+            residentblock:
+        TAN:
+            ip: 192.168.56.75
+            residentblock:
+    residentblock:
+        - 41.188.170.0/24
+
+192.168.56.50:
+    software: junos
+    hostname: srx
+    logicalsystem:
+    residentblock:
+
+192.168.56.63:
+    software: ios
+    hostname: router-1
+    logicalsystem:
+    residentblock:
+        - 41.188.170.0/24
+

@@ -1,0 +1,1608 @@
+
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="author" content="Paul S.I. Basondole">
+    <link href="{{ url_for('static', filename='images/paul-icon.ico') }}" rel="shortcut icon" type="image/x-icon">
+    <title>Basondole Systems</title>
+    
+    <style>
+      * {box-sizing: border-box}
+      .tooltip-inner {
+        max-width: 400px !important;
+        text-align: left !important;
+        font-size: 12px !important;
+      }
+      /* Style the tab */
+      .tab {
+        float: left;
+        height: 324px;
+      }
+      /* Style the buttons inside the tab */
+      .tab button {
+        display: block;
+        background-color: inherit;
+        color: black;
+        width: 100%;
+        border: none;
+        outline: none;
+        text-align: left;
+        cursor: pointer;
+        transition: 0.3s;
+      }
+      /* Change background color of buttons on hover */
+      .tab button:hover {
+        background-color: #ddd;
+      }
+      .tab a:hover {
+        background-color: #ddd;
+      }
+      /* Create an active/current "tab button" class */
+      .tab button.active {
+        background-color: #ccc;
+      }
+      .tab .nav-link.active {
+        background-color: #ccc;
+        color: black;
+      }
+      /* Style the tab content */
+      .tabcontent {
+        float: left;
+        padding: 0px 12px;
+        width: 70%;
+        border-left: none;
+        height: 340px;
+      }
+      .tab-content {
+        float: left;
+        padding: 0px 12px;
+        width: 70%;
+        border-left: none;
+        height: 340px;
+      }
+      .navbar {
+          min-height: 4rem;
+          background-color: #563d7c;
+          box-shadow: 0px 0.5rem 1rem rgba(0,0,0,0.05), inset 0px -1px 0px rgba(0,0,0,0.1);
+      }
+    /*Note: a:hover MUST come after a:link and a:visited in the CSS definition in order to be effective.
+      Note: a:active MUST come after a:hover in the CSS definition in order to be effective.*/
+      a:link {
+          color: #563d7c;
+      }
+      a:visited {
+        color: purple;
+      }
+      a:hover {
+        color: darkblue;
+        text-decoration: none;
+      }
+      a:active {
+        color: blue;
+      } 
+      .alert {
+        padding: 20px;
+        background-color: #f44336;
+        color: white;
+      }
+      .closebtn {
+        margin-left: 15px;
+        color: white;
+        font-weight: bold;
+        float: right;
+        font-size: 22px;
+        line-height: 20px;
+        cursor: pointer;
+        transition: 0.3s;
+      }
+      .closebtn:hover {
+        color: black;
+      }
+      pre {
+        display: block;
+        font-size: 87.5%;
+        color: #616161;
+      }
+      .pad-8 {
+        padding-left: 8px !important;
+        padding-top: 8px !important;
+        padding-right: 8px !important;
+        padding-bottom: 8px !important;
+      }
+      .nav-item.nav-link.active {
+        font-weight: bold;
+      }
+    </style>
+
+    <link href="{{ url_for('static', filename='css/docs.min.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}" crossorigin="anonymous">
+
+  </head>
+
+
+
+  <body>
+
+    {% if error %}
+      <div class="alert">
+        <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span> 
+        <strong>Error!</strong> {{error}}
+      </div>
+      <br/>
+    {% endif %}
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}" >
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+
+    <header class="navbar navbar-expand navbar-dark flex-column flex-md-row bd-navbar" style="position:sticky;background-color: #7952b3;">
+
+      <a class="navbar-brand mr-0 mr-md-2" aria-label="Bootstrap" href="https://basondole.github.io">
+        <svg width="32" height="32" class="d-block" viewBox="0 0 64 64" role="img">
+          <title>Basondole it systems</title>
+          <path fill="currentColor" fill-rule="evenodd" d="M16 0h32c8.837 0 16 7.163 16 16v32c0 8.837-7.163 16-16 16H16C7.163 64 0 56.837 0 48V16C0 7.163 7.163 0 16 0zm18.14 49c7.22 0 11.555-3.633 11.555-9.586 0-4.406-3.047-7.664-7.617-8.133v-.398c3.328-.563 5.93-3.727 5.93-7.266 0-5.203-3.82-8.437-10.172-8.437H20.242V49h13.899zm-8.648-29.367h7.125c3.89 0 6.164 1.828 6.164 4.945 0 3.211-2.414 4.922-7.054 4.922h-6.235v-9.867zm0 24.914V33.648h7.29c4.945 0 7.546 1.852 7.546 5.391 0 3.586-2.508 5.508-7.242 5.508h-7.594z">   
+          </path>
+        </svg>
+      </a>
+
+      <div class="navbar-nav-scroll" style="float: left; width: 1870px;">
+        <nav>
+          <div class="nav nav-pills" id="nav-tab" role="tablist">
+
+            <a class="nav-item nav-link active" id="nav-home-tab" data-toggle="tab" href="#nav-home" role="tab" aria-controls="nav-home" aria-selected="true" style="color: #ffffff;background-color: #fff0;" onclick="updateLeftTabs('clear-div');resizeDivs($('#nav-home'));">Home</a>
+
+            <a class="nav-item nav-link" id="nav-devices-tab" data-toggle="tab" href="#nav-devices" role="tab" aria-controls="nav-devices" aria-selected="false" style="color: #ffffff;background-color: #fff0;" onclick="updateLeftTabs('v-pills-devices-tab-for-left-navbar');resizeDivs($('#nav-devices'));$('#v-pills-devices-table-tab').click();" >Devices</a>
+
+            <a class="nav-item nav-link" id="nav-command-tab" data-toggle="tab" href="#nav-command" role="tab" aria-controls="nav-command" aria-selected="false" style="color: #ffffff;background-color: #fff0;" onclick="updateLeftTabs('clear-div');resizeDivs($('#nav-command'));">Command</a>
+
+            <!-- <a class="nav-item nav-link" id="nav-report-tab" data-toggle="tab" href="#nav-report" role="tab" aria-controls="nav-report" aria-selected="false" style="color: #ffffff;background-color: #fff0;" onclick="updateLeftTabs('clear-div');resizeDivs($('#nav-report'));">Report</a> -->
+
+            <a class="nav-item nav-link" id="nav-settings-tab" data-toggle="tab" href="#nav-settings" role="tab" aria-controls="nav-settings" aria-selected="false" style="color: #ffffff;background-color: #fff0;display: none" onclick="updateLeftTabs('v-pills-settings-tab-for-left-navbar');resizeDivs($('#nav-settings'));$('#v-pills-settings-general-tab').click();">Settings</a>
+
+            <a class="nav-item nav-link" id="nav-doc-tab" data-toggle="tab" href="#nav-doc" role="tab" aria-controls="nav-doc" aria-selected="false" style="color: #ffffff;background-color: #fff0;" onclick="updateLeftTabs('clear-div');resizeDivs($('#nav-doc'));">Documentation</a>
+
+            <a class="nav-item nav-link" id="nav-about-tab" data-toggle="tab" href="#nav-about" role="tab" aria-controls="nav-about" aria-selected="false" style="color: #ffffff;background-color: #fff0;" onclick="updateLeftTabs('clear-div');resizeDivs($('#nav-about'));">About</a>
+                  
+          </div>
+        </nav>
+      </div>
+
+      {% if user_id %}
+      <div class="dropdown show" style="float: right;width: 100%;">
+    
+        
+
+        <button class="btn btn-info dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="background-color: #17a2b803;border-color: #ffffff4d;float: right">
+          <svg width="36" height="36" class="navbar-nav-svg" fill="currentColor" fill-rule="evenodd" viewBox="0 0 40 41" role="img" style="margin-top: 4px;">
+            <path fill-opacity=".4" d="M32.8 21c0 2.4-.8 4.9-2 6.9l5.1 5.1c2.5-3.4 4.1-7.6 4.1-12 0-4.6-1.6-8.8-4-12.2L30.7 14c1.2 2 2 4.3 2 7z"></path>
+            <path d="M20 33.7a12.8 12.8 0 0 1 0-25.6c2.6 0 5 .7 7 2.1L32 5a20 20 0 1 0 .1 31.9l-5-5.2a13 13 0 0 1-7 2z"></path>
+          </svg>
+          {{ user_id }}
+        </button>
+
+        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuLink">
+          <a class="dropdown-item" href="#" onclick="window.location='/logout'">Logout</a>
+          <a class="dropdown-item" href="#" onclick="$('#nav-settings-tab').click();">Settings</a>
+        </div>
+
+        
+      </div>
+      {% endif %}
+
+    </header>
+
+    <div class="container-fluid">
+      <div class="row flex-xl-nowrap">
+        <div class="col-12 col-md-3 col-xl-2 bd-sidebar" style="padding-top: 32px;position: sticky;border-right: 0;">
+          <!-- search button -->
+          <!-- <form class="bd-search d-flex align-items-center">
+            <span class="algolia-autocomplete" style="display: inline-block; position: relative; direction: ltr;">
+              <input class="form-control ds-input" id="search-input" role="combobox" aria-expanded="false" aria-owns="algolia-autocomplete-listbox-0" style="vertical-align: top; position: relative;" dir="auto" spellcheck="false" aria-autocomplete="list" aria-label="Search for..." type="search" placeholder="Search..." autocomplete="off"><pre aria-hidden="true" style='text-transform: none; text-indent: 0px; letter-spacing: normal; font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol"; font-size: 16px; font-style: normal; font-variant: normal; font-weight: 400; word-spacing: 0px; white-space: pre; visibility: hidden; position: absolute;'></pre><span class="ds-dropdown-menu" id="algolia-autocomplete-listbox-0" role="listbox" style="left: 0px; top: 100%; right: auto; display: none; position: absolute; z-index: 100;"><div class="ds-dataset-1"></div></span>
+            </span>
+            <button class="btn btn-link bd-search-docs-toggle d-md-none p-0 ml-3" aria-expanded="false" aria-controls="bd-docs-nav" aria-label="Toggle docs navigation" type="button" data-target="#bd-docs-nav" data-toggle="collapse"><svg viewBox="0 0 30 30" focusable="false" width="30" height="30"><title>Menu</title><path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" d="M 4 7 h 22 M 4 15 h 22 M 4 23 h 22" /></svg>
+            </button>
+          </form> -->
+
+          <nav class="collapse bd-links" id="bd-docs-nav" style="margin-left: 0px; border-right: 1px solid #ccc;">
+            <div class="bd-toc-item" id="left-nav-bar">
+              <!-- dynamically updated with contents from main tabs -->
+            </div>
+          </nav>
+
+        </div>
+
+        <div class="d-none d-xl-block col-xl-2 bd-toc" id="right-nav-bar" style="position:sticky;">
+          <ul class="section-nav">
+            <li class="toc-entry toc-h2"><a href="#" onclick="refreshDevicesData('all')">Refresh device data</a></li>
+            <li class="toc-entry toc-h2" id="bgp-refresh-link">
+              <a href="#" onclick="window.open('/bgp-monitor')">BGP status monitor</a></li>
+            <li class="toc-entry toc-h2 link-state-output-link" style="display: none;">
+              <a href="#" onclick="showLinkState('text')">View link state info</a></li>
+            <li class="toc-entry toc-h2 link-state-output-link" style="display: none;">
+              <a href="#" onclick="showLinkState('diagram')">Build network diagram</a></li>
+            <li class="toc-entry toc-h2 link-state-output-link" style="display: none;">
+              <a href="#" onclick="showLinkState('csv')">Download link state csv</a></li>
+            <li class="toc-entry toc-h2 link-state-output-link" style="display: none;">
+              <a href="#" onclick="showLinkState('gefx')">Download link state gefx</a></li>
+          </ul>
+        </div>
+         
+        <main class="col-12 col-md-9 col-xl-8 py-md-3 pl-md-5 bd-content" role="main" id="main" style="opacity:0;">
+          <div>          
+            {% block content %}
+            {% endblock %}
+          </div>
+        </main>
+
+      </div>
+
+    <div class="footer" style="position: fixed; left: 0; bottom:0; width: 20%; background-color: white; text-align: ; ">
+        © 2020 basondolesystems
+    </div>
+
+  </body>
+
+  
+  <script src="{{ url_for('static', filename='jquery/jquery-3.3.1.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='jquery/jquery-ui.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/popper.min.js') }}" crossorigin="anonymous"></script> 
+  <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}" crossorigin="anonymous"></script>
+  <script src="{{ url_for('static', filename='js/jquery.validate.min.js') }}"></script>
+
+  <script>
+    jQuery.extend(jQuery.validator.messages, {
+      // https://jqueryvalidation.org/validate/
+      // required: "This field is required.",
+      required: "",
+      remote: "Please fix this field.",
+      email: "Please enter a valid email address.",
+      url: "Please enter a valid URL.",
+      date: "Please enter a valid date.",
+      dateISO: "Please enter a valid date (ISO).",
+      number: "Please enter a valid number.",
+      digits: "Please enter only digits.",
+      creditcard: "Please enter a valid credit card number.",
+      equalTo: "Please enter the same value again.",
+      accept: "Please enter a value with a valid extension.",
+      maxlength: jQuery.validator.format("Please enter no more than {0} characters."),
+      minlength: jQuery.validator.format("Please enter at least {0} characters."),
+      rangelength: jQuery.validator.format("Please enter a value between {0} and {1} characters long."),
+      range: jQuery.validator.format("Please enter a value between {0} and {1}."),
+      max: jQuery.validator.format("Please enter a value less than or equal to {0}."),
+      min: jQuery.validator.format("Please enter a value greater than or equal to {0}.")
+    });
+  </script>
+
+  <script name="script-to-control-dynamic-behaviour">
+    bootstrap_alert = function() {}
+    bootstrap_alert.alertify = function(message, category) {
+      $('#alert_placeholder').html('<div class="alert alert-'+category+'" role="alert"><a class="close" href="#" data-dismiss="alert">×</a><span>'+message+'</span></div>')
+    }
+    function updateLeftTabs(divID) {
+      var leftNav = document.getElementById("left-nav-bar");
+      leftNav.innerHTML = document.getElementById(divID).innerHTML;
+      document.getElementById(divID).style.display = "none";
+    }
+    function resetFormValues(classname) {
+      $("."+classname).each(function() {
+        $(this).val([]);
+      });
+      $('html,body').animate({ scrollTop: 0 }, 'slow');
+    }
+    function disableInputFields(classname) {
+      $("."+classname).each(function() {
+        $(this).prop('disabled', true);
+      });
+    }
+    function enableInputFields(classname) {
+      $("."+classname).each(function() {
+        $(this).prop('disabled', false);
+      });
+    }
+    $(document).ready(function(){
+      $('[data-toggle="tooltip"]').tooltip();
+    });
+    window.addEventListener('load', function() {
+      document.getElementById("main").style.opacity = 1;
+    });
+  </script>
+
+
+  <!-- home screen pop ups control -->
+  <script name="home-screen-pop-ups-control">
+    function hideForms(){
+      $(".vlan-operation, .locate-service, .burst-packages, .ondemand").each(function() {
+          $(this).hide();
+      });
+    }
+
+    function switchForms(div) {
+      if (document.getElementById(div).style.display == "block") {
+        document.getElementById(div).style.display = "none";
+      } else {
+      hideForms();
+      document.getElementById(div).style.display = "block";
+      }
+    }
+
+    hideForms();
+  </script>
+  <!-- end home screen pop ups control -->
+
+  <!-- script to load file and return list  -->
+  <script type="text/javascript">
+    
+
+    function loadFile(input, output) {
+
+      var fileOutput = $('#'+output);
+      var fileInput = $('#'+input);
+
+      if (!window.FileReader) {
+          alert('Your browser is not supported');
+          fileInput.val("");
+          return
+      }
+      var input = fileInput.get(0);
+      var textFile = /text.*/;
+
+      if ( ! textFile.test(input.files[0].type) ) {
+         alert("It doesn't seem to be a text file!");
+         fileInput.val("");
+         return
+
+      } else {
+
+        // Create a reader object
+        var reader = new FileReader();
+        if (input.files.length) {
+            var textFile = input.files[0];
+            reader.readAsText(textFile);
+            $(reader).on('load', processFile);
+        } else {
+            alert('Please upload a file before continuing')
+        }
+      }
+
+
+      function processFile(e) {
+        var file = e.target.result,
+            results;
+            
+        if (file && file.length) {
+          results = file.split("\n");
+          console.log(results)
+          fileOutput.val(results);
+        }
+      }
+
+    }
+
+  </script>
+  <!-- end script to load file and return list -->
+
+  <script name="script-to-validate-ipv4">
+    var hostFormat = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+    var netFormat = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\/([1-2][0-9]?)$|(3[0-2]$)/;
+    function validateIpv4(ipv4, format) {
+      if ( !ipv4.val() ) {
+        return false;
+      }
+      var ip_list = ipv4.val().split(',');
+      for ( i=0; i < ip_list.length; i++ ) {
+        // console.log( ip_list[i] )
+        if (format == 'host') {
+          if(! hostFormat.test( ip_list[i].trim() ) ) {
+            alert("Please enter valid ip address eg: 10.1.1.1\n["+ipv4.val()+"] is invalid");
+            ipv4.val("");
+            ipv4.focus();
+            return false
+          }
+        } else if (format == 'net') {
+          if(! netFormat.test( ip_list[i].trim() ) ) {
+            alert("Please enter valid ip network and subnet mask eg: 10.1.1.0/30\n["+ipv4.val()+"] is invalid");
+            ipv4.val("");
+            ipv4.focus()
+            return false
+          }
+        }
+      }
+      return true
+    }
+    function validateVlan(vlan) {
+      if ( !vlan.val() ) {
+        return true;
+      }
+      if ( vlan.val() > 4094 || vlan.val() < 0 || isNaN(vlan.val()) ) {
+        alert("Please enter valid vlan-id \n["+vlan.val()+"] is invalid");
+        vlan.val("");
+        vlan.focus();
+        return true
+      }
+    }
+  </script>
+
+
+
+  <!-- SCRIPT FOR DEVICE WINDOW  -->
+  <script name="script-to-control-device-mode-elements-and-functions">
+
+    function refreshDevicesData(ip_address) {
+      let
+        message = 'Devices data is being refreshed',
+        status = 'dark',
+        link = "/devices/:refresh-database/"+ip_address;
+
+      bootstrap_alert.alertify(message, status);
+      $('html,body').animate({ scrollTop: 0 }, 'slow');
+      fetch(link).then(function(response) {
+         response.json().then(function(data) {
+          if ( data.data ) {
+            document.open();
+            document.write(data.data);
+            document.close();
+            return
+          }
+          else {
+            bootstrap_alert(data.message, data.status);
+          }
+        });
+      });
+    }
+
+    function devicesRemoveDevice(){
+      
+      if ( ! $('#devices-remove-device-hostname') ) {
+        alert('Please select a device from drop down')
+        $('#devices-remove-device-hostname').focus()
+        return
+      }
+      $.ajax(
+          {
+              url: "/devices/:remove-device",
+              type: "post",
+              dataType: "json",
+              data: {
+                hostname: $('#devices-remove-device-hostname').val()
+              }
+          })
+      .done(function(data) {
+        if ( data.data ) {
+          document.open();
+          document.write(data.data);
+          document.close();
+          return
+        } else {
+          bootstrap_alert.alertify(data.message, data.status);
+        }
+        // clear fetched data
+        if (data.status == 'success') {
+          $('#devices-remove-device-hostname').val('')
+        }
+        $('html,body').animate({ scrollTop: 0 }, 'slow');
+      });
+    }
+
+    function devicesAddDevice(){
+      let ip_address = $('#devices-add-device-ip').val();
+      if ( !validateDeviceRegistrationForm() ) {
+        return false
+      }
+      $.ajax(
+          {
+              url: "/devices/:add-device",
+              type: "post",
+              dataType: "json",
+              data: {
+                hostname: $('#devices-add-device-hostname').val(),
+                ipv4: $('#devices-add-device-ip').val(),
+                software: $('#devices-add-device-software').val(),
+                resident_block: $('#devices-add-device-resident-block').val(),
+                logical_system: $('#devices-add-device-logical-system').val()
+              }
+          })
+      .done(function(data) {
+        if ( data.timeout && data.data ) {
+          resetFormValues('devices-add-device');
+          refreshDevicesData( ip_address );
+          return
+        } 
+        if ( data.data ) {
+          document.open();
+          document.write(data.data);
+          document.close();
+          return
+        }
+        // clear fetched data
+        if (data.status == 'success') {
+          resetFormValues('devices-add-device')
+        }
+        bootstrap_alert.alertify(data.message, data.status);
+        $('html,body').animate({ scrollTop: 0 }, 'slow');
+      });
+    }
+
+    function validateDeviceRegistrationForm() {
+      let
+        hostname = $('#devices-add-device-hostname'),
+        ip_address = $('#devices-add-device-ip'),
+        software = $('#devices-add-device-software'),
+        logical_system = $('#devices-add-device-logical-system'),
+        resident_block = $('#devices-add-device-resident-block')
+        names = [];
+        required_fields = [hostname, ip_address, software]
+
+      for ( i = 0; i < required_fields.length; i++ ) {
+        if ( !required_fields[i].val() ) {
+          required_fields[i].focus();
+          return false
+        }
+      }
+      if ( logical_system.val() ) {
+        let 
+          systems = logical_system.val().split(',');
+        for ( i=0; i < systems.length; i++ ) {
+          if ( !systems[i].includes(':') ) {
+            alert("You have entered an invalid format! ["+logical_system.val()+"] Please use : to indicate a logical system name");
+            logical_system.focus();
+            return false
+          } else {
+            sysname = systems[i].split(':')[0]
+            systemip =  systems[i].split(':')[1]
+            names.push(sysname)
+            if(! hostFormat.test( systemip ) ) {
+              alert("You have entered an invalid format! "+"["+systemip+"] Please enter valid ip address eg: 10.1.1.1");
+              logical_system.focus();
+              return false
+            }
+          }
+        }
+      }
+      if ( resident_block.val() ) {
+        let
+          blocks = resident_block.val().split(',');
+        for ( i=0; i < blocks.length; i++ ) {
+          if ( blocks[i].includes(':') ) {
+            let name = blocks[i].split(':')[0];
+            if ( !names.includes(name) ) {
+              alert('Inconsistent logical systems name and ip blocks. Name ['+name+'] from ['+ blocks[i] +'] does not match any logical system specified ['+ names + ']')
+              resident_block.focus();
+              return false
+            }
+            ipblock = blocks[i].split(':')[1]
+          } else {
+            ipblock = blocks[i]
+          }
+          if(! netFormat.test( ipblock.trim() ) ) {
+            alert("You have entered an invalid format! "+"["+ipblock+"] Please enter valid ip network and subnet mask eg: 10.1.1.0/30");
+            resident_block.focus();
+            return false
+          }
+        }
+      }
+      return true
+    }
+  </script>
+  <!-- END SCRIPT FOR DEVICE WINDOW  -->
+
+
+  <!-- SCRIPT FOR COMMAND WINDOW  -->
+  <script name="script-to-control-command-mode-elements-and-functions">
+    var command = $('#command-command')
+        .val("");
+    var devices = $('#command-devices')
+        .val("");
+
+    // SHOW INPUT FORM FOR LINK STATE WINDOW
+    command.on('change', function () {
+      $("#command-command-file, #command-command-manual").hide();
+      $("#command-command-file, #command-command-manual").removeAttr("required");
+      $("#command-bgp-filter-box, #command-link-state-div").hide();
+      $("#command-link-state-community").removeAttr("required");
+      devices.required = true;
+      $("#devices-table").show();
+      if ( $('#command-devices').val() == 'Manual') {
+        $("#command-device-manual").attr("required", "");
+      } else if ( $('#command-devices').val() == 'Upload file') {
+        $("#command-device-file").attr("required", "");
+      }
+      if ( command.val() == 'Link state') {
+        $("#command-link-state-div").show();
+        $("#command-link-state-community").attr("required","");
+        $("#command-device-manual").removeAttr("required");
+        $("#devices-table").hide();
+        $("#command-devices").removeAttr("required");
+      } else if ( $(this).val() == 'BGP summary' ) {
+        $('#command-bgp-filter-box').show();
+      } else if ( $(this).val() == 'Manual' ) {
+        $("#command-command-manual").show();
+        $("#command-command-manual").attr("required","");
+      } else if ( $(this).val() == 'Upload file' ) {
+        $("#command-command-file").attr("required","");
+        $("#command-command-file").css("display", "block");
+        $("#command-command-file").css("padding-left", "0px");
+      }
+    });
+
+    // SHOW INPUT FIELD FOR MANUAL IP ADDRESS
+    $('#command-devices').on('change', function() {
+
+      $("#command-device-manual, #command-device-file").hide();
+      $("#command-device-manual, #command-device-file").removeAttr("required");
+
+      if ( $(this).val() == 'Manual') {
+        $("#command-device-manual").show();
+        $("#command-device-manual").attr("required", "");
+
+      } else if ( $(this).val() == 'Upload file' ) {
+        $("#command-device-file").show();
+        $("#command-device-file").attr("required", "");
+      }
+
+      $('#command-devices').required = true
+
+    });
+
+    // CLEAR LINK STATE CACHED DATA
+     $(function() {
+      $("#command-link-state-clear-cache").click(function() {
+              $.ajax(
+                  {
+                      url: "/command/:link-state-clear",
+                      type: "post",
+                      dataType: "json",
+                      data: {}
+                  })
+              .done(function(data) {
+                  bootstrap_alert.alertify('Link state cache cleared', 'success');
+              });
+            $("#command-link-state-clear-cache").val([])
+            $("#command-link-state-output").prop('disabled', true);
+        });
+    });
+
+    // CHECK CACHED LINK STATE DATA
+    $("#command-link-state-output").attr("disabled","");
+    function checkLinkStateData() {
+      $.ajax(
+          {
+              url: "/command/:link-state-check-data",
+              type: "post",
+              dataType: "json",
+              data: {}
+          })
+      .done(function(data) {
+          if (data) {
+             $("#command-link-state-output").prop('disabled', false);
+             $("#command-link-state-output").val([])
+             // update right navbar stuff
+             $(".link-state-output-link").each(function() {
+                $(this).css('display', 'block');
+            }); 
+             return
+          }
+      });
+    }
+    checkLinkStateData()
+
+    // LINK STATE OUTPUT PRESENTATION
+    function download(file, text) {
+      var
+        element = document.createElement('a'); 
+        element.setAttribute('href', 'data:text/plain;charset=utf-8, ' + encodeURIComponent(text)); 
+      element.setAttribute('download', file);
+      element.style.display = 'none';
+      document.body.appendChild(element); 
+      element.click(); 
+      document.body.removeChild(element); 
+    }
+
+    function showLinkState(output_format) {
+      fetch("/command/:link-state-present/"+output_format).then(function(response) {
+        response.json().then(function(data) {
+          if ( output_format == 'text' && data) {
+            window.open(data);
+          } else if ( output_format == 'csv' && data) {
+            var filename = "link_state.csv"; 
+            download(filename, data);
+          } else if ( output_format == 'gefx' && data) {
+            var filename = "link_state.gefx";
+            download(filename, data);
+          } else if ( output_format == 'diagram' && data) {
+            window.open(data);
+          }
+        });
+      });
+    }
+
+    $(function() {
+      $("#command-link-state-output").change(function() {
+          fetch("/command/:link-state-present/"+$("#command-link-state-output").val()).then(function(response) {
+            response.json().then(function(data) {
+            if ( $("#command-link-state-output").val() == 'text' && data) {
+              window.open(data);
+            } else if ( $("#command-link-state-output").val() == 'csv' && data) {
+              var filename = "link_state.csv"; 
+              if ( confirm("Clink OK to download file "+ filename)) {
+                download(filename, data);
+              }
+            } else if ( $("#command-link-state-output").val() == 'gefx' && data) {
+              var filename = "link_state.gefx"; 
+              if (confirm("Clink OK to download file "+ filename)) {
+                download(filename, data);
+              }
+            } else if ( $("#command-link-state-output").val() == 'diagram' && data) {
+              window.open(data);
+            }
+          });
+        });
+      });
+    });
+
+    // SUBMIT BEHAVIOUR
+    $(document).ready(function () {
+      $('#command-form').validate({
+          highlight: function(element, errorClass) {
+            $(element).fadeOut(function() {
+              $(element).fadeIn();
+            });
+          },
+          submitHandler: function (form) {
+            if ( $('#command-command').val().toLowerCase() == 'link state' ) {
+              bootstrap_alert.alertify('Polling devices via snmp. This will take a couple of minutes.', 'warning');
+            } else if ( $('#command-command').val().toLowerCase() == 'bgp summary' ){
+              bootstrap_alert.alertify('Collecting BGP info from devices. This will take a couple of minutes.', 'warning');
+            } else if ( $('#command-command').val().toLowerCase() == 'manual' || $('#command-command').val().toLowerCase() == 'upload file' ){
+              bootstrap_alert.alertify('Command(s) issued to device(s). Waiting for the output.', 'warning');
+            } else if ( $('#command-command').val().toLowerCase() == 'configuration backup' ){
+              bootstrap_alert.alertify('Collecting config data from devices. This will take a couple of minutes.', 'warning');
+            } else if ( $('#command-command').val().toLowerCase() == 'service audit' ){
+              bootstrap_alert.alertify('Collecting service data from devices. This will take a couple of minutes.', 'warning');
+            }
+            $('html,body').animate({ scrollTop: 0 }, 'slow');
+            $.ajax({
+                dataType: 'json',
+                type: 'post',
+                url: '/:command',
+                data: {
+                        'command-command' : $('#command-command').val(),
+                        'command-command-manual' : $('#command-command-manual').val(),
+                        'command-bgp-filter' : $('#command-bgp-filter').is(':checked'),
+
+                        'command-devices' : $('#command-devices').val(),
+                        'command-device-manual' : $('#command-device-manual').val(),
+
+                        'command-link-state-community' : $('#command-link-state-community').val(),
+                        'command-link-state-device' : $('#command-link-state-device').val(),
+                        'command-link-state-protocol' : $('#command-link-state-protocol').val()
+                      },
+                success: function (data) {
+                  console.log(data);
+                  if ( data.data ) {
+                    if ( $('#command-command').val().toLowerCase() == 'bgp summary' ) {
+                      resetFormValues('command-command-device');
+                      bootstrap_alert.alertify(data.message, data.status);
+                      if ( data.status == 'danger') { return }
+                      window.open(data.data) // needs link as input
+                      return
+                    } else if ( $('#command-command').val().toLowerCase() == 'manual' || $('#command-command').val().toLowerCase() == 'upload file' ) {
+                      resetFormValues('command-command-device');
+                      bootstrap_alert.alertify('Command output printed on new tab', 'info');
+                      window.open(data.data)
+                      return
+                    } else if ( $('#command-command').val().toLowerCase() == 'configuration backup' ) {
+                      resetFormValues('command-command-device');
+                      bootstrap_alert.alertify('Config summary printed on new tab', 'info');
+                      window.open(data.data) // needs link as input
+                      return
+                    } else if ( $('#command-command').val().toLowerCase() == 'service audit' ){
+                      resetFormValues('command-command-device');
+                      bootstrap_alert.alertify('Services audit report printed on new tab', 'info');
+                      window.open(data.data) // needs link as input
+                      return
+                    } else if ( $('#command-command').val().toLowerCase() == 'link state' && data.status == 'danger' ) {
+                      bootstrap_alert.alertify(data.message, data.status);
+                      return
+                    }
+                    document.open();
+                    document.write(data.data); // needs html data as input
+                    document.close();
+                    return
+                  }
+                },
+                error: function (responseData) {
+                  console.log(responseData);
+                  alert(responseData.statusText);
+                  bootstrap_alert.alertify('There was an error please verify your input', 'danger');
+                }
+            });
+            return false; // blocks redirect after submission via ajax
+          }
+      });
+    });
+
+  </script>
+  <!-- END SCRIPT FOR COMMAND WINDOW -->
+
+
+  <!-- vlan operations script-->
+  <script>
+    // SHOW VLAN RANGE INPUT FIELDS
+    function showRangeFields(classname, display, partial_id) {
+      $('.'+classname).each(function() {
+        if ( display == 'block' ) {
+          $(this).show();
+          $(this).prop('required',true);
+          $("#"+partial_id+"-searchtype-label").html("Specify range:");
+        } else if ( display == 'none' ) {
+          $(this).val([]);
+          $(this).hide();
+          $(this).prop('required',false);
+          $("#"+partial_id+"-searchtype-label").html(""); 
+        }
+      });
+    }
+    $("#vlan-finder1-searchtype-label").html("");
+    $("#vlan-finder2-searchtype-label").html("");
+
+
+    // VLAN FINDER ONE SUBMIT BEHAVIOUR
+    $(document).ready(function () {
+      $('#vlan-operation-vlan-finder1-form').validate({
+          highlight: function(element, errorClass) {
+            $(element).fadeOut(function() {
+              $(element).fadeIn();
+            });
+          },
+          submitHandler: function (form) {
+            bootstrap_alert.alertify('Collecting vlan info from devices. This will take a couple of seconds.', 'warning');
+            $('#vlan-operation-close').click();
+            $('html,body').animate({ scrollTop: 0 }, 'slow');
+            $.ajax({
+                dataType: 'json',
+                type: 'post',
+                url: '/vlanops/:find-one-vlan',
+                data: {
+                        'vlan-finder1-interface': $('#vlan-finder1-interface').val(),
+                        'vlan-finder1-router': $('#vlan-finder1-router').val(),
+                        'vlan-finder1-searchtype': $("input[name='vlan-finder1-searchtype']:checked").val(),
+                        'vlan-finder1-startvlan': $('#vlan-finder1-startvlan').val(),
+                        'vlan-finder1-endvlan': $('#vlan-finder1-endvlan').val(),
+                      },
+                success: function (data) {
+                  console.log(data);
+                  if ( data.data ) {
+                      $('#vlan-operations-find-one-form').click(); // reset button
+                      showRangeFields('vlan-finder1-range-input', 'none','vlan-finder1'); // hide range fields
+                      bootstrap_alert.alertify('Vlan info printed on new tab', 'info');
+                      window.open(data.data) // needs link as input
+                      return
+                  }
+                },
+                error: function (responseData) {
+                  console.log(responseData);
+                  alert(responseData.statusText);
+                  bootstrap_alert.alertify(responseData.statusText, 'danger');
+                }
+            });
+            return false // blocks redirect after submission via ajax
+          }
+      });
+    });
+
+    // VLAN FINDER TWO SUBMIT BEHAVIOUR
+    $(document).ready(function () {
+      $('#vlan-operation-vlan-finder2-form').validate({
+          highlight: function(element, errorClass) {
+            $(element).fadeOut(function() {
+              $(element).fadeIn();
+            });
+          },
+          submitHandler: function (form) {
+            bootstrap_alert.alertify('Collecting vlan info from devices. This will take a couple of seconds.', 'warning');
+            $('#vlan-operation-close').click();
+            $('html,body').animate({ scrollTop: 0 }, 'slow');
+            $.ajax({
+                dataType: 'json',
+                type: 'post',
+                url: '/vlanops/:find-two-vlans',
+                data: {
+                        'vlan-finder2-endvlan': $('#vlan-finder2-endvlan').val(),
+                        'vlan-finder2-searchtype': $("input[name='vlan-finder2-searchtype']:checked").val(),
+                        'vlan-finder2-startvlan': $('#vlan-finder2-startvlan').val(),
+                        'vlans-finder-interface1': $('#vlans-finder-interface1').val(),
+                        'vlans-finder-interface2': $('#vlans-finder-interface2').val(),
+                        'vlans-finder-router1': $('#vlans-finder-router1').val(),
+                        'vlans-finder-router2': $('#vlans-finder-router2').val()
+                      },
+                success: function (data) {
+                  console.log(data);
+                  if ( data.data ) {
+                      $('#vlan-operations-find-two-form').click(); // reset button
+                      showRangeFields('vlan-finder2-range-input', 'none','vlan-finder2'); // hide range fields
+                      bootstrap_alert.alertify('Vlan info printed on new tab', 'info');
+                      window.open(data.data) // needs link as input
+                      return
+                  }
+                },
+                error: function (responseData) {
+                  console.log(responseData);
+                  alert(responseData.statusText);
+                  bootstrap_alert.alertify(responseData.statusText, 'danger');
+                }
+            });
+            return false // blocks redirect after submission via ajax
+          }
+      });
+    });
+
+    // vlan finder forms update selected router properties
+    var router0 = $("#vlan-finder1-router");
+    var router1 = $("#vlans-finder-router1");
+    var router2 = $("#vlans-finder-router2");
+
+    // UPDATING INTERFACES
+    function showSelectedDeviceOwnInterfacesVF(router){
+      if (router == "router0") {
+        $("#vlan-finder1-interface").val([]);
+        var classname = "vlan-finder1-interface-" + router0.val();
+        var interfaces = document.getElementsByClassName(classname);
+        for (i = 0; i < interfaces.length; i++) {
+          interfaces[i].style.display = "block";
+        }
+      }
+      if (router == "router1") {
+        $("#vlans-finder-interface1").val([]);
+        var classname = "vlans-finder-interface1-" + router1.val();
+        var interfaces = document.getElementsByClassName(classname);
+        for (i = 0; i < interfaces.length; i++) {
+          interfaces[i].style.display = "block";
+        }
+      }
+      if (router == "router2") {
+        $("#vlans-finder-interface2").val([]);
+        var classname = "vlans-finder-interface2-" + router2.val();
+        var interfaces = document.getElementsByClassName(classname);
+        for (i = 0; i < interfaces.length; i++) {
+          interfaces[i].style.display = "block";
+        }
+      }
+    }
+
+    function hideAllInterfacesFromAllDevicesVF(router) {
+      if (router == "router1") {
+        $("#vlans-finder-interface1 option").each(function() {
+          $(this).css('display', 'none');
+        });
+      }
+      if (router == "router2") {
+        $("#vlans-finder-interface2 option").each(function() {
+            $(this).css('display', 'none');
+        });
+      }
+      if (router == "router0") {
+        $("#vlan-finder1-interface option").each(function() {
+            $(this).css('display', 'none');
+        });
+      }
+    }
+    router1.on('change', function () {
+                                        hideAllInterfacesFromAllDevicesVF("router1");
+                                        showSelectedDeviceOwnInterfacesVF("router1");
+                                     }
+    );
+    router2.on('change', function () {
+                                        hideAllInterfacesFromAllDevicesVF("router2");
+                                        showSelectedDeviceOwnInterfacesVF("router2");
+                                     }
+    );
+    router0.on('change', function () {
+                                        hideAllInterfacesFromAllDevicesVF("router0");
+                                        showSelectedDeviceOwnInterfacesVF("router0");
+                                     }
+    );
+    hideAllInterfacesFromAllDevicesVF("router1");
+    $("#vlans-finder-interface1").val([]);
+    hideAllInterfacesFromAllDevicesVF("router2");
+    $("#vlans-finder-interface2").val([]);
+    hideAllInterfacesFromAllDevicesVF("router0");
+    $("#vlan-finder1-interface").val([]);
+    router0.val([]);
+    router1.val([]);
+    router2.val([]);
+
+  </script>
+  <!-- end vlan operation script  -->
+
+
+  <!-- locate operations script -->
+  <script>
+    $(document).ready(function () {
+      $('#locateops-vlan-form, #locateops-name-form, #locateops-ipv4-form, #ipv4-operation-ip-locate-form, #vlan-operation-vlan-locate-form').validate({
+          highlight: function(element, errorClass) {
+            $(element).fadeOut(function() {
+              $(element).fadeIn();
+            });
+          },
+          submitHandler: function (element, form) {
+            bootstrap_alert.alertify('Locating service across devices. This will take a couple of seconds.', 'warning');
+            if ( form.target.id == 'locateops-vlan-form' ) {
+              var lookupType = 'vlan',
+                  lookupValue = $('#locateops-locate-vlan').val();
+              $('#locateops-locate-vlan').val([]);
+              $('#locateops-close').click();
+            } else if ( form.target.id == 'locateops-name-form' ) {
+              var lookupType = 'name',
+                  lookupValue = $('#locateops-locate-name').val();
+              $('#locateops-locate-name').val([]);
+              $('#locateops-close').click();
+            } else if ( form.target.id == 'locateops-ipv4-form' ) {
+              var lookupType = 'ipv4',
+                  lookupValue = $('#locateops-locate-ipv4').val();
+              $('#locateops-locate-ipv4').val([]);
+              $('#locateops-close').click();
+            } else if ( form.target.id == 'ipv4-operation-ip-locate-form' ) {
+              var lookupType = 'ipv4',
+                  lookupValue = $('#ipv4-ops-locate-ipv4').val();
+              $('#ipv4-ops-locate-ipv4').val([]);
+              $('#ipv4-operation-close').click();
+            } else if ( form.target.id == 'vlan-operation-vlan-locate-form' ) {
+              var lookupType = 'vlan',
+                  lookupValue = $('#vlan-to-locate').val()
+              $('#vlan-to-locate').val([]);
+              $('#vlan-operation-close').click();
+            };;
+            $('html,body').animate({ scrollTop: 0 }, 'slow');
+            $.ajax({
+                dataType: 'json',
+                type: 'post',
+                url: '/locate/:locate-item',
+                data: {
+                        'lookup-type': lookupType,
+                        'locateops-locate-item': lookupValue
+                      },
+                success: function (data) {
+                  console.log(data);
+                  if ( data.data ) {
+                    bootstrap_alert.alertify('Service search results printed on new tab', 'info');
+                    window.open(data.data) // needs link as input
+                    return
+                  }
+                },
+                error: function (responseData) {
+                  console.log(responseData);
+                  alert(responseData.statusText);
+                  bootstrap_alert.alertify(responseData.statusText, 'danger');
+                }
+            });
+            return false // blocks redirect after submission via ajax
+          }
+      });
+    });
+  </script>
+  <!-- end locate operations script-->
+
+
+
+  <!-- service provisioning script-->
+  <script>
+
+    $('#provision-edge-router').val([]);
+    $('#provision-edge-router-l2').val([]);
+
+    // UPDATING LOGICAL SYSTEMS AFTER DEVICE SELECTION
+    function showSelectedDeviceOwnLogicalSystemsPS(router, l2){
+      $("#provision-logical-system"+l2).val([]);
+      if ( router.val().includes("--") ) { // for device name embeded with logical system using --
+        var sys = router.val().split("--")[1];
+        var dev = router.val().split("--")[0];
+        var classname = "provision-logical-system"+l2 +"-" +dev;
+        var logicalsystems = document.getElementsByClassName(classname);
+        for (i = 0; i < logicalsystems.length; i++) {
+          if ( logicalsystems[i].innerHTML.trim() == sys ) {
+            logicalsystems[i].style.display = "block";
+          }
+        }
+        $("#provision-logical-system"+l2).val(sys);
+
+      } else {
+        var classname = "provision-logical-system"+l2 +"-" +router.val();
+        var logicalsystems = document.getElementsByClassName(classname);
+        for (i = 0; i < logicalsystems.length; i++) {
+          logicalsystems[i].style.display = "block";
+        }
+      }
+    }
+
+    function hideAllLogicalSystemsFromAllDevicesPS(l2) {
+      $("#provision-logical-system"+l2+" option").each(function() {
+          $(this).css('display', 'none');
+      }); 
+    }
+
+    var router = $("#provision-edge-router");
+    $('#provision-edge-router').on('change', function () {
+                                        hideAllLogicalSystemsFromAllDevicesPS("");
+                                        showSelectedDeviceOwnLogicalSystemsPS(router,"");
+                                     }
+                        );
+    var router_l2 = $("#provision-edge-router-l2");
+    $('#provision-edge-router-l2').on('change', function () {
+                                        hideAllLogicalSystemsFromAllDevicesPS("-l2");
+                                        showSelectedDeviceOwnLogicalSystemsPS(router_l2,"-l2");
+                                     }
+                        );
+    hideAllLogicalSystemsFromAllDevicesPS("");
+    $("#provision-logical-system").val([]);
+    hideAllLogicalSystemsFromAllDevicesPS("-l2");
+    $("#provision-logical-system-l2").val([]);
+
+
+    // UPDATING VRF
+    function showSelectedDeviceOwnInstancesPS(router){
+      $("#provision-vrf").val([]);
+      var classname = "provision-vrf-" + router;
+      $('.'+classname).each(function() {
+        $(this).css('display', 'block');
+      });
+    }
+    function hideAllInstancesFromAllDevicesPS() {
+      $("#provision-vrf option").each(function() {
+        $(this).css('display', 'none');
+      });   
+    }
+
+    $('#provision-edge-router').on('change', function () {
+                                        hideAllInstancesFromAllDevicesPS();
+                                        showSelectedDeviceOwnInstancesPS(router.val());
+                                     }
+                        );
+
+    hideAllInstancesFromAllDevicesPS()
+    $("#provision-vrf").val([]);
+
+
+    // UPDATING INTERFACES
+    function showSelectedDeviceOwnInterfacesPS(router, l2){
+        $("#provision-interface"+l2).val([]);
+        var classname = "provision-interface"+l2+"-" + router.val();
+        var interfaces = document.getElementsByClassName(classname);
+        for (i = 0; i < interfaces.length; i++) {
+          interfaces[i].style.display = "block";
+        }
+        
+    }
+
+    function hideAllInterfacesFromAllDevicesPS(l2) {
+      $("#provision-interface"+l2+" option").each(function() {
+          $(this).css('display', 'none');
+      });   
+    }
+
+    $('#provision-edge-router').on('change', function () {
+                                        hideAllInterfacesFromAllDevicesPS("");
+                                        showSelectedDeviceOwnInterfacesPS(router,"");
+                                     }
+                        );
+    $('#provision-edge-router-l2').on('change', function () {
+                                        hideAllInterfacesFromAllDevicesPS("-l2");
+                                        showSelectedDeviceOwnInterfacesPS(router_l2,"-l2");
+                                     }
+                        );
+    hideAllInterfacesFromAllDevicesPS("");
+    $("#provision-interface").val([]);
+    $("#provision-interface-l2").val([]);
+
+
+    // UPDATING BANDWIDTH
+    function showSelectedDeviceOwnBandwidthPS(router, l2){
+        $("#provision-bandwidth"+l2).val([]);
+        var classname = "provision-bandwidth"+l2+"-" + router;
+        var policers = document.getElementsByClassName(classname);
+        for (i = 0; i < policers.length; i++) {
+          policers[i].style.display = "block";
+        }
+        
+    }
+
+    function hideAllBandwidthFromAllDevicesPS(l2) {
+      $("#provision-bandwidth"+l2+" option").each(function() {
+          $(this).css('display', 'none');
+      });   
+    }
+
+    $('#provision-edge-router').on('change', function () {
+                                        hideAllBandwidthFromAllDevicesPS("");
+                                        showSelectedDeviceOwnBandwidthPS(router.val(),"");
+                                     }
+                        );
+    $('#provision-edge-router-l2').on('change', function () {
+                                        hideAllBandwidthFromAllDevicesPS("-l2");
+                                        showSelectedDeviceOwnBandwidthPS(router_l2.val(),"-l2");
+                                     }
+                        );
+    hideAllBandwidthFromAllDevicesPS("");
+    $("#provision-bandwidth").val([]);
+    hideAllBandwidthFromAllDevicesPS("-l2");
+    $("#provision-bandwidth-l2").val([]);
+
+
+    // UPDATING BANDWIDTH ON LOGICAL SYSTEM SELECTION
+    var sysName = $("#provision-logical-system");
+
+    $('#provision-logical-system').on('change', function () {
+                                        hideAllBandwidthFromAllDevicesPS("");
+                                        showSelectedDeviceOwnBandwidthPS(router.val()+"--"+sysName.val(), "");
+                                     }
+                        );
+    var sysName_l2 = $("#provision-logical-system-l2");
+    $('#provision-logical-system-l2').on('change', function () {
+                                        hideAllBandwidthFromAllDevicesPS("-l2");
+                                        showSelectedDeviceOwnBandwidthPS(router_l2.val()+"--"+sysName_l2.val(), "-l2");
+                                     }
+                        );
+    hideAllBandwidthFromAllDevicesPS("");
+    $("#provision-bandwidth").val([]);
+    hideAllBandwidthFromAllDevicesPS("-l2");
+    $("#provision-bandwidth-l2").val([]);
+
+    // UPDATING VRF ON LOGICAL SYSTEM SELECTION
+    $('#provision-logical-system').on('change', function () {
+      hideAllInstancesFromAllDevicesPS();
+      showSelectedDeviceOwnInstancesPS(router.val()+"--"+sysName.val());
+    });
+
+
+
+    // UPDATING VLANS & IPV4 INPUT OPTIONS TO MANUAL | AUTO
+    var vlanType = $("#provision-vlan-type");
+    var ipv4Type = $("#provision-ipv4-type");
+
+    function switchItemStyle(type,item) {
+
+        var manualType = document.getElementById("provision-manual-"+item);
+        var autoType = document.getElementById("provision-auto-"+item);
+        $("#provision-manual-"+item).val([]);
+        if ( $("#provision-auto-"+item).val() ) {
+          if ( !$("#provision-auto-"+item).val().includes("Checking available") ) {
+            // do not clear the label if it is displaying loading
+            $("#provision-auto-"+item).val([]);
+          }
+        }
+
+        if (type.val() == "Manual") {
+            manualType.style.display = "block";
+            manualType.required = true
+            autoType.style.display = "none";
+            autoType.required = false
+            autoType.setAttribute("value", "")
+
+        }
+        if (type.val() == "Auto") {
+            manualType.style.display = "none";
+            manualType.required = false
+            manualType.setAttribute("value", "")
+            autoType.style.display = "block";
+            autoType.required = true
+        }
+     }
+
+
+    // FINDING FREE VLANS
+    $(function() {
+      $("#provision-vlan-type").change(function() {
+          if ( $(this).val() == "Auto" ) {
+            if (  $("#service-type").val() == 'L2mpls' ){
+              var router_a = $("#provision-edge-router").val();
+              var interface_a = $("#provision-interface").val();
+              var router_b = $("#provision-edge-router-l2").val();
+              var interface_b = $("#provision-interface-l2").val();
+
+              if ( !router_a || !interface_a || !router_b || !interface_b ) {
+                alert("Select router and interface");
+                $(this).val("Manual");
+                $("provision-manual-vlanid").css('display', 'block');
+                $("provision-auto-vlanid").css('display', 'none');
+                return
+              }
+
+              // display loading on the vlan drop down menu as free vlans are calculated
+              $("#provision-auto-vlanid").html("");
+              var option = document.createElement("option");
+              option.value = "Checking available vlans";
+              option.text = "Checking available vlans";
+              $("#provision-auto-vlanid").append(option);
+              $("#provision-auto-vlanid").prop('disabled', true);
+              // end of displaying loading
+     
+              $.ajax(
+                  {
+                      url: "/service-provision/:vlan-ids",
+                      type: "post",
+                      dataType: "json",
+                      data: {
+                          router_a : router_a,
+                          interface_a: interface_a,
+                          router_b : router_b,
+                          interface_b: interface_b
+                      }
+                  })
+              .done(function(data) {
+                  // clear any locations currently there
+                  $("#provision-auto-vlanid").html("");
+                  // console.log(data); // print the seults of the python function
+                  for (var ndx = 0; ndx < data.length; ndx++) {
+                      var item = data[ndx];
+                      var option = document.createElement("option");
+                      option.value = item;
+                      option.text = item;
+                      $("#provision-auto-vlanid").append(option);
+                  }
+                  $("#provision-auto-vlanid").prop('disabled', false);
+              });
+              switchItemStyle(vlanType,"vlanid");
+            } else {
+              var router = $("#provision-edge-router").val(),
+                  interface = $("#provision-interface").val();
+
+              if ( !router || !interface ) {
+                alert("Select router and interface");
+                $(this).val("Manual");
+                $("provision-manual-vlanid").css('display', 'block');
+                $("provision-auto-vlanid").css('display', 'none');
+                return
+              }
+
+              // display loading on the vlan drop down menu as free vlans are calculated
+              $("#provision-auto-vlanid").html("");
+              var option = document.createElement("option");
+              option.value = "Checking available vlans";
+              option.text = "Checking available vlans";
+              $("#provision-auto-vlanid").append(option);
+              $("#provision-auto-vlanid").prop('disabled', true);
+              // end of displaying loading
+     
+              $.ajax(
+                  {
+                      url: "/service-provision/:vlan-id",
+                      type: "post",
+                      dataType: "json",
+                      data: {
+                          router : router,
+                          interface: interface
+                      }
+                  })
+              .done(function(data) {
+                  // clear any locations currently there
+                  $("#provision-auto-vlanid").html("");
+                  // console.log(data); // print the seults of the python function
+                  for (var ndx = 0; ndx < data.length; ndx++) {
+                      var item = data[ndx];
+                      var option = document.createElement("option");
+                      option.value = item;
+                      option.text = item;
+                      $("#provision-auto-vlanid").append(option);
+                  }
+                  $("#provision-auto-vlanid").prop('disabled', false);
+              });
+              switchItemStyle(vlanType,"vlanid");
+            }
+          } else {
+              switchItemStyle(vlanType,"vlanid");
+          }
+      });
+    });
+
+    // FINDING FREE IPV4
+    $(function() {
+      $("#provision-ipv4-type").change(function() {
+          if ( $(this).val() == "Auto" ) {
+              var router = $("#provision-edge-router").val();
+
+              if ( !router ) {
+                alert("Select router");
+                $(this).val("Manual");
+                return
+              }
+
+              // display loading on the vlan drop down menu as free vlans are calculated
+              $("#provision-ipv4-input").val("");
+              option = "Checking available ip.";
+              $("#provision-ipv4-input").val(option);
+              $("#provision-ipv4-input").prop('disabled', true);
+              // end of displaying loading
+     
+              $.ajax(
+                  {
+                      url: "/service-provision/:ipv4",
+                      type: "post",
+                      dataType: "json",
+                      data: { router : router }
+                  })
+              .done(function(data) {
+                  // clear any locations currently there
+                  $("#provision-ipv4-input").html("");
+                  console.log(data); // print the seults of the python function
+                  if ( data == false ) {
+                    $("#provision-ipv4-type").val("Manual");
+                    $("#provision-ipv4-input").prop('disabled', false);
+                    $("#provision-ipv4-input").val("");
+                    return
+                  }
+                  $("#provision-ipv4-input").val(data);
+              });
+            } else {
+              $("#provision-ipv4-input").prop('disabled', false);
+              $("#provision-ipv4-input").val("");
+            }
+        });
+    });
+
+
+    // SHOW VRFs FIELD
+
+    function showVrfFields() {
+      $('.provision-vrf').each(function() {
+        $(this).show();
+      });
+    }
+    function hideVrfFields() {
+      $('.provision-vrf').each(function() {
+        $(this).hide();
+      });
+    }
+
+    // L2MPLS FORM
+    function hideL3Fields() {
+      document.getElementById("provision-ipv4-input").removeAttribute("required");
+      $(".l3-fields, .provision-netdot-checkbox, .provision-orion-checkbox").each(function() {
+        $(this).hide();
+        $(this).attr("required", "");
+      });
+      $(".l2-fields").each(function() {
+        $(this).show();
+        $(this).attr("required", "");
+      });
+    }
+    function showL3Fields() {
+      document.getElementById("provision-ipv4-input").setAttribute("required","");
+      $(".l3-fields, .provision-netdot-checkbox, .provision-orion-checkbox").each(function() {
+        $(this).show(); // l3 classes
+      });
+      $(".l2-fields").each(function() {
+        $(this).hide(); // l2 classes
+        $(this).removeAttr("required");
+      });
+    }
+
+    $("#service-type").on('change', function() {
+      if ( $("#service-type").val() == 'L3mpls' || $("#service-type").val() == 'Internet' ) {
+        $('#provision-edge-router').val([]);
+        $('#provision-edge-router-l2').val([]);
+        $('#provision-manual-vlanid').val([]); // clear existing vlan-id values
+        $('#provision-auto-vlanid').val([]); // clear existing vlan-id values
+        showL3Fields();
+      } else if ( $("#service-type").val() == 'L2mpls' ) {
+        $('#provision-edge-router').val([]);
+        $('#provision-edge-router-l2').val([]);
+        $('#provision-manual-vlanid').val([]); // clear existing vlan-id values
+        $('#provision-auto-vlanid').val([]); // clear existing vlan-id values
+        hideL3Fields();
+      }
+      if ( $("#service-type").val() == 'L3mpls' ) {
+        showVrfFields();
+      } else if ( $("#service-type").val() == 'Internet' || $("#service-type").val() == 'L2mpls' ) {
+        hideVrfFields();
+      }
+    });
+
+    showL3Fields();
+    hideVrfFields();
+
+
+    // SERVICE PROVISION SUBMIT BEHAVIOUR
+    $(document).ready(function () {
+      $('#service-provision-form').validate({
+          highlight: function(element, errorClass) {
+            $(element).fadeOut(function() {
+              $(element).fadeIn();
+            });
+          },
+          submitHandler: function (form) {
+            if ( $('#provision-update-orion').is(":checked") && $('[name="api-orion-server"]').val() == '') {
+              alert('Update Orion selected but Orion server address is not configured.');
+              return
+            }
+            if ( $('#provision-update-netdot').is(":checked") && $('[name="api-netdot-url"]').val() == '') {
+              alert('Update Netdot selected but Netdot server address is not configured.');
+              return
+            }
+            bootstrap_alert.alertify('Configuring the service. This will take a couple of seconds.', 'warning');
+            disableInputFields('l3-fields, .l2-fields, .common-fields, .common-fields-btn, .provision-vrf')
+            $('#service-provision-close').click();
+            $('html,body').animate({ scrollTop: 0 }, 'slow');
+            $.ajax({
+                dataType: 'json',
+                type: 'post',
+                url: '/:service-provision',
+                data: {
+                       'service-type': $("#service-type").val(),
+                       'provision-edge-router': $('#provision-edge-router').val(),
+                       'provision-logical-system': $('#provision-logical-system').val(),
+                       'provision-bandwidth': $('#provision-bandwidth').val(),
+                       'provision-interface': $('#provision-interface').val(),
+                       'provision-edge-router-l2': $('#provision-edge-router-l2').val(),
+                       'provision-logical-system-l2': $('#provision-logical-system-l2').val(),
+                       'provision-bandwidth-l2': $('#provision-bandwidth-l2').val(),
+                       'provision-interface-l2': $('#provision-interface-l2').val(),
+                       'provision-vrf': $('#provision-vrf').val(),
+                       'provision-ipv4-input': $('#provision-ipv4-input').val(),
+                       'provision-ipv4-type': $('#provision-ipv4-type').val(),
+                       'provision-manual-ipv6': $('#provision-manual-ipv6').val(),
+                       'provision-manual-vlanid': $('#provision-manual-vlanid').val(),
+                       'provision-vlan-type': $('#provision-vlan-type').val(),
+                       'provision-auto-vlanid': $('#provision-auto-vlanid').val(),
+                       'provision-description': $('#provision-description').val(),
+                       'provision-update-netdot': $('#provision-update-netdot').is(":checked"),
+                       'provision-update-orion': $('#provision-update-orion').is(":checked")
+                       },
+                success: function (data) {
+                  console.log(data);
+                  if ( data.data ) {
+                      resetFormValues('l3-fields, .l2-fields, .common-fields, .provision-vrf'); // the first dot is already in the function
+                      $("#provision-auto-vlanid").hide();
+                      $("#provision-manual-vlanid").show(); // clearing the auto collected vlan ids
+                      enableInputFields('l3-fields, .l2-fields, .common-fields, .common-fields-btn, .provision-vrf');
+                      bootstrap_alert.alertify(data.message, data.status);
+                      window.open(data.data) // needs link as input
+                      return
+                  }
+                },
+                error: function (responseData) {
+                  console.log(responseData);
+                  enableInputFields('l3-fields, .l2-fields, .common-fields, .common-fields-btn, .provision-vrf');
+                  bootstrap_alert.alertify(responseData.statusText, 'danger');
+                }
+            });
+            return false // blocks redirect after submission via ajax
+          }
+      });
+    });
+
+  </script>
+  <!-- end service provisioning script -->
+
+  <script type="text/javascript">
+    function resizeDivs(currentDiv) {
+      console.log(currentDiv.height())
+      // $('#right-nav-bar').height(currentDiv.height());
+      // $('#left-nav-bar').height(currentDiv.height());
+      $('#main').height(currentDiv.height());
+    }
+  </script>
+
+  {% if not data['device_refresh_time'] %}
+  <script>
+    $(document).ready(function(){
+      bootstrap_alert.alertify('Devices are not synced. Please perform a device refresh', 'warning');
+      // $("input").hide();
+      // $("button").hide();
+      // $("select").hide();
+      $("input").prop('disabled', true);
+      $("button").prop('disabled', true);
+      $("select").prop('disabled', true);
+    });
+  </script>
+  {%endif%}
+
+
+</html>

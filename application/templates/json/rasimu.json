@@ -1,0 +1,18 @@
+{
+  "nodes": [{%- for node in device_list %}
+    {%- if not loop.index == device_list| length %}
+    {"id": "{{ device_list[node] }}", "group": 1, "img":  "../static/images/default/router.gif"},
+    {%- else %}
+    {"id": "{{ device_list[node] }}", "group": 1, "img":  "../static/images/default/router.gif"}
+    {%- endif %}
+{%- endfor %}
+  ],
+  "links":[{%- for link in device_dict %}
+    {%- if not loop.index == device_dict| length %}
+    {"source": "{{ device_list[link[0]] }}", "target": "{{device_list[link[1]]}}", "value": 10},
+    {%- else %}
+    {"source": "{{ device_list[link[0]] }}", "target": "{{device_list[link[1]]}}", "value": 10}
+    {%- endif %}
+    {%- endfor %}
+  ]
+}

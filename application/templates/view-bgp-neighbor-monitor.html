@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+.links line {
+  stroke: #999;
+  stroke-opacity: 0.6;
+}
+
+.nodes circle {
+  stroke: #fff;
+  stroke-width: 1.5px;
+}
+
+text {
+  font-family: sans-serif;
+  font-size: 10px;
+}
+
+</style>
+
+<header class="navbar navbar-expand navbar-dark flex-column flex-md-row bd-navbar" style="position:sticky;background-color: #7952b3;">
+  <meta name="author" content="Paul S.I. Basondole">
+  <!-- Bootstrap core CSS -->
+  <link href="{{ url_for('static', filename='css/docs.min.css') }}" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}" crossorigin="anonymous">
+  <link href="{{ url_for('static', filename='images/paul-icon.ico') }}" rel="shortcut icon" type="image/x-icon">
+
+  <title>Basondole systems | BGP Neighbor Monitor</title>
+  <a class="navbar-brand mr-0 mr-md-2" aria-label="Bootstrap" href="/">
+    <svg width="32" height="32" class="d-block" viewBox="0 0 64 64" role="img">
+      <title>Basondole systems</title>
+      <path fill="currentColor" fill-rule="evenodd" d="M16 0h32c8.837 0 16 7.163 16 16v32c0 8.837-7.163 16-16 16H16C7.163 64 0 56.837 0 48V16C0 7.163 7.163 0 16 0zm18.14 49c7.22 0 11.555-3.633 11.555-9.586 0-4.406-3.047-7.664-7.617-8.133v-.398c3.328-.563 5.93-3.727 5.93-7.266 0-5.203-3.82-8.437-10.172-8.437H20.242V49h13.899zm-8.648-29.367h7.125c3.89 0 6.164 1.828 6.164 4.945 0 3.211-2.414 4.922-7.054 4.922h-6.235v-9.867zm0 24.914V33.648h7.29c4.945 0 7.546 1.852 7.546 5.391 0 3.586-2.508 5.508-7.242 5.508h-7.594z">   
+      </path>
+    </svg>
+  </a>
+  <div style="text-align: center;width: 100%">
+    <label style="color: white; font-weight: bold;padding-right: 40px;">BGP Neighbor Monitor</label>
+  </div>
+</header>
+
+<div id = "alert_placeholder">
+<!-- alert placeholder -->
+</div>
+
+<div id="table-holder" align="center">
+  <div style="width: 100%" align="center" class="bd-lead">
+    <label id="bgp-refresh-time" class="bd-lead" style="font-size: 1.2rem;margin-bottom: 0px;padding-top: 16px;">
+      {% if data %}
+        {{ data['refresh-time'] }}
+        {% else %}
+        Last refresh: Never
+      {% endif %}
+    </label>
+  </div>
+
+  {% if data %}
+  <table class="table">
+    {% for host in data['collectors'] %}
+      {{ host }}
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">PEER ID</th>
+        <th scope="col">PEER AS</th>
+        <th scope="col">STATE<br/></th>
+        <th scope="col">STATUS<br/></th>
+        <th scope="col">TIME<br/></th>
+        <th scope="col">PING<br/></th>
+        <th scope="col">INTERFACE</th>
+        <th scope="col">STATUS<br/></th>
+        <th scope="col">ALIAS<br/></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for peer in data['collectors'][host]['peers'] %}
+      <tr>
+        <th scope="row">{{ loop.index }}</th>
+        {% if not data['collectors'][host]['peers'][peer]['state'] | lower == 'established' %}
+        <td class="table-danger">{{ peer }}</td>
+          {% else %}
+        <td class="table-success">{{ peer }}</td>
+        {% endif %}
+        <td>{{ data['collectors'][host]['peers'][peer]['peer_as'] }}</td>
+        <td>{{ data['collectors'][host]['peers'][peer]['state'] }}</td>
+        <td>{{ data['collectors'][host]['peers'][peer]['status'] }}</td>
+        <td>{{ data['collectors'][host]['peers'][peer]['time'] }}</td>
+        <td>{{ data['collectors'][host]['peers'][peer]['ping'] }}</td>
+        <td>{{ data['collectors'][host]['peers'][peer]['interface'] }}</td>
+        <td>{{ data['collectors'][host]['peers'][peer]['if_admin_status']| lower }} {{ data['collectors'][host]['peers'][peer]['if_oper_status'] | lower }}</td>
+        <td>{{ data['collectors'][host]['peers'][peer]['if_description'] }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+    {% endfor %}
+  </table>
+  {% endif %}
+</div>
+
+<script src="{{ url_for('static', filename='jquery/jquery-3.3.1.min.js') }}"></script>
+<script>
+  bootstrap_alert = function() {}
+  bootstrap_alert.alertify = function(message, category) {
+    $('#alert_placeholder').html('<div class="alert alert-'+category+'" style="text-align: center" role="alert" id="alert-banner"><span>'+message+'</span></div>')
+  }
+  function refreshBGPData() {
+    let
+      message = 'BGP data is being fetched. Do not refresh the browser',
+      status = 'warning',
+      link = "/command/:refresh-bgp-monitor";
+
+    bootstrap_alert.alertify(message, status);
+    $('html,body').animate({ scrollTop: 0 }, 'slow');
+    $.ajax({
+              url: link,
+              type: "post",
+              dataType: "json",
+              data: {}
+          })
+      .done(function(data) {
+        if ( data.data ) {
+          $("#table-holder").html(data.data);
+          bootstrap_alert.alertify('BGP data refreshed', 'success');
+          $("#alert-banner").fadeTo(10000, 500).slideUp(500, function() {
+            $("#alert-banner").slideUp(500);
+          });
+          return false
+        }
+      })
+
+  }
+  $(document).ready(function() {
+    refreshBGPData();
+  });
+  setInterval( refreshBGPData, {{ timer * 60 * 1000 }}) // 5 mins as in 1000ms/s * 5min* 60s/min
+
+</script>

@@ -1,0 +1,97 @@
+<head>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}" crossorigin="anonymous">
+  <link href="{{ url_for('static', filename='images/paul-icon.ico') }}" rel="shortcut icon" type="image/x-icon">
+  <style>
+  .alert {
+    padding: 20px;
+    background-color: #f44336;
+    color: white;
+  }
+
+  .closebtn {
+    margin-left: 15px;
+    color: white;
+    font-weight: bold;
+    float: right;
+    font-size: 22px;
+    line-height: 20px;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+
+  .closebtn:hover {
+    color: black;
+  }
+  </style>
+</head>
+<header class="navbar navbar-expand navbar-dark flex-column flex-md-row bd-navbar" style="position:sticky;background-color: #7952b3;">
+  <meta name="author" content="Paul S.I. Basondole">
+
+  <!-- Bootstrap core CSS and font awesome -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}" crossorigin="anonymous">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/fontawesome.all.css') }}" crossorigin="anonymous">
+  <link href="{{ url_for('static', filename='images/paul-icon.ico') }}" rel="shortcut icon" type="image/x-icon">
+
+  <title>Basondole systems | Config Backup Summary</title>
+  <a class="navbar-brand mr-0 mr-md-2" aria-label="Bootstrap" href="/">
+    <svg width="32" height="32" class="d-block" viewBox="0 0 64 64" role="img">
+      <title>Basondole systems</title>
+      <path fill="currentColor" fill-rule="evenodd" d="M16 0h32c8.837 0 16 7.163 16 16v32c0 8.837-7.163 16-16 16H16C7.163 64 0 56.837 0 48V16C0 7.163 7.163 0 16 0zm18.14 49c7.22 0 11.555-3.633 11.555-9.586 0-4.406-3.047-7.664-7.617-8.133v-.398c3.328-.563 5.93-3.727 5.93-7.266 0-5.203-3.82-8.437-10.172-8.437H20.242V49h13.899zm-8.648-29.367h7.125c3.89 0 6.164 1.828 6.164 4.945 0 3.211-2.414 4.922-7.054 4.922h-6.235v-9.867zm0 24.914V33.648h7.29c4.945 0 7.546 1.852 7.546 5.391 0 3.586-2.508 5.508-7.242 5.508h-7.594z">   
+      </path>
+    </svg>
+  </a>
+  <legend style="color: white;">Login</legend>
+</header>
+
+<style>
+  .alert { 
+    width: 332px;
+    text-align: center;
+  }
+</style>
+<body>
+  <div style="padding-left: 8px">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class='alert alert-{{ category }}'>
+            {{ message | safe }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+  </div>
+
+  <div style="padding-left: 8px">
+  	<form name="login" action="/login" method="POST">
+      <hr style="width: 25%" align="left" />
+      <fieldset class="form-group">
+      	<div class="form-group row">
+          <label class="col-sm-1 col-form-label col-form-label-sm">
+            Username:
+          </label>
+          <input class="col-sm-2 form-control form-control-sm" name="userid" required />
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-1 col-form-label col-form-label-sm">
+            Password:
+          </label>
+          <input class="col-sm-2 form-control form-control-sm" type="password" name="pswrd" required />
+        </div>
+      </fieldset>
+      <div class="form-group col">
+      	<label class="col-sm-1 col-form-label col-form-label-sm"></label>
+        <input class="btn btn-sm btn-secondary" type="submit" value="Login" />
+        <input class="btn btn-sm btn-outline-secondary" type="reset" value="Reset" />
+      </div>
+  	</form>
+  </div>
+ 
+  <div>
+    <hr style="width: 25%" align="left" />
+    <small class="text-muted">
+        Need An Account? <a class="ml-2" id="sign-up" href="{{ url_for('register_user') }}">Sign Up Now</a>
+    </small>
+  </div>
+
+</body>

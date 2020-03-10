@@ -1,0 +1,2230 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<style>
+  .home-buttons {
+    display: block;
+    width: 100%;
+    height: 100px;
+    background: #6e5a8c;
+    border-color: #ffffff00;
+  }
+  .home-buttons:hover {
+      background: #563d7c;
+    }
+  .home-buttons:focus {
+    background: #6268d1fc;
+  }
+  .col-sm-1 {
+    max-width: 15%;
+  }
+  .tab-content {
+    width: 100%;
+  }
+  .btn-sm {
+    width: 60px;
+  }
+</style>
+
+
+
+<div class="tab-content" id="nav-tabContent">
+
+  <div id = "alert_placeholder">
+    {% if alert %}
+    <div class="alert alert-{{alert.status}}" role="alert"><a class="close" href="#" data-dismiss="alert">×</a><span>{{alert.message|safe}}</span>
+    </div>
+    {% endif %}
+  </div>
+
+  <div id="clear-div"><!-- place holder --></div>
+
+
+  <!-- HOME -->
+  <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab"><br/>
+
+    <div class="row"> 
+      <div class="col-sm-6" align="center">
+        <button type="button" class="btn btn-primary home-buttons" data-toggle="modal" data-target="#vlan-operations-menu" style="background-image: linear-gradient(#614092, #7952b3);">
+          <h1 class="bd-lead" align="right">
+            VLAN OPERATION
+          </h1>
+        </button>
+      </div>
+
+      <div class="col-sm-6" align="center">
+        <button type="button" class="btn btn-primary home-buttons" data-toggle="modal" data-target="#ipv4-operations-menu" style="background-image: linear-gradient(#614092, #7952b3);">
+          <h1 class="bd-lead" align="right">
+            IPv4 OPERATION
+          </h1>
+        </button>
+      </div>
+    </div>
+
+    <div class="row" style="height: 30px">
+      <!-- place holder -->
+    </div>
+
+    <div class="row"> 
+      <div class="col-sm-6" align="center">
+        <button type="button" class="btn btn-primary home-buttons" data-toggle="modal" data-target="#service-provisioning-menu" style="background-image: linear-gradient(#614092, #7952b3);">
+          <h1 class="bd-lead" align="right">
+            PROVISION SERVICE
+          </h1>
+        </button>
+      </div>
+
+      <div class="col-sm-6" align="center">      
+        <button type="button" class="btn btn-primary home-buttons" data-toggle="modal" data-target="#locate-service-menu" style="background-image: linear-gradient(#614092, #7952b3);">
+          <h1 class="bd-lead" align="right">
+            LOCATE SERVICE
+          </h1>
+        </button>
+      </div>
+    </div>
+
+    <div class="row" style="height: 30px">
+      <!-- place holder -->
+    </div>
+
+    <div class="row"> 
+      <div class="col-sm-6" align="center">
+        <button type="button" class="btn btn-primary home-buttons" data-toggle="modal" data-target="#burst-packages-menu" style="background-image: linear-gradient(#614092, #7952b3);">
+          <h1 class="bd-lead" align="right">
+            BURST OPERATION
+          </h1>
+        </button>
+      </div>
+
+      <div class="col-sm-6" align="center">
+        <button type="button" class="btn btn-primary home-buttons" data-toggle="modal" data-target="#ondemand-menu" style="background-image: linear-gradient(#614092, #7952b3);">
+          <h1 class="bd-lead" align="center" style="padding-left: 40px;">
+            ON-DEMAND SERVICES
+          </h1>
+        </button>
+      </div>
+    </div>
+    
+
+  </div>
+
+
+  <!-- DEVICES -->
+  <div class="tab-pane fade" id="nav-devices" role="tabpanel" aria-labelledby="nav-devices-tab"><br>
+
+    <div id="v-pills-devices-tab-for-left-navbar">
+      <div class="tab nav flex-column nav-pills" id="v-pills-devices-tab" role="tablist" aria-orientation="vertical" >
+        <a class="nav-link" id="v-pills-devices-table-tab" data-toggle="pill" href="#v-pills-devices-table" role="tab" aria-controls="v-pills-devices-table" aria-selected="false" style="padding: 0px 12px;">Table view</a>
+        <a class="nav-link" id="v-pills-devices-text-summary-tab" data-toggle="pill" href="#v-pills-devices-text-summary" role="tab" aria-controls="v-pills-devices-text-summary" aria-selected="true" style="padding: 0px 12px;">Summary view</a>
+        <a class="nav-link" id="v-pills-devices-detail-tab" data-toggle="pill" href="#v-pills-devices-detail" role="tab" aria-controls="v-pills-devices-detail" aria-selected="false" style="padding: 0px 12px;">Detail view</a>
+        <a class="nav-link" id="v-pills-devices-raw-tab" data-toggle="pill" href="#v-pills-devices-raw" role="tab" aria-controls="v-pills-devices-raw" aria-selected="false" style="padding: 0px 12px;">Raw view</a>
+        <a class="nav-link" id="v-pills-devices-add-tab" data-toggle="pill" href="#v-pills-devices-add" role="tab" aria-controls="v-pills-devices-add" aria-selected="false" style="padding: 0px 12px;">Add device</a>
+        <a class="nav-link" id="v-pills-devices-remove-tab" data-toggle="pill" href="#v-pills-devices-remove" role="tab" aria-controls="v-pills-devices-remove" aria-selected="false" style="padding: 0px 12px;">Remove device</a>
+      </div>
+    </div>
+
+    <div class="tab-content" id="v-pills-devices-tabContent" style="/*/*/*border-left: 1px solid #ccc;*/*/*/ height: auto;">
+
+      <!-- DEVICE TABLE VIEW -->
+      <div class="tab-pane fade show active" id="v-pills-devices-table" role="tabpanel" aria-labelledby="v-pills-devices-table-tab">
+        <div align="center">
+          <h1 class="bd-lead">Devices Table</h1>
+          <div class="bd-lead" id="devices-view-refresh-time"style="font-size: 1rem;">
+            {% if data['device_refresh_time'] %}
+              Last refresh: {{ data['device_refresh_time'] }}
+            {% else %}
+              Last refresh: Never
+            {% endif %}
+          </div>
+          <hr><br/>
+        </div>
+
+        <div>
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">hostname</th>
+                <th scope="col">model</th>
+                <th scope="col">subsystem</th>
+                <th scope="col">address</th>
+                <th scope="col">software</th>
+                <th scope="col"># vrf</th>
+                <th scope="col"># l2ckt</th>
+
+              </tr>
+            </thead>
+            <tbody>
+              {% for device in data['devices'] %}
+              {% if not '--' in device %}
+              <tr>
+                <th scope="row">{{ loop.index }}</th>
+              {% if not data['devices'][device]['synced'] %}
+                <td class="table-danger">{{ device }}</td>
+              {% else %}
+                <td class="table-success">{{ device }}</td>
+              {% endif %}
+                <td>{{ data['devices'][device]['model'] }}</td>
+                <td></td> <!-- place holder for logical system -->
+                <td>{{ data['devices'][device]['ip'] }}</td>
+                <td>{{ data['devices'][device]['software'] }}</td>
+                <td>{{ data['devices'][device]['instances'] | length }}</td>
+                <td>{{ data['devices'][device]['xconnects'][0][1] + data['devices'][device]['xconnects'][1][1] }}</td> <!-- up + down -->
+              </tr>
+              {% if data['devices'][device]['logicalsystem'] %}
+              {% for name in data['devices'][device]['logicalsystem'] %}
+              {% if data['devices'][device+'--'+name] %}
+              <tr>
+                <th scope="row"></th>
+                <td></td>
+                <td></td>
+                <td>{{ name }}</td>
+                <td>{{ data['devices'][device+'--'+name]['ip'] }}</td>
+                <td>{{ data['devices'][device+'--'+name]['software'] }}</td>
+                <td>{{ data['devices'][device+'--'+name]['instances'] | length }}</td>
+                <td>{{ data['devices'][device+'--'+name]['xconnects'][0][1] + data['devices'][device+'--'+name]['xconnects'][1][1] }}</td>
+              </tr>
+              {% endif %}
+              {% endfor %}
+              {% endif %}
+              {% endif %}
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- DEVICE SUMMARY VIEW -->
+      <div class="tab-pane fade" id="v-pills-devices-text-summary" role="tabpanel" aria-labelledby="v-pills-devices-text-summary-tab">
+        <div align="center">
+          <h1 class="bd-lead">Devices Summary</h1><hr><br/>
+        </div>
+        {{ (data['devices']|summary_view) | safe }}
+      </div>
+
+
+      <!-- DEVICE DETAIL VIEW -->
+      <div class="tab-pane fade" id="v-pills-devices-detail" role="tabpanel" aria-labelledby="v-pills-devices-detail-tab">
+        <div align="center">
+          <h1 class="bd-lead">Devices Detail</h1><hr><br/>
+        </div>
+        {{ '\n'.join((data['devices']|detail_view).split('\n')[2:]) | safe }} <!-- skip the first line which shows the last refresh time used by table view header -->
+      </div>
+            
+
+      <!-- DEVICE YAML VIEW -->
+      <div class="tab-pane fade" id="v-pills-devices-raw" role="tabpanel" aria-labelledby="v-pills-devices-raw-tab">
+        <div align="center">
+          <h1 class="bd-lead">Devices YAML</h1><hr><br/>
+        </div>
+        <pre>{{ data['devices']|raw_view  }}</pre>
+      </div>
+
+
+      <!-- ADD DEVICE FORM -->
+      <div class="tab-pane fade" id="v-pills-devices-add" role="tabpanel" aria-labelledby="v-pills-devices-add-tab">
+        <div align="center">
+          <h1 class="bd-lead">Device registration</h1><hr><br/>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+            Hostname:
+          </label>
+          <input class="col-sm-6 form-control form-control-sm devices-add-device" name="devices-add-device-hostname" id="devices-add-device-hostname" required />
+        </div>
+
+        <div class="form-group row">
+          <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+            IPv4:
+          </label>
+          <input class="col-sm-6 form-control form-control-sm devices-add-device" name="devices-add-device-ip" id="devices-add-device-ip" required onfocusout="validateIpv4( $(this), 'host')" />
+        </div>
+
+        <div class="form-group row">
+          <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+          Software:
+          </label>
+          <select class="col-sm-6 form-control form-control-sm devices-add-device" name="devices-add-device-software" id="devices-add-device-software" required>
+            <option>
+              junos
+            </option>
+            <option>
+              ios
+            </option>
+            </select>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+            Logical systems:
+          </label>
+          <input class="col-sm-6 form-control form-control-sm devices-add-device" name="devices-add-device-logical-system" id="devices-add-device-logical-system" title="Format:
+          logical-system-name:ip-address-of-logical-system
+Example:
+          PE:10.0.0.1
+Use comma for multiple entries, example PE-1:10.0.0.1, PE-2:10.0.0.2" />
+        </div>
+
+        <div class="form-group row">
+          <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+            Resident blocks:
+          </label>
+          <input class="col-sm-6 form-control form-control-sm devices-add-device" name="devices-add-device-resident-block" id="devices-add-device-resident-block" title="Format:
+          network-address/subnet-mask 
+          logical-system-name:network-address/subnet-mask
+Example:
+          10.0.0.0/24 or PE:10.0.0.0/24
+Use comma for multiple entries, example 10.0.0.0/24, 172.16.0.0/16"/>
+        </div>
+
+        <div class="form-group row">
+          <div style="font-size: 13px; padding-left: 250px"  class="form-text text-muted">
+          </div>
+        </div>
+
+        <div class="form-group col text-center">
+          <button class="btn btn-secondary" id="devices-add-device-submit" onclick="devicesAddDevice()">add device</button>
+          <input class="btn btn-outline-secondary" type="reset" value="clear values" onclick="resetFormValues('devices-add-device')" />
+        </div>
+
+      </div>
+
+      <!-- DEVICE REMOVAL -->
+      <div class="tab-pane fade" id="v-pills-devices-remove" role="tabpanel" aria-labelledby="v-pills-devices-remove-tab">
+        <div align="center">
+          <h1 class="bd-lead">Device removal</h1><hr><br/>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+          Hostname:
+          </label>
+          <select class="col-sm-6 form-control form-control-sm devices-remove-device" name="devices-remove-device-hostname" id="devices-remove-device-hostname" required>
+          {% for device, name in data['devices'].items()|sort(attribute='1.hostname') %}
+            {% if '--' not in device%}
+            <option>
+              {{ data['devices'][device]['hostname']}}
+            </option>
+            {% endif %}
+          {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group col text-center">
+          <button class="btn btn-secondary" id="devices-remove-device-submit" onclick="devicesRemoveDevice()">remove device</button>
+          <input class="btn btn-outline-secondary" type="reset" value="clear values" onclick="resetFormValues('devices-remove-device')" />
+        </div>
+
+      </div>
+    </div>    
+  </div>
+
+
+
+  <!-- COMMAND -->
+  <div class="tab-pane fade" id="nav-command" role="tabpanel" aria-labelledby="nav-command-tab">
+
+    <p>
+      <strong>Tip:</strong>
+      only issue commands with finite output lines.<br/>
+      Commands producing endless output eg: continous ping are not supported<br/>
+      Multiple commands or devices entered manually should be separated by comma sign.            
+    </p>
+    <hr><br/>
+
+    <form id="command-form" method="post">
+      <div class="form-group row">
+        <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+        Command:
+        </label>
+        <select class="col-sm-6 form-control form-control-sm command-command-device" name="command-command" id="command-command" required>
+          <option>
+            Service audit
+          </option>
+          <option>
+            BGP summary
+          </option>
+          <option>
+            Configuration backup
+          </option>
+          <option>
+            Link state
+          </option>
+          <option>
+            Manual
+          </option>
+          <option>
+            Upload file
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group row">
+        <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+          <!-- place holder -->
+        </label>
+        <input class="col-sm-6 form-control form-control-sm command-command-device" name="command-command-manual" id="command-command-manual" style="display: none;" placeholder="type command(s) here">
+        <input type="file" id="command-command-file" style="display: none; padding-left: 0px;" onchange="loadFile('command-command-file', 'command-command-manual');">
+        <div class="form-check" id="command-bgp-filter-box" style="display: none;">
+          <input class="form-check-input" name="command-bgp-filter" type="checkbox" id="command-bgp-filter">
+          <label class="form-check-label form-control-sm">Show non established neighbors only</label>
+        </div>
+      </div>
+
+      <hr style="width: 70%"><br/>
+
+      <div id="devices-table">
+
+        <div class="form-group row">
+          <label class="col-sm-4 col-form-label col-form-label-sm" align="right" id="command-devices-label">
+          Devices:
+          </label>
+          <select class="col-sm-6 form-control form-control-sm command-command-device" name="command-devices" id="command-devices" required>
+            <option>
+              Manual
+            </option>
+            <option>
+              Upload file
+            </option>
+            <option>
+              devices [junos]
+            </option>
+            <option>
+              devices [ios]
+            </option>
+            <option>
+              devices [all]
+            </option>
+            {% for device, name in data['devices'].items()|sort(attribute='1.hostname') %}
+            {% if '--' not in device%}
+              <option>
+                {{ data['devices'][device]['hostname']}}
+              </option>
+              {% endif %}
+            {% endfor %}
+
+            {% for device, name in data['devices'].items()|sort(attribute='1.ip') %}
+              {% if '--' not in device%}
+              <option>
+                {{ data['devices'][device]['ip'] }}
+              </option>
+              {% endif %}
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+            <!-- place holder -->
+          </label>
+          <input class="col-sm-6 form-control form-control-sm command-command-device" name="command-device-manual" id="command-device-manual" style="display: none;" onfocusout="validateIpv4( $(this), 'host')" placeholder="type ip address(es) here"/>
+          <input type="file" id="command-device-file" style="display: none;" onchange="loadFile('command-device-file', 'command-device-manual');" />
+        </div>
+      </div>
+
+
+      <div id="command-link-state-div" style="display: none">
+
+        <div class="form-group row">
+          <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+          Community:
+          </label>
+          <input class="col-sm-6 form-control form-control-sm command-command-device" name="command-link-state-community" id="command-link-state-community"/>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+            Base device:
+          </label>
+          <select class="col-sm-6 form-control form-control-sm command-command-device" name="command-link-state-device" id="command-link-state-device">
+          {% for device, name in data['devices'].items()|sort(attribute='1.hostname') %}
+            <option>
+              {{ data['devices'][device]['hostname']}}
+            </option>
+          {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+            Protocol:
+          </label>
+          <select class="col-sm-6 form-control form-control-sm command-command-device" name="command-link-state-protocol" id="command-link-state-protocol">
+            <option>
+              isis
+            </option>
+            <option>
+              ospf
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+          Output format:
+          </label>
+          <select class="col-sm-6 form-control form-control-sm command-command-device" name="command-link-state-output" id="command-link-state-output">
+            <option>
+              text
+            </option>
+            <option>
+              diagram
+            </option>
+            <option>
+              csv
+            </option>
+            <option>
+              gefx
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+          </label>
+          <div class="form-check">
+            <input type="radio"  class="form-check-input" id="command-link-state-clear-cache"/>
+            <label class="form-check-label">clear cached link state data</label>
+          </div>
+        </div>
+
+      </div>
+
+      <hr><br/>
+      <div class="form-group col text-center">
+        <button class="btn btn-sm btn-secondary" id="command-submit" type="submit" style="width: 108px;">Run</button>
+        <input class="btn btn-sm btn-outline-secondary" style="width: 108px;" type="reset" value="clear values" onclick="resetFormValues('command-command-device')" />
+      </div>
+    </form>
+  </div>
+
+
+  <!-- REPORT -->
+  <div class="tab-pane fade" id="nav-report" role="tabpanel" aria-labelledby="nav-report-tab">
+
+  </div>
+
+
+
+
+  <!-- SETTINGS -->
+  <div class="tab-pane fade" id="nav-settings" role="tabpanel" aria-labelledby="nav-settings-tab"><br/>
+    <div id="v-pills-settings-tab-for-left-navbar">
+      <div class="tab nav flex-column nav-pills" id="v-pills-settings-tab" role="tablist" aria-orientation="vertical" >
+        <a class="nav-link" id="v-pills-settings-general-tab" data-toggle="pill" href="#v-pills-settings-general" role="tab" aria-controls="v-pills-settings-general" aria-selected="true" style="padding: 0px 12px;">General</a>
+        <a class="nav-link" id="v-pills-settings-burst-tab" data-toggle="pill" href="#v-pills-settings-burst" role="tab" aria-controls="v-pills-settings-burst" aria-selected="false" style="padding: 0px 12px;">Burst services</a>
+        <a class="nav-link" id="v-pills-settings-demand-tab" data-toggle="pill" href="#v-pills-settings-demand" role="tab" aria-controls="v-pills-messages" aria-selected="false" style="padding: 0px 12px;">On-demand services</a>
+        <a class="nav-link" id="v-pills-settings-api-tab" data-toggle="pill" href="#v-pills-settings-api" role="tab" aria-controls="v-pills-settings-api" aria-selected="false" style="padding: 0px 12px;">NMS/IPAM intergration</a>
+        <a class="nav-link" id="v-pills-settings-bgp-monitor-tab" data-toggle="pill" href="#v-pills-settings-bgp-monitor" role="tab" aria-controls="v-pills-settings-bgp-monitor" aria-selected="false" style="padding: 0px 12px;">BGP monitor</a>
+      </div>
+    </div>
+
+    <FORM METHOD="POST" ACTION="/save-settings">
+      <div class="tab-content" id="v-pills-settings-tabContent" style="/*border-left: 1px solid #ccc;*/ height: auto;">
+
+        <!-- GENEREAL SETTINGS FORM -->
+        <div class="tab-pane fade show active" id="v-pills-settings-general" role="tabpanel" aria-labelledby="v-pills-settings-general-tab">
+
+          <div class="form-group row">
+            <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+              Authentication server:
+            </label>
+            <input class="col-sm-6 form-control form-control-sm settings-general" placeholder="resolvable name or ip address" name="general-authentication-server" value="{{data['settings']['general-authentication-server']}}" />
+          </div>
+
+          <div class="form-group row">
+            <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+              Server ssh port:
+            </label>
+            <input class="col-sm-6 form-control form-control-sm settings-general" name="general-authentication-server-port" value="{{data['settings']['general-authentication-server-port']}}" />
+          </div>
+
+          <div class="form-group row">
+            <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+              Path to device database:
+            </label>
+            <input class="col-sm-6 form-control form-control-sm settings-general" name="general-database" value="{{data['settings']['general-database']}}" />
+          </div>
+
+          <br/>
+
+          <div class="form-group col text-center">
+            <input class="btn btn-secondary btn-sm" type="submit" value="Save"/>
+            <input class="btn btn-outline-secondary btn-sm" type="reset" value="Reset" onclick="resetFormValues('settings-general')" />
+          </div>
+
+        </div>
+
+        <!-- BURST SETTINGS FORM -->
+        <div class="tab-pane fade" id="v-pills-settings-burst" role="tabpanel" aria-labelledby="v-pills-settings-burst-tab">
+
+          <div class="form-group row">
+            <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+              Server address:
+            </label>
+            <input class="col-sm-6 form-control form-control-sm settings-burst" name="burst-server" value="{{data['settings']['burst-server']}}" > 
+          </div>
+
+          <div class="form-group row">
+            <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+              Server ssh port:
+            </label>
+            <input class="col-sm-6 form-control form-control-sm settings-burst" name="burst-server-port" value="{{data['settings']['burst-server-port']}}" >
+          </div>
+
+          <div class="form-group row">
+            <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+              Server login username:
+            </label>
+            <input class="col-sm-6 form-control form-control-sm settings-burst" name="burst-server-username" value="{{data['settings']['burst-server-username']}}">
+          </div>
+
+          <div class="form-group row">
+            <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+              Path to ssh private key:
+            </label>
+            <input class="col-sm-6 form-control form-control-sm settings-burst" name="burst-server-private-key" value="{{data['settings']['burst-server-private-key']}}">
+          </div>
+
+          <div class="form-group row">
+            <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+              Path to client database:
+            </label>
+            <input class="col-sm-6 form-control form-control-sm settings-burst" name="burst-server-client-database" value="{{data['settings']['burst-server-client-database']}}">
+          </div>
+
+          <br/>
+
+          <div class="form-group col text-center">
+            <input class="btn btn-secondary btn-sm" type="submit" value="Save" />
+            <input class="btn btn-outline-secondary btn-sm" type="reset" value="Reset" onclick="resetFormValues('settings-burst')" />
+          </div>
+
+        </div>
+
+        <!-- ON DEMAND SERVICE SETTINGS -->
+        <div class="tab-pane fade" id="v-pills-settings-demand" role="tabpanel" aria-labelledby="v-pills-settings-demand-tab">
+
+          <div class="form-group row">
+            <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+              Server address:
+            </label>
+            <input class="col-sm-6 form-control form-control-sm settings-on-demand" name="ondemand-server" value="{{data['settings']['ondemand-server']}}" > 
+          </div>
+
+          <div class="form-group row">
+            <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+              Server ssh port:
+            </label>
+            <input class="col-sm-6 form-control form-control-sm settings-on-demand" name="ondemand-server-port" value="{{data['settings']['ondemand-server-port']}}" >
+          </div>
+
+          <div class="form-group row">
+            <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+              Server login username:
+            </label>
+            <input class="col-sm-6 form-control form-control-sm settings-on-demand" name="ondemand-server-user" value="{{data['settings']['ondemand-server-user']}}">
+          </div>
+
+          <div class="form-group row">
+            <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+              Path to ssh private key:
+            </label>
+            <input class="col-sm-6 form-control form-control-sm settings-on-demand" name="ondemand-server-private-key" value="{{data['settings']['ondemand-server-private-key']}}">
+          </div>
+
+          <div class="form-group row">
+            <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+              Path to client database:
+            </label>
+            <input class="col-sm-6 form-control form-control-sm settings-on-demand" name="ondemand-server-client-database" value="{{data['settings']['ondemand-server-client-database']}}">
+          </div>
+
+          <div class="form-group row">
+            <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+              Email of alert recipient:
+            </label>
+            <input class="col-sm-6 form-control form-control-sm settings-on-demand" name="ondemand-alert-recipient" value="{{data['settings']['ondemand-alert-recipient']}}">
+          </div>
+
+          <div class="form-group row">
+            <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+              Path to working directory:
+            </label>
+            <input class="col-sm-6 form-control form-control-sm settings-on-demand" name="ondemand-server-wd" value="{{data['settings']['ondemand-server-wd']}}">
+          </div>
+
+          <br/>
+
+          <div class="form-group col text-center">
+            <input class="btn btn-secondary btn-sm" type="submit" value="Save" />
+            <input class="btn btn-outline-secondary btn-sm" type="reset" value="Reset" onclick="resetFormValues('settings-on-demand')" />
+          </div>
+
+        </div>
+
+
+        <!-- NMS/IPAM INTERGRATION SETTINGS -->
+        <div class="tab-pane fade" id="v-pills-settings-api" role="tabpanel" aria-labelledby="v-pills-settings-api-tab">
+  
+          <div class="form-group row">
+            <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+              NetDot URL:
+            </label>
+            <input class="col-sm-6 form-control form-control-sm settings-api" name="api-netdot-url" value="{{data['settings']['api-netdot-url']}}" >
+            </label>
+          </div>
+
+          <div class="form-group row">
+            <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+              Solarwind Orion NPM:
+            </label>
+            <input class="col-sm-6 form-control form-control-sm settings-api" name="api-orion-server" value="{{data['settings']['api-orion-server']}}" >
+          </div>
+
+          <div class="form-group row">
+            <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+              Solarwind NPM Engine ID:
+            </label>
+            <input class="col-sm-6 form-control form-control-sm settings-api" name="api-orion-engine-id" value="{{data['settings']['api-orion-engine-id']}}" >
+          </div>
+
+          <br/>
+
+          <div class="form-group col text-center">
+            <input class="btn btn-secondary btn-sm" type="submit" value="Save" />
+            <input class="btn btn-outline-secondary btn-sm" type="reset" value="Reset" onclick="resetFormValues('settings-api')" />
+          </div>
+
+        </div>
+
+        <!-- BGP MONITOR SETTINGS -->
+        <div class="tab-pane fade" id="v-pills-settings-bgp-monitor" role="tabpanel" aria-labelledby="v-pills-settings-bgp-monitor-tab">
+  
+          <div class="form-group row">
+            <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+              Refresh rate (minutes):
+            </label>
+            <input class="col-sm-6 form-control form-control-sm" name="bgp-neighbor-monitor-timer"  id="bgp-neighbor-monitor-timer" value="{{data['settings']['bgp-neighbor-monitor-timer']}}" pattern="^[5-9]$|^[1-5][0-9]?$|^60$">
+            </label>
+          </div>
+
+          <br/>
+
+          <div class="form-group col text-center">
+            <input class="btn btn-secondary btn-sm" type="submit" value="Save" />
+            <input class="btn btn-outline-secondary btn-sm" type="reset" value="Reset" onclick="$('#bgp-neighbor-monitor-timer').val('')" />
+          </div>
+
+        </div>
+      </div>
+    </FORM>
+  </div>
+
+
+  <!-- DOCUMENTATION -->
+  <div class="tab-pane fade" id="nav-doc" role="tabpanel" aria-labelledby="nav-doc-tab">
+    <div id="documentation-tab-content">
+
+      <h1 class="bd-title">Navigation</h1>
+      <br/>
+      <h2>
+        <div>Home
+          <a class="anchorjs-link " href="#" aria-label="Anchor" data-anchorjs-icon="#" style="padding-left: 0.375em;"></a>
+        </div>
+      </h2>
+      <p>
+        Home tab where user can navigate generic operational functions and methods
+      </p>
+      <h2>
+        <div>Devices
+          <a class="anchorjs-link " href="#" aria-label="Anchor" data-anchorjs-icon="#" style="padding-left: 0.375em;"></a>
+        </div>
+      </h2>
+      <p>
+        Provides a view of the devices the program can interact with.
+        That is if the user can authenticate against the device successfully.
+        The window offers options to add or remove devices from the database.
+        If device is not in this list the program will not operate on it.
+        Editing of device parameters in the database is no currently supported, to edit the device you have to re-add it with new attributes
+      </p>
+      <h2>
+        <div>Command 
+          <a class="anchorjs-link " href="#" aria-label="Anchor" data-anchorjs-icon="#" style="padding-left: 0.375em;"></a>
+        </div>
+      </h2>
+      <p>
+        Provides use with a window to input arguments.
+        Allows user to specify two arguments. 
+        First argument is <samp>commands</samp> which can be a string or list of commands separated by <samp>:</samp> or user can upload a text file containing commands separated by a newline.
+        Second argument is <samp>ip address</samp> which can be a string or user can upload a text file containing ip addresses each separated by a new line.
+      </p>
+      <h2>
+        <div>Settings
+          <a class="anchorjs-link " href="#" aria-label="Anchor" data-anchorjs-icon="#" style="padding-left: 0.375em;"></a>
+        </div>
+      </h2>
+      <ul>
+        <li>
+          General settings section includes the authentication server and the file path to the device database. 
+          User must only specify the path of the directory that will contain the device database file, the database file is a <samp>yaml</samp> formated file.</li>
+        <li>
+          Burst packages section provides user with settings to specify the burst package server address and the full path to the burst client file.
+          Full path includes the file name and extension. If these settings are not specified the burst package operations will be disabled.</li>
+        <li>
+          Bandwidth on-demand section provides settings associated with the server for bandwidth on demand services. 
+          User must manually create two directories in the working directory path sepecified in settings. 
+          The two directories to be created in the server are <samp>PendingTickets</samp> and <samp>Logs</samp>. The directory names are case sensitive.
+          If these settings are not specified the bandwidth on demand operations will be disabled.</li>
+        <li>
+          NMS/IPAM intergration section provides user with options to specify parameters required for consuming <samp>APIs</samp> from Solarwinds Orion NMS and Netdot documentation tool</li>
+        <li>
+          BGP monitor section allows user to specify the frequency of updating BGP monitor window when BGP neighbor monitor is running</li>
+      </ul>
+      <br/>
+
+
+      <h1 class="bd-title">Home</h1>
+      <br/>
+      <h2>
+        <div>Vlan operation
+          <a class="anchorjs-link " href="#" aria-label="Anchor" data-anchorjs-icon="#" style="padding-left: 0.375em;"></a>
+        </div>
+      </h2>
+      <div class="bd-example">
+        <strong>Vlan Finder:</strong><br/>
+            Provides user with a window where they can choose a router from the IP list and the respective interface
+            From which the program will return a list of free vlans in a separate output window. This works on a single IP address chosen.
+            User has the flexibility of specifying the range of interest by using the radio button options
+      </div>
+      <div class="highlight" style="margin-bottom: 0px;">
+        <strong>Vlan Finder2:</strong><br/>
+            Provides user with a window where they can choose two router from the IP list and their respective interface
+            From which the program will return a list of co-existing free vlans from the two routers in a separate output window. This works on a the two IP addresses chosen.
+            User has the flexibility of specifying the range of interest by using the radio button options.
+            Useful for layer 2 pseudowires and for identifying free vlans from two interfaces of the same router.
+      </div>
+      <div class="bd-example" style="margin-top: 0px;">
+        <strong>Locate vlan:</strong><br/>
+            Provides user with a form to input the VLAN id and the program returns the list of IP addresses from the devices database in which the VLAN id has been used.
+            If the respective interface of the router has been configured with interface description, the description is also included in the output.
+      </div>
+      <br/>
+      <h2>
+        <div>IPv4 operation
+          <a class="anchorjs-link " href="#" aria-label="Anchor" data-anchorjs-icon="#" style="padding-left: 0.375em;"></a>
+        </div>
+      </h2>
+      <div class="highlight">
+        <strong>Locate address:</strong><br/> 
+        Provides user with a form to input an IP address (with prefix length) or subnet (with prefix length)
+        The program then returns the list of IP addresses from the devices database in which the network or its subnets have been used.
+        Includes support for VRFs and logical systems for JunOS.<br/>
+        For cisco IOS and IOSXE software search sections are <samp>[access-list|interfaces|ip route|prefix-lists]</samp><br/>
+        For juniper JunOS search hierarchies are <samp>[interfaces|static route|route-filter|prefix-lists]</samp>
+      </div>
+      <br/>
+      <h2>
+        <div>Locate service
+          <a class="anchorjs-link " href="#" aria-label="Anchor" data-anchorjs-icon="#" style="padding-left: 0.375em;"></a>
+        </div>
+      </h2>
+      <div class="bd-example">
+        <strong>Locate vlan:</strong><br/>
+        Provides user with a window to input the VLAN id and the program returns the list of IP addresses from the devices database in which the VLAN id has been used.
+        If the respective interface of the router has been configured with interface description, the description is also included in the output.
+      </div>
+      <div class="highlight" style="margin-bottom: 0px;">
+        <strong>Locate address:</strong><br/>
+        Provides user with a window to input an IP address (with prefix length) or subnet (with prefix length)
+        The program then returns the list of IP addresses from the devices database in which the network or its subnets have been used.<br/>
+        For cisco IOS and IOSXE software search sections are <samp>[access-list|interfaces|ip route|prefix-lists]</samp><br/>
+        For juniper JunOS search hierarchies are <samp>[interfaces|static route|route-filter|prefix-lists]</samp>
+      </div>
+      <div class="bd-example" style="margin-top: 0px;">
+        <strong>Locate name:</strong><br/>
+        Provides user with a window to input the name of service or client. This name must be part of the description of the interface assosicated with the client.
+        The program then returns the list of IP addresses from the devices database in which the name is found.
+        Supports regular expression for input however the regular expression style must be supported by the device operationg system.
+        JunOS and Cisco IOS and IOS XE do not support GNU notations for regular expressions such as <samp>\d</samp> or <samp>\s</samp> or <samp>\w</samp> as well as quantifiers in curly brackets <samp>{}</samp><br/>
+        With JunOS the length of the pattern and command used to search for the pattern altogher can only be as long as 65499 bytes
+      </div>
+      <br/>
+      <h2>
+        <div>Burst packages 
+          <a class="anchorjs-link " href="#" aria-label="Anchor" data-anchorjs-icon="#" style="padding-left: 0.375em;"></a>
+        </div>
+      </h2>
+      <p>
+        Provides functionality to manage bandwidth change configuration for burst clients.
+        This functionality requires a server whith which to sync data. The burst server is specified in the settings tab for burst packages.
+        The burst server must exist and it must have the burstman code installed.
+        The server must be linux based. More on server setup is covered in bBurt section.<br/>
+        <p><strong>Dependancies:</strong></p>
+        <div style="padding-left: 8px">
+          <ul>
+            <li>burstman.py</li>
+            <li>crontab</li>
+            <li>python</li>
+          </ul>
+        </div>
+      </p>
+      <div class="highlight" style="margin-bottom: 0px;">
+        <strong>Add a client:</strong><br/>
+        Provides user a window to add details pertaining to addition of a new client to the system.
+        This operation is done on the burst server specified on the settings tab. The server details will be shown on the top of this window.
+        If the server details and file paths have not been specified this option will be unavailable.
+      </div>
+      <div class="bd-example" style="margin-top: 0px;">
+        <strong>Remoce client</strong><br/>
+        Provides user a window to specify details pertaining to removal of an existing client from the system.
+        This operation is done on the burst server specified on the settings tab. The server details will be shown on the top of this window.
+        If the server details and file paths have not been specified this option will be unavailable.
+      </div>
+      <div class="highlight" style="margin-bottom: 0px;">
+        <strong>Move client</strong><br/>
+        Provides user a window to modify details pertaining to an existing client to the system.
+        User is only required to specify the updated information related to the client.
+        This operation is done on the burst server specified on the settings tab. The server details will be shown on the top of this window.
+        If the server details and file paths have not been specified this option will be unavailable.
+      </div>
+      <div class="bd-example" style="margin-top: 0px;">
+        <strong>View clients</strong><br/>
+        Provides user a window to view all the existing clients in the system with their respective packages.
+        The presentation format will be in a human readable easy to understand text form, each line presents a single client.
+        If the server details and file paths have not been specified this option will be unavailable.
+      </div>
+      <br/>
+      <h2>
+        <div>On-demand services
+          <a class="anchorjs-link " href="#" aria-label="Anchor" data-anchorjs-icon="#" style="padding-left: 0.375em;"></a>
+        </div>
+      </h2>
+      <p>
+        Provides functionality to manage bandwidth change configuration for clients with on demand capacity requirements.
+        This functionality requires a server whith which to sync data.
+        The server is specified in the settings tab for bandwidth on demand.
+        The bandwidth on demand server must exist and it must have the willdo code installed.
+        The server must be linux based. More on bandwidth on demand is covered in bandwodth on demand section.
+        <p><strong>Dependancies:</strong></p>
+        <div style="padding-left: 8px">
+          <ul>
+            <li>talktous.py</li>
+            <li>at</li>
+            <li>sed</li>
+            <li>awk</li>
+            <li>python</li>
+          </ul>
+        </div>
+      </p>
+      <div class="highlight" style="margin-bottom: 0px;">
+        <strong>Add a ticket:</strong><br/>
+        Provides user a window to add details pertaining to current and the demanded bandwidth subscriptions and the required duration.
+        This information is saved on the bandwidth on demand server specified in the settings tab. The server details will be shown on the top of this window.
+        The program will generate a script to revert the bandwidth subscription and schedule the task on the specified date.
+        If the server details and file paths have not been specified this option will be unavailable.
+      </div>
+      <div class="bd-example" style="margin-top: 0px;">
+        <strong>Delete ticket</strong><br/>
+        Provides user a window from which to remove a pending ticket from the system.
+        This operation is done on the bandwidth on demand server specified on the settings tab. The server details will be shown on the top of this window.
+        If the server details and file paths have not been specified this option will be unavailable.
+      </div>
+      <div class="highlight" style="margin-bottom: 0px;">
+        <strong>Update ticket</strong><br/>
+        Provides user a window to modify details pertaining to an existing ticket in the system.
+        User is only required to specify the updated information related to the ticket.
+        This operation is done on the bandwidth on demand server specified in the settings tab. The server details will be shown on the top of this window.
+        If the server details and file paths have not been specified this option will be unavailable.
+      </div>
+      <div class="bd-example" style="margin-top: 0px;">
+        <strong>View tickets</strong><br/>
+        Provides user a window to view all the pending tickets in the system with their respective due dates.
+        The presentation format will be in a human readable text form.
+        If the server details and file paths have not been specified this option will be unavailable.
+      </div>
+      <br/>
+      <h2>
+        <div>Provision service
+          <a class="anchorjs-link " href="#" aria-label="Anchor" data-anchorjs-icon="#" style="padding-left: 0.375em;"></a>
+        </div>
+      </h2>
+      <p>Provides user with a dedicate window for service provisioning.</p>
+        <div class="highlight" style="margin-bottom: 0px;">
+        <strong>Internet:</strong><br/>
+        Currently support provisioning of internet services.
+        For internet provisioning the program offers support for both ipv4 and ipv6 with auto vlan listing and bandwidth policing.
+        This wizard can also be used to partially provision layer 3 MPLS in terms of IP address assignment, traffic policing and vlan selection.
+        After the system configures the service it will display what has been done before and after as well as the results of reachability test on the provisoned service.
+      </div>
+      <div class="bd-example" style="margin-top: 0px;">
+        <strong>Layer 3 MPLS:</strong><br/>
+        The application offers partial support for VRF configuration. When provisioning L3MPLS a service can only be provisioned on existing 
+        VRFs. VRF cannot be created from scratch because there is no support for advanced layer 3 MPLS VRFs and routing configurations.
+      </div>
+      <div class="highlight" style="margin-bottom: 0px;">
+        <strong>Layer 2 MPLS:</strong><br/>
+        Provide support for player 2 MPLS pseudowires/l2circuits Martini based using targeted LDP.
+        The program auto vlan listing and bandwidth policing and auto virtual-circuit-id selection.
+        The MTU must be explicitly specified. This is to facilitate multi vendor compatibility.
+        After the system configures the service it will display what has been done before and after as well as the results of reachability test on the provisoned service.
+      </div>
+      <p><br/>
+        <strong>Testing methodology:</strong><br>
+        For layer 2 MPLS the latest device to commit the configuration will have the most accurate reachability test. Despite the fact that the devices will be configured simultaneously,
+        one of the device will complete the configuration faster than the other and will ran tests while the other device is still provisioning the test. 
+        This is not an error as the processing speed of the device depends on the device hardware resources and response time with respect to this program.
+        Therefore if the output of the tests from the two devices are similar the test is conclusive.
+        If they differ the successful test is the conlusive test.
+      </p>
+
+      <h1 class="bd-title">Server configuration</h1>
+      <br/>
+      <h2>
+        <div>Burst services
+          <a class="anchorjs-link " href="#" aria-label="Anchor" data-anchorjs-icon="#" style="padding-left: 0.375em;"></a>
+        </div>
+      </h2>
+      <p><strong>Dependancies:</strong></p>
+        <div style="padding-left: 8px">
+          <ul>
+            <li>burstman.py</li>
+            <li>crontab</li>
+            <li>python</li>
+          </ul>
+        </div>
+
+
+        <strong>Installation steps on server</strong><br/>
+        <p>
+          Create a working directory
+          <div class="bd-example pad-8" >
+            <samp>
+            basondole@server:~/docs<br/>
+            $ <span style="color: blue">mkdir</span> burstmanager<br/>
+            $ <span style="color: blue">cd</span> burstmanager<br/>
+            </samp>
+          </div>
+        </p>
+        <p>
+          Create the device database in this working directory; the device database is a file designated as <samp>devices.yml</samp>
+          <div class="bd-example pad-8" >
+            <samp>
+            basondole@server:~/docs/burstmanager<br/>
+            $ <span style="color: blue">touch</span> devices.yml<br/>
+            </samp>
+          </div>
+          <br/>
+
+          Copy the contents of <kbd>Devices Tab</kbd> <kbd>></kbd> <kbd>Raw view</kbd> into <samp>device.yml</samp>
+        </p>
+
+        <p>
+          Create a logs directory
+          <div class="bd-example pad-8" >
+            <samp>
+            basondole@server:~/docs/burstmanager<br/>
+            $ <span style="color: blue">mkdir</span> logs
+            </samp>
+          </div>
+        </p>
+
+        <p>
+          Create a file <samp>burstclients.db</samp>
+          <div class="bd-example pad-8" >
+            <samp>
+            basondole@server:~/docs/burstmanager<br/>
+            $ <span style="color: blue">touch</span> burstclients.db
+            </samp>
+          </div><br/>
+
+          Put a test client as shown below<br/>
+          <div class="bd-example pad-8" >
+            <samp>
+            basondole@server:~/docs/burstmanager<br/>
+            $ <span style="color: blue">echo</span> "pe=192.168.56.36 interface=em1 vlan=400 daybandwidth=1M nightbandwidth=5M starttime=1800 endtime=0800 days=weekends sitename=test" > burstclients.db
+            </samp>
+          </div>
+
+          <br/>
+          Note: the bandwidth column must contain the bandwith policer or service policy name as configured in the respective router whose ip address is specified in the <samp>pe=</samp> column. This is one time setup and the process will be automated later.
+        </p>
+
+        <p>
+          Put the burstman executable in the working directory. Use the Debian version for ubuntu server or Redhat version for Centos Server if using executable binary otherwise put the <samp>burstman.py</samp> file instead.
+          <div class="bd-example pad-8" >
+            <samp>
+            basondole@server:~/docs/burstmanager<br/>
+            $ <span style="color: blue">tree</span><br/>
+            .<br/>
+            ├── <span style="color: green">burstman.py</span><br/>
+            ├── <span>burstclients.db</span><br/>
+            ├── <span>devices.yml</span><br/>
+            └── <span style="color: purple">logs</span><br/>
+            <br/>
+            1 directory, 3 files
+            </samp>
+          </div><br/>
+        </p>
+        <p>
+          Run the burstman executable with switches <samp>testip</samp> and <samp>creddir</samp>
+          The <samp>testip</samp> switch is used to test login credentials against the secified ip address, use any active ip address in your network.
+          <samp>creddir</samp> switch is used to specify the full path to the directory you want to save login credential for auto-login
+          <div class="bd-example pad-8" >
+            <samp>
+            basondole@server:~/docs/burstmanager<br/>
+            $ <span style="color: blue">burstman</span> -testip 192.168.56.36 -creddir "/home/basondole/docs/burstmanager/"<br/>
+            Username:
+            </samp>
+          </div>
+        </p>
+        <p>
+          You will be promted to enter username and password. This will validate your credentials and store them in the specified path in an encrypted format.
+          After this you can re-run the command to verify and you should get a message <samp>INFO: username and password auto-retrieved</samp>
+          <div class="bd-example pad-8" >
+            <samp>
+            basondole@server:~/docs/burstmanager<br/>
+            $ <span style="color: blue">burstman</span> -testip 192.168.56.36 -creddir "/home/basondole/docs/burstmanager/"<br/>
+            INFO: username and password auto-retrieved<br/>
+            Sun Apr  7 06:09:22 2019 (user = paul) initializing connection   192.168.56.36<br/>
+            Sun Apr  7 06:09:22 2019 (user = paul) authentication starting 192.168.56.36<br/>
+            Sun Apr  7 06:09:22 2019 (user = paul) passed authentication > 192.168.56.36<br/>  
+            Credential saved successfully
+            </samp>
+          </div><br/>
+          Use similar metodology to modify the credentials or regenerate the credential file if it gets corrupted or if you intend to change the credentials file directory.
+        </p>
+
+        <p>
+          burstman script must be executed with switches in order to do the auto configurations and logging. Use below switches to run burstman
+          All of the below switches must be specified when running burstman<br/>
+          <div style="padding-left: 10px">
+            <ul>
+              <li><samp class="badge badge-secondary">-creddir</samp>  specifies the credential directory path</li>
+              <li><samp class="badge badge-secondary">-ipdb</samp>     specifies the device ip address database path</li>
+              <li><samp class="badge badge-secondary">-clientdb</samp> specifies the clients database path</li>
+              <li><samp class="badge badge-secondary">-logdir</samp>   specifies the log directoy path</li>
+            </ul>
+          </div>
+
+          <div class="bd-example pad-8" >
+            <samp>
+            basondole@server:~/docs/burstmanager<br/>
+            $ <span style="color: blue">burstman</span> -creddir "/home/basondole/docs/burstmanager/" -ipdb "/home/basondole/docs/burstmanager/devices.yml" -clientdb "/home/basondole/docs/burstmanager/burstclients.db" -logdir "/home/basondole/docs/burstmanager/Logs/"
+            </samp>
+          </div><br/>
+          If no errors are generated. The setup is succesful. If you get error messages revisit above steps
+        </p>
+        <p>
+          Create a cronjob to run at desired time depeding on your packages start and end times<br/>
+          For testing create a cronjob to run every 5 minutes
+
+          <div class="bd-example pad-8" >
+            <samp>
+            basondole@server:~/docs/burstmanager<br/>
+            $ crontab -l | <span style="color: orange">egrep</span> "^\*"<br/>
+          */5 * * * * cd /home/basondole/doc/burstmanager && /home/basondole/docs/burstmanager/burstman -creddir "/home/basondole/docs/burstmanager/" -ipdb "/home/basondole/docs/burstmanager/device.yml" -clientdb "/home/basondole/docs/burstmanager/clients.db" -logdir "/home/basondole/docs/logs/"  1>> /home/basondole/docs/logs/cron.log 2>> /home/basondole/docs/logs/cron.err<br/>
+            </samp>
+          </div><br/>
+
+          The cronjob will put the <samp>stdout</samp> of the executed cron job to a file <samp>cron.log</samp> and the <samp>std error</samp> to <samp>cron.err</samp> This cronjob runs every 5 minutes. When it runs it does the following in that order;
+          <div style="padding-left: 10px">
+            <ul>
+              <li>go to dicrectory <samp>/home/basondole/doc/burstmanager</samp></li>
+              <li>run <samp>/home/basondole/docs/burstmanager/burstman -creddir "/home/basondole/docs/burstmanager/" -ipdb "/home/basondole/docs/burstmanager/devices.yml" -clientdb "/home/basondole/docs/burstmanager/clients.db" -logdir "/home/basondole/docs/logs/"</samp></li>
+              <li>save the output from cron execution to <samp>/home/basondole/docs/logs/cron.log</samp></li>
+              <li>save cron encoutered errors to <samp>/home/basondole/docs/logs/cron.err</samp></li>
+            </ul>
+          </div>
+        </p>
+        <p>
+          In addition to the <samp>stdout</samp> and <samp>std error</samp> loggin done by cron described above. burstman creates two types of log files. These log files will be created in the log directory specified with the <samp>-logdir</samp> option<br/>
+          <div style="padding-left: 10px">
+              <samp>192.168.56.57-cmd.log</samp> this will show the commands that have been issued by <samp>burstman</samp> to the router with ip address 192.168.56.57<br/>
+          </div>
+          <div style="padding-left: 10px">
+              <samp>192.168.56.57-cli.log</samp> this will show the actual interaction between <samp>burstman</samp> and the cli of the router with ip address 192.168.56.57<br/>with time stamps
+          </div>
+
+
+      <br/><br/>
+      <h2>
+        <div>On-demand services
+          <a class="anchorjs-link " href="#" aria-label="Anchor" data-anchorjs-icon="#" style="padding-left: 0.375em;"></a>
+        </div>
+      </h2>
+      <p><strong>Dependancies:</strong></p>
+        <div style="padding-left: 8px">
+          <ul>
+            <li>talktous.py</li>
+            <li>bash</li>
+            <li>at</li>
+            <li>awk</li>
+            <li>sed</li>
+            <li>sendmail</li>
+          </ul>
+        </div>
+
+        <strong>Installation steps on server:</strong><br/>
+        <p>
+          Create a working directory
+          <div class="bd-example pad-8" >
+            <samp>
+            basondole@server:~/docs<br/>
+            $ <span style="color: blue">mkdir</span> ondemand<br/>
+            $ <span style="color: blue">cd</span> ondemand<br/>
+            </samp>
+          </div>
+        </p>
+
+        <p>
+          Create the device database in this working directory; the device database is a file designated as <samp>devices.yml</samp>
+          <div class="bd-example pad-8" >
+            <samp>
+            basondole@server:~/docs/ondemand<br/>
+            $ <span style="color: blue">touch</span> devices.yml<br/>
+            </samp>
+          </div>
+          <br/>
+
+          Copy the contents of <kbd>Devices Tab</kbd> <kbd>></kbd> <kbd>Raw view</kbd> into <samp>device.yml</samp>
+        </p>
+
+         <p>
+          Create two other directories named <samp>Logs</samp> and <samp>PendingTickets</samp> names are case sensitive
+          <div class="bd-example pad-8" >
+            <samp>
+            basondole@server:~/docs/burstmanager<br/>
+            $ <span style="color: blue">mkdir</span> Logs
+            $ <span style="color: blue">mkdir</span> PendingTickets
+            </samp>
+          </div>
+        </p>
+
+        <p>
+          Put the talktous executable in the working directory. Use the Debian version for ubuntu server or Redhat version for Centos Server if using executable binary otherwise put the <samp>talktous.py</samp> file instead.
+          <div class="bd-example pad-8" >
+            <samp>
+            basondole@server:~/docs/ondemand<br/>
+            $ <span style="color: blue">tree</span><br/>
+            .<br/>
+            ├── <span style="color: green">talktous.py</span><br/>
+            ├── <span>devices.yml</span><br/>
+            ├── <span style="color: purple">Logs</span><br/>
+            └── <span style="color: purple">PendingTickets</span><br/>
+            <br/>
+            2 directory, 2 files
+            </samp>
+          </div><br/>
+        </p>
+        <p>
+          Run <samp>talktous</samp> executable with switches <samp>commands</samp> and <samp>ipaddress</samp>
+          you will be promted to enter username and password. This will validate your credentials and store them in current directory in an encrypted format. This process will save your credentials in an encrypted format and they will be used in future scheduled tasks.
+          Use any command of your preference as the command option and any ip address active in the network.
+          <div class="bd-example pad-8" >
+            <samp>
+            basondole@server:~/docs/ondemand<br/>
+            $ <span style="color: blue">talktous.py</span> -commands "show system alarms" -ipaddress 192.168.56.36<br/>
+            Username: fisi<br/>
+            Password:<br/>
+            Sat Jun 15 04:14:03 2019 (user = fisi) passed authentication > 192.168.56.36<br/><br/>
+            [192.168.56.36]<br/>
+               fisi@big> show system alarms<br/>
+               No alarms currently active<br/>
+            </samp>
+          </div><br/>
+           After above you can re-run the command to verify and you should get a message <samp>INFO: username and password auto-retrieved</samp>
+           <div class="bd-example pad-8" >
+            <samp>
+            basondole@server:~/docs/ondemand<br/>
+            $ <span style="color: blue">talktous.py</span> -commands "show system alarms" -ipaddress 192.168.56.36<br/>
+            INFO: username and password auto-retrieved<br/>
+            Sat Jun 15 04:19:09 2019 (user = fisi) passed authentication > 192.168.56.36<br/><br/>
+            [192.168.56.36]<br/>
+               fisi@big> show system alarms<br/>
+               No alarms currently active<br/>
+             </samp>
+           </div><br/>
+            Use similar metodology to modify the credentials or regenerate the credential file if it gets corrupted or if you change the credentials file directory.
+        </p>
+        <p>
+          All tickets added from the client application go to the <samp>PendingTickets</samp> directory created prior.
+          Logging of executed tasks will be saved in the <samp>Logs</samp> directory created prior.
+          If the server is configured with mail capabilities an email will be sent to the configured mail box.
+        </p>
+
+        <br/><br/>
+        <h2>
+          <div>Client authentication in the backend server
+            <a class="anchorjs-link " href="#" aria-label="Anchor" data-anchorjs-icon="#" style="padding-left: 0.375em;"></a>
+          </div>
+        </h2>
+        <p>
+          While access to devices is limited to the use of username and password. Clients will use keys to authenticate with the server in order to add, view or remove clients from on demand schedules. The user of the client must create an <samp>rsa</samp> key that will be added to the authorised keys in the server.
+
+          Since many users are using windows PCs we'll cover the creation of keys in windows with OpenSSH:
+          Go to <samp>c:\windows\system32\openssh</samp>
+          <div class="bd-example pad-8" >
+            <pre style="font-size: 15px">c:\> cd windows\system32\openssh
+  c:\Windows\System32\OpenSSH> ssh-keygen.exe
+  Generating public/private rsa key pair.
+  Enter file in which to save the key (C:\Users\u/.ssh/id_rsa):
+  Enter passphrase (empty for no passphrase):
+  Enter same passphrase again:
+  Your identification has been saved in C:\Users\u\.ssh\id_rsa.
+  Your public key has been saved in C:\Users\u\.ssh\id_rsa.pub.
+  The key fingerprint is:
+  SHA256:BZLZjkj7OYTqMw4xQekJwgDO7PS0jgoyQUMkQIRyDeo paul@baso-nation
+  The key's randomart image is:
+  +---[RSA 2048]----+
+  |#*oo  .+.        |
+  |%+. o o...       |
+  |BO.o + o  .      |
+  |=++ = o ..       |
+  |+E + o .S        |
+  | ++   +          |
+  |=o .   .         |
+  |+o+              |
+  |...o             |
+  +----[SHA256]-----+
+
+  c:\Windows\System32\OpenSSH></pre>
+          </div>
+        </p>
+
+        <p>
+          Open the location and copy the public key
+          <div class="bd-example pad-8" >
+            <samp>
+            c:\Windows\System32\OpenSSH> cat C:\Users\u\.ssh\id_rsa.pub
+            ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCZGRQBprO0LQeiUDW2hR7Yfj3DIF5MbBiG+3/ZyuedS0shbSw
+            xLOMBNhU7MAuXKVuvtzAsFy/IAKN41LhSvq7ppg0Bq+qMsxKJ8U8BY0svM+Hzpe+fJIfJz6R2dp+R79
+            t+EYRR1UdYQO60I2fUdIgazR1AHV1H/6fO/TNXykI2PsqeXSfrTo8Li/WAyRt+1C+U6LPUO5OnkbP+c
+            JxeqtDPkz1I2I7d4izonbmCrIegIGlGpx1ib2/WmqkpX+r0+iqrCQll7TvM73yduC31qMks/g+ncfeu
+            VQPHdLsTlmNWt3MlLCCo+/lVbsMZJuAs38cn4UfpE78qdGY00r4MHIlJ paul@baso-nation
+            </samp>
+          </div><br/>
+          Open the server and edit the authorized host to add the copied key above
+
+          <div class="bd-example pad-8" >
+            <samp>
+            basondole@server:~/.ssh$ nano authorized_keys
+            ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCZG.....
+            </samp>
+          </div><br/>
+          Open settings window of the client application and add the path to the gerated private key
+        </p>
+
+        <br/><br/>
+        <h2>
+          <div>Solarwinds and Netdot API
+            <a class="anchorjs-link " href="#" aria-label="Anchor" data-anchorjs-icon="#" style="padding-left: 0.375em;"></a>
+          </div>
+        </h2>
+        <p>
+          This client application can interface with Netdot and Solarwind Orion NPM. User is required to configure the server details in settings for these operations to work.
+          The usename and password used to authenticate on those servers must be similar to the username and password used for ssh login to the router and they are input by user during application startup<br/><br/>
+        </p>
+
+        <br/><br/>
+        <div>
+        <h2>
+          <div>Users database
+            <a class="anchorjs-link " href="#" aria-label="Anchor" data-anchorjs-icon="#" style="padding-left: 0.375em;"></a>
+          </div>
+        </h2>
+        <p> To access the database open the python interpreter, import the <samp>db</samp> and the <samp>models.py</samp> classes
+          <div class="bd-example pad-8" >
+            <pre style="font-size: 15px">>>> from test import db, LogBook, User</pre>
+          </div>
+        </p>
+        <p>
+          <div class="highlight" style="margin-bottom: 0px;">
+          Adding a user
+          </div>
+          <div class="bd-example pad-8" style="margin-top: 0px;" >
+            <pre style="font-size: 15px">>>> user_1 = User(username='rancid', password='rancid123', email='rancid@bassonation.org')
+>>> db.session.add(user_1)
+>>> db.session.commit()</pre>
+          </div>
+        </p>
+        <p>
+          <div class="highlight" style="margin-bottom: 0px;">
+          Fetching all the users from the <b>User</b> table, the <samp>all()</samp> method return a <samp>list</samp>
+          of user objects
+          </div>
+          <div class="bd-example pad-8" style="margin-top: 0px;" >
+            <pre style="font-size: 15px">>>> User.query.all()
+[User('rancid', 'rancid@bassonation.org')]</pre>
+          </div>
+        </p>
+          <div class="highlight" style="margin-bottom: 0px;">
+          Fetching the first item from the <b>User</b> table, <samp>first()</samp> method returns a single user object
+          </div>
+          <div class="bd-example pad-8" style="margin-top: 0px;" >
+            <pre style="font-size: 15px">>>> User.query.first()
+User('rancid', 'rancid@bassonation.org')</pre>
+          </div>
+        </p>
+        <p>
+          <div class="highlight" style="margin-bottom: 0px;">
+          Fetching all items from the <b>User</b> table that have <samp>username rancid</samp>
+          </div>
+          <div class="bd-example pad-8" style="margin-top: 0px;" >
+            <pre style="font-size: 15px">>>> User.query.filter_by(username='rancid').all()
+[User('rancid', 'rancid@bassonation.org')]</pre>
+          </div>
+        </p>
+        <p>
+          <div class="highlight" style="margin-bottom: 0px;">
+          Similary to get the fist object
+          </div>
+          <div class="bd-example pad-8" style="margin-top: 0px;" >
+            <pre style="font-size: 15px">>>> User.query.filter_by(username='rancid').first()
+User('rancid', 'rancid@bassonation.org')</pre>
+          </div>
+        </p>
+        <p>
+          <div class="highlight" style="margin-bottom: 0px;">
+          Storing the object in a variable and accessing its attribute
+          </div>
+          <div class="bd-example pad-8" style="margin-top: 0px;" >
+            <pre style="font-size: 15px">>>> user = User.query.filter_by(username='rancid').first()
+>>> user.id
+1
+
+>>> user.password
+'*DF4740C4B81BE1D7DD1770F41298F28409AF87E8'</pre>
+          </div>
+        </p>
+        <p>
+          <div class="highlight" style="margin-bottom: 0px;">
+            Getting user by their id
+          </div>
+          <div class="bd-example pad-8" style="margin-top: 0px;" >
+            <pre style="font-size: 15px">>>> User.query.get(1)
+User('rancid', 'rancid@bassonation.org')
+
+>>> User.query.get(2)
+User('fisi', 'fisi@bassonation.org')
+</pre>
+          </div>
+        </p>
+        <p>
+          <div class="highlight" style="margin-bottom: 0px;">
+           Associate a log entry with a user
+          </div>
+          <div class="bd-example pad-8" style="margin-top: 0px;" >
+            <pre style="font-size: 15px">>>> user = User.query.filter_by(username='rancid').first()
+>>> log_1 = LogBook(command='login', user_id=user.id)
+>>> db.session.add(log_1)
+>>> db.session.commit()
+>>> user.log
+[LogBook('login', '2020-03-01 14:21:40.767279')]
+</pre>
+          </div>
+        </p>
+        <p>
+          <div class="highlight" style="margin-bottom: 0px;">
+           Access the user logs by <samp>user_id</samp>
+          </div>
+          <div class="bd-example pad-8" style="margin-top: 0px;" >
+            <pre style="font-size: 15px">>>> user_rancid_logs = LogBook.query.filter_by(user_id='1').first()
+>>> user_rancid_logs
+LogBook('login', '2020-03-01 14:21:40.767279')
+
+>>> user_rancid_logs = LogBook.query.filter_by(user_id='1').all()
+>>> user_rancid_logs
+[LogBook('login', '2020-03-01 14:21:40.767279'), LogBook('login', '2020-03-01 14:25:17.618724')]</pre>
+          </div>
+        </p>
+        <p>
+          <div class="highlight" style="margin-bottom: 0px;">
+           Edit logs
+          </div>
+          <div class="bd-example pad-8" style="margin-top: 0px;" >
+            <pre style="font-size: 15px">>>> LogBook.query.first()
+LogBook('login', '2020-03-01 14:17:44.058953')
+>>> LogBook.query.first().id
+1
+
+>>> LogBook.query.first().user_id
+1
+
+>>> LogBook.query.first().user_id = '2'
+>>> db.session.commit()
+>>> LogBook.query.first().user_id
+'2'
+
+>>> LogBook.query.first()
+LogBook('login', '2020-03-01 14:17:44.058953')</pre>
+          </div>
+        </p>
+        <p>
+          <div class="highlight" style="margin-bottom: 0px;">
+           Query the user object associated with a log object by accessing the backref from the LogBook table
+          </div>
+          <div class="bd-example pad-8" style="margin-top: 0px;" >
+            <pre style="font-size: 15px">>>> LogBook.query.all()
+[LogBook('login', '2020-03-01 14:17:44.058953'), LogBook('login', '2020-03-01 14:21:40.767279'), LogBook('login', '2020-03-01 14:25:17.618724'), LogBook('login', '2020-03-01 15:02:01.473204')]
+
+>>> LogBook.query.get(1)
+LogBook('login', '2020-03-01 14:17:44.058953')
+
+>>> LogBook.query.get(1).user
+User('rancid', 'rancid@bassonation.org')</pre>
+          </div>
+        </p>
+        <p>
+          <div class="highlight" style="margin-bottom: 0px;">
+           Removing all tables from the database
+          </div>
+          <div class="bd-example pad-8" style="margin-top: 0px;" >
+            <pre style="font-size: 15px">>>> db.drop_all()
+>>> db.create_all()
+>>> User.query.all()
+[]
+
+>>> LogBook.query.all()
+[]</pre>
+          </div>
+        </p>
+      </div>
+      <br/>
+
+      </p>
+    </div>
+  </div>
+
+  <!-- ABOUT -->
+  <div class="tab-pane fade" id="nav-about" role="tabpanel" aria-labelledby="nav-about-tab">
+    <h1 class="bd-title">Overview</h1>
+    <p class="bd-lead" style="max-width: 100%;">
+     This system of tools povides efficient and easier ways to perform common operational tasks in the service provider edge and core network.
+    </p>
+    <p>
+      The functionality offered provides simple means to execute common time consuming; when caried out with conventional methods; and critical tasks. Embeded subsystems that consume API to interface with some popular network systems such as Solarwinds Orion NMS and Netdot help to bridge the gap between systems and databases hence forth providing seemless workflows.
+    </p>
+    <h2><a id="user-content-key-features" class="anchor" aria-hidden="true" href="#key-features"></a>Key features</h2>
+    <ul>
+    <li>Quickly deploy new service by collecting data from your IT infrastructure in a few minutes.</li>
+    <li>Maintain consistent configuration and data records for your infrastructure databases</li>
+    <li>Issue commands to all network devices at once via centralized interface to quickly pinpoint issues or gather information.</li>
+    <li>Automatically schedule bandwidth changes for different services at any time</li>
+    <li>Get email alerts on bandwidth changes performed automatically</li>
+    <li>Store and archive logs for audit and tracking purposes</li>
+    <li>Interface with existing systems with supported APIs</li>
+    <li>Get simple access to relevant data from your entire network</li>
+    <li>Easy to setup and requires no costly training for installation and user education</li>
+    </ul>
+    <h2><a id="user-content-tools-available" class="anchor" aria-hidden="true" href="#tools-available"></a>Tools available</h2>
+    <ul>
+    <li>Service search</li>
+    <li>VLAN operations</li>
+    <li>IPv4 operations</li>
+    <li>Service provisioning</li>
+    <li>BGP Neighbor monitoring</li>
+    <li>Burst packages management</li>
+    <li>Bandwidth on demand management</li>
+    </ul>
+    <h4><a id="user-content-service-search" class="anchor" aria-hidden="true" href="#service-search"></a>Service search</h4>
+    <ul>
+    <li>The search can be performed against a vlan-id, service description or ipv4 address.</li>
+    <li>The tool uses an algorithm to search for interesting sections of running/active configuration in each active edge router in the network.</li>
+    </ul>
+    <h4><a id="user-content-ipv4--vlans-operations" class="anchor" aria-hidden="true" href="#ipv4--vlans-operations"></a>IPv4 &amp; VLANs operations</h4>
+    <ul>
+    <li>Offers the ability to query all active edge routers in the network and find out if an IPv4 prefix or its subnet has been used.</li>
+    <li>Helps in identifying rogue IPv4 addresses configured in the network consequently resolving address and routing conflicts in the network.</li>
+    <li>Allows an operator to locate the edge at which a certain vlan-id has been used.</li>
+    <li>On edge routers with high customer density this tools automates the task of finding free vlans to use for new service provisioning.</li>
+    </ul>
+    <h4><a id="user-content-service-provisioning" class="anchor" aria-hidden="true" href="#service-provisioning"></a>Service provisioning</h4>
+    <ul>
+    <li>Auto provisioning of internet and L2MPLS services on edge routers on a single click.</li>
+    <li>Automatically assigns a vlan-id and IPv4 addresses and adds node to NPM</li>
+    <li>Drastically reduces the amount of time (at least 50%) an administrator would use to gather config details and extra time to update documentation/monitoring databases</li>
+    </ul>
+    <h4><a id="user-content-burst-packages-management" class="anchor" aria-hidden="true" href="#burst-packages-management"></a>Burst packages management</h4>
+    <ul>
+    <li>Offers a client-server relation between the client application running on admin workstation and the server hosting the clients database and config changes.</li>
+    <li>Network admin can easily make use of this unified interface to manage burst clients in a user friendly manner.</li>
+    <li>Offers ability to view clients and their packages, add or remove clients and moving clients between packages.</li>
+    </ul>
+    <h4><a id="user-content-bandwidth-on-demand-management" class="anchor" aria-hidden="true" href="#bandwidth-on-demand-management"></a>Bandwidth on demand management</h4>
+    <ul>
+    <li>Admin can add and schedule bandwidth changes to be carried out or reverted at a later time without requiring manual intervention.</li>
+    <li>User has the ability to view scheduled bandwidth changes and to delete or modify them.</li>
+    <li>Offloads manual tracking of temporary bandwidth change requests that is not very efficient.</li>
+    </ul>
+    <h2><a id="user-content-supported-platforms-for-edge-routers" class="anchor" aria-hidden="true" href="#supported-platforms-for-edge-routers"></a>Supported platforms</h2>
+    <ul>
+    <li>JunOS 11.4R9 and later</li>
+    <li>Cisco IOS 12 and later, IOS XE </li>
+    <li>NETCONF is required for all devices except those running IOS
+    </ul>
+    <h2><a id="user-content-supported-api" class="anchor" aria-hidden="true" href="#supported-api"></a>Consumable APIs</h2>
+    <ul>
+    <li>Solarwinds Orion Swis</li>
+    <li>Netdot REST</li>
+    </ul>
+  </div>
+
+</div>
+
+
+<!-- VLAN OPS POP UP WINDOW -->
+<style>
+.modal {
+   top: 50px;
+}
+</style>
+
+<div class="modal fade" id="vlan-operations-menu" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h1 class="bd-lead modal-title" style="font-size: 2rem;">Vlan operations</h1>
+        <button type="button" class="close" id="vlan-operation-close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <h6 onclick="switchForms('vlan-operations-find-one-vlan')" class="bd-lead" style="font-size: 1.2rem;">
+          <a href="#" style="text-decoration: none;">Find unused vlan-id</a>
+        </h6>
+
+        <div id="vlan-operations-find-one-vlan" class="vlan-operation" align="center">
+          <hr>
+
+          <form method="POST" id="vlan-operation-vlan-finder1-form">
+
+            <div class="form-group row">
+              <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+                Hostname:
+              </label>
+              <select name="vlan-finder1-router" id="vlan-finder1-router" class="col-sm-6 form-control form-control-sm" required>
+              {% for device, name in data['devices'].items()|sort(attribute='1.hostname') %}
+                <OPTION>
+                {{ data['devices'][device]['hostname']}}
+                </OPTION>
+              {% endfor %}
+              </select>
+            </div>
+
+            <div class="form-group row">
+              <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+                Interface:
+              </label>
+              <select name="vlan-finder1-interface"  id="vlan-finder1-interface" class="col-sm-6 form-control form-control-sm" required>
+              {% for device, name in data['devices'].items()|sort(attribute='1.hostname') %}
+                {% if data['devices'][device]['interfaces'] %}
+                  {% for intf in data['devices'][device]['interfaces'] %}
+                <OPTION class="vlan-finder1-interface-{{ device }}">
+                  {{ intf }}
+                </OPTION>
+                  {% endfor %}
+                {% endif %}
+              {% endfor %}
+              </select>
+            </div>
+
+            <div class="form-group row" style="margin-bottom: 0px;">
+              <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+                Search type:
+              </label>
+              <input type="radio" class="form-control-sm" name="vlan-finder1-searchtype" value="list_all" onchange="showRangeFields('vlan-finder1-range-input', 'none','vlan-finder1')" required>
+                <label class="col-form-label col-form-label-sm" style="padding-left: 2px;">List all vlans</label>
+            </div>
+
+            <div class="form-group row">
+              <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+                <!-- place holder -->
+              </label>
+              <input type="radio" class="form-control-sm" name="vlan-finder1-searchtype" value="list_range" onchange="showRangeFields('vlan-finder1-range-input', 'block', 'vlan-finder1')" required>
+                <label class="col-form-label col-form-label-sm" style="padding-left: 2px;">List in range</label>
+            </div>
+
+            <div class="form-group row">
+              <label class="col-sm-4 col-form-label col-form-label-sm" align="right" id="vlan-finder1-searchtype-label">
+                Specify range:
+              </label>
+              <div class="vlan-finder1-range-input" style="display: none">
+                <input class="col-sm form-control form-control-sm vlan-finder1-range-input" name="vlan-finder1-startvlan" id = "vlan-finder1-startvlan" style="margin-bottom: 10px;" placeholder="starting number" onfocusout="validateVlan($(this))"/>
+                <input class="col-sm form-control form-control-sm vlan-finder1-range-input" name="vlan-finder1-endvlan" id = "vlan-finder1-endvlan" placeholder="ending number" onfocusout="validateVlan($(this))"/>
+              </div>
+            </div>
+
+            <div class="form-group col text-center">
+              <input class="btn btn-secondary btn-sm" type="submit" value="Search" />
+              <input class="btn btn-outline-secondary btn-sm" id="vlan-operations-find-one-form" type="reset" value="Reset" />
+            </div>
+
+          </form>
+          <hr>
+        </div>
+
+
+        <h6 onclick="switchForms('vlan-operations-find-two-vlans')" class="bd-lead" style="font-size: 1.2rem;">
+          <a href="#" style="text-decoration: none;">Find unused vlan-ids (2)</a>
+        </h6>
+        <div id="vlan-operations-find-two-vlans" class="vlan-operation" align="center">
+          <hr>
+            <form method="POST" action="/vlanops/find-two-vlans" id="vlan-operation-vlan-finder2-form">
+
+            <div class="form-group row">
+              <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+                Hostname:
+              </label>
+              <select name="vlans-finder-router1" id="vlans-finder-router1" class="col-sm-6 form-control form-control-sm vlan-operations-find-one-form" required>
+              {% for device, name in data['devices'].items()|sort(attribute='1.hostname') %}
+                <OPTION>
+                {{ data['devices'][device]['hostname']}}
+                </OPTION>
+              {% endfor %}
+              </select>
+            </div>
+
+            <div class="form-group row">
+              <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+                Interface:
+              </label>
+              <select name="vlans-finder-interface1"  id="vlans-finder-interface1" class="col-sm-6 form-control form-control-sm vlan-operations-find-one-form" required>
+              {% for device, name in data['devices'].items()|sort(attribute='1.hostname') %}
+                {% if data['devices'][device]['interfaces'] %}
+                  {% for intf in data['devices'][device]['interfaces'] %}
+                <option class="vlans-finder-interface1-{{ device }}">
+                  {{ intf }}
+                </option>
+                  {% endfor %}
+                {% endif %}
+              {% endfor %}
+              </select>
+            </div>
+
+
+            <div class="form-group row">
+              <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+                Hostname:
+              </label>
+              <select name="vlans-finder-router2" id="vlans-finder-router2" class="col-sm-6 form-control form-control-sm vlan-operations-find-one-form" required>
+              {% for device, name in data['devices'].items()|sort(attribute='1.hostname') %}
+                <OPTION>
+                {{ data['devices'][device]['hostname']}}
+                </OPTION>
+              {% endfor %}
+              </select>
+            </div>
+
+            <div class="form-group row">
+              <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+                Interface:
+              </label>
+              <select name="vlans-finder-interface2"  id="vlans-finder-interface2" class="col-sm-6 form-control form-control-sm vlan-operations-find-one-form" required>
+              {% for device, name in data['devices'].items()|sort(attribute='1.hostname') %}
+                {% if data['devices'][device]['interfaces'] %}
+                  {% for intf in data['devices'][device]['interfaces'] %}
+                <option class="vlans-finder-interface2-{{ device }}">
+                  {{ intf }}
+                </option>
+                  {% endfor %}
+                {% endif %}
+              {% endfor %}
+              </select>
+            </div>
+
+            <div class="form-group row" style="margin-bottom: 0px;">
+              <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+                Search type:
+              </label>
+              <input type="radio" class="form-control-sm " name="vlan-finder2-searchtype" value="list_all" onchange="showRangeFields('vlan-finder2-range-input', 'none','vlan-finder2')" required>
+                <label class="col-form-label col-form-label-sm" style="padding-left: 2px;">List all vlans</label>
+            </div>
+
+            <div class="form-group row">
+              <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+                <!-- place holder -->
+              </label>
+              <input type="radio" class="form-control-sm " name="vlan-finder2-searchtype" value="list_range" onchange="showRangeFields('vlan-finder2-range-input', 'block', 'vlan-finder2')" required>
+                <label class="col-form-label col-form-label-sm" style="padding-left: 2px;">List in range</label>
+            </div>
+
+            <div class="form-group row">
+              <label class="col-sm-4 col-form-label col-form-label-sm" align="right" id="vlan-finder2-searchtype-label">
+                Specify range:
+              </label>
+              <div class="vlan-finder2-range-input" style="display: none">
+                <input class="col-sm form-control form-control-sm  vlan-finder2-range-input" name="vlan-finder2-startvlan" id="vlan-finder2-startvlan" style="margin-bottom: 10px;" placeholder="starting number" onfocusout="validateVlan($(this)"/>
+                <input class="col-sm form-control form-control-sm  vlan-finder2-range-input" name="vlan-finder2-endvlan" id = "vlan-finder2-endvlan" placeholder="ending number" onfocusout="validateVlan($(this))"/>
+              </div>
+            </div>
+
+            <div class="form-group col text-center">
+              <input class="btn btn-secondary btn-sm" type="submit" value="Search" />
+              <input class="btn btn-outline-secondary btn-sm" id="vlan-operations-find-two-form" type="reset" value="Reset" />
+            </div>
+
+          </form>
+        </div>
+
+
+        <h6 onclick="switchForms('locate-vlan')" class="bd-lead" style="font-size: 1.2rem;">
+          <a href="#" style="text-decoration: none;">Locate used vlan-id</a>
+        </h6>
+        <div id="locate-vlan" class="vlan-operation" align="center">
+          <form method="POST" id="vlan-operation-vlan-locate-form">
+            <hr>
+
+            <div class="form-group row">
+              <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+                Vlan to locate:
+              </label>
+              <input class="col-sm-6 form-control form-control-sm" name="vlan-to-locate" id="vlan-to-locate" required onfocusout="validateVlan($(this))">
+              <input name="vlan-lookup-type" id="vlan-lookup-type" value="vlan-to-locate" style="display: none;">
+            </div>
+
+            <div class="form-group col text-center">
+              <input class="btn btn-secondary btn-sm" type="submit" value="Search" />
+              <input class="btn btn-outline-secondary btn-sm" type="reset" value="Reset" onclick="$('#vlan-lookup-type').val([])" />
+            </div>
+
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- END VLAN OPS POP UP WINDOW -->
+
+
+<!-- IPV4 OPS POP UP WINDOW -->
+<div class="modal fade" id="ipv4-operations-menu" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLongTitle">IPv4 operations</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"  id="ipv4-operation-close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div id="locate-ipv4" class="ipv4-operation" align="center">
+          <form method="POST" id="ipv4-operation-ip-locate-form">
+            <div class="form-group row">
+              <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+                IPv4 to locate:
+              </label>
+              <input class="col-sm-6 form-control form-control-sm" name="ipv4-ops-locate-ipv4" id="ipv4-ops-locate-ipv4" required  onchange="validateIpv4( $(this), 'net' )">
+              <!-- below input is used to differentiate input between forms that use same function in the app -->
+              <input name="ip-lookup-type" id="ip-lookup-type" value="ipv4-ops-locate-ipv4" style="display: none;">
+            </div>
+
+            <div class="form-group col text-center">
+              <input class="btn btn-secondary btn-sm" type="submit" value="Search" />
+              <input class="btn btn-outline-secondary btn-sm" type="reset" value="Reset" onclick="$('#ip-lookup-type').val([])" />
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- END IPV4 OPS POP UP WINDOW -->
+
+
+
+<!-- LOCATE SERVICE POP UP WINDOW -->
+
+
+<div class="modal fade" id="locate-service-menu" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="bd-lead modal-title" style="font-size: 2rem;">Locate service</h1>
+        <button type="button" class="close" data-dismiss="modal" id="locateops-close" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+
+        <h6 onclick="switchForms('locate-service-vlan-id')" class="bd-lead" style="font-size: 1.2rem;">
+          <a href="#" style="text-decoration: none;">Locate vlan-id</a>
+        </h6>
+
+        <div id="locate-service-vlan-id" class="locate-service" align="center">
+          <hr>
+          <form method="POST" id="locateops-vlan-form">
+            <div class="form-group row">
+              <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+                Vlan to locate:
+              </label>
+              <input class="col-sm-6 form-control form-control-sm" name="locateops-locate-vlan" id="locateops-locate-vlan" required onfocusout="validateVlan($(this))" pattern="^([1-9]$|^[123][0-9]{1,3}$|^40[0-9][0-4])$" minlength="1" maxlength="4"s>
+            </div>
+
+            <div class="form-group col text-center">
+              <input class="btn btn-secondary btn-sm" type="submit" value="Search" />
+              <input class="btn btn-outline-secondary btn-sm" type="reset" value="Reset" onclick="$('#locateops-locate-vlan').val([])" />
+            </div>
+
+          </form>
+          <hr>
+        </div>
+
+        <h6 onclick="switchForms('locate-service-name')" class="bd-lead" style="font-size: 1.2rem;">
+          <a href="#" style="text-decoration: none;">Locate service name</a>
+        </h6>
+        <div id="locate-service-name" class="locate-service" align="center">
+          <hr>
+          <form method="POST" id="locateops-name-form">
+
+            <div class="form-group row">
+              <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+                Name to locate:
+              </label>
+              <input class="col-sm-6 form-control form-control-sm" name="locateops-locate-name" id="locateops-locate-name" required>
+            </div>
+
+            <div class="form-group col text-center">
+              <input class="btn btn-secondary btn-sm" type="submit" value="Search" />
+              <input class="btn btn-outline-secondary btn-sm" type="reset" value="Reset" onclick="$('#locateops-locate-name').val([])" />
+            </div>
+
+          </form>
+          <hr>
+        </div>
+
+
+        <h6 onclick="switchForms('locate-service-ipv4')" class="bd-lead" style="font-size: 1.2rem;">
+          <a href="#" style="text-decoration: none;">Locate ipv4</a>
+        </h6>
+        <div id="locate-service-ipv4" class="locate-service" align="center">
+          <hr>
+          <form method="POST" id="locateops-ipv4-form">
+            <div class="form-group row">
+              <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+                IPv4 to locate:
+              </label>
+              <input class="col-sm-6 form-control form-control-sm" name="locateops-locate-ipv4" id="locateops-locate-ipv4" required  onchange="validateIpv4( $(this), 'net' )">
+            </div>
+
+            <div class="form-group col text-center">
+              <input class="btn btn-secondary btn-sm" type="submit" value="Search" />
+              <input class="btn btn-outline-secondary btn-sm" type="reset" value="Reset" onclick="$('#locateops-locate-ipv4').val([])" />
+            </div>
+          </form>
+          <hr>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- END LOCATE SERVICE POP UP WINDOW -->
+
+
+
+
+<!-- SERVICE PROVISION POP UP WINDOW -->
+<div class="modal fade" id="service-provisioning-menu" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="bd-lead modal-title" style="font-size: 2rem;">Service Provisioning</h1>
+        <button type="button" class="close" id="service-provision-close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+
+        <form id="service-provision-form" method="POST">
+
+            <div class="form-group row">
+              <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+                Service:
+              </label>
+              <select class="col-sm-6 form-control form-control-sm common-fields" name="service-type" id="service-type" required="">
+                <option>Internet</option>
+                <option>L3mpls</option>
+                <option>L2mpls</option>
+              </select>
+            </div>
+
+            <div class="form-group row">
+              <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+                Edge router:
+              </label>
+              <select class="col-sm-6 form-control form-control-sm common-fields" name="provision-edge-router" id="provision-edge-router" required="">
+                <!-- below jinja function returns tuple (key, value). we use the value as an attribute
+                for sorting the key on display -->
+              {% for device, name in data['devices'].items()|sort(attribute='1.hostname') %}
+                <option>
+                {{ data['devices'][device]['hostname'] }}
+                </option>
+              {% endfor %}
+              </select>
+            </div>
+
+            <div class="form-group row">
+              <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+                Logical system:
+              </label>
+              <select class="col-sm-6 form-control form-control-sm common-fields" name="provision-logical-system" id="provision-logical-system" placeholder>
+                {% for device, name in data['devices'].items()|sort(attribute='1.hostname') %}
+                  {% if data['devices'][device]['logicalsystem'] %}
+                    {% for name in data['devices'][device]['logicalsystem'] %}
+                <option class="provision-logical-system-{{ device }}" value="{{ name }}">
+                 {{ name }}
+                </option>
+                   {% endfor %}
+                  {% endif %}
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="form-group row">
+              <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+                Bandwidth:
+              </label>
+              <select class="col-sm-6 form-control form-control-sm common-fields"  name="provision-bandwidth"  id="provision-bandwidth" required="">
+                {% for device, name in data['devices'].items()|sort(attribute='1.hostname') %}
+                  {% if data['devices'][device]['policers'] %}
+                    {% for policer in data['devices'][device]['policers'] %}
+                <option class="provision-bandwidth-{{ device }}">
+                  {{ policer }}
+                </option>
+                    {% endfor %}
+                  {% endif %}
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="form-group row">
+              <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+                Interface:
+              </label>
+              <select class="col-sm-6 form-control form-control-sm common-fields" name="provision-interface"  id="provision-interface" required="">
+                {% for device, name in data['devices'].items()|sort(attribute='1.hostname') %}
+                  {% if data['devices'][device]['interfaces'] %}
+                    {% for intf in data['devices'][device]['interfaces'] %}
+                <option class="provision-interface-{{ device }}">
+                  {{ intf }}
+                </option>
+                    {% endfor %}
+                  {% endif %}
+                {% endfor %}
+              </select>
+            </div>
+
+        <!-- l2 fields -->
+
+            <div class="form-group row l2-fields">
+              <label class="col-sm-4 col-form-label col-form-label-sm l2-fields" align="right">
+                Edge router:
+              </label>
+              <select class="col-sm-6 form-control form-control-sm l2-fields" name="provision-edge-router-l2" id="provision-edge-router-l2">
+                <!-- below jinja function returns tuple (key, value). we use the value as an attribute
+                for sorting the key on display -->
+              {% for device, name in data['devices'].items()|sort(attribute='1.hostname') %}
+                <option>
+                  {{ data['devices'][device]['hostname']}}
+                </option>
+              {% endfor %}
+              </select>
+            </div>
+
+            <div class="form-group row l2-fields">
+              <label class="col-sm-4 col-form-label col-form-label-sm l2-fields" align="right">
+                Logical system:
+              </label>
+              <select class="col-sm-6 form-control form-control-sm provision-logical-system-l2 l2-fields" name="provision-logical-system-l2" id="provision-logical-system-l2">
+                {% for device, name in data['devices'].items()|sort(attribute='1.hostname') %}
+                  {% if data['devices'][device]['logicalsystem'] %}
+                    {% for name in data['devices'][device]['logicalsystem'] %}
+                <option class="provision-logical-system-l2-{{ device }}">
+                 {{ name }}
+                </option>
+                     {% endfor %}
+                    {% endif %}
+                  {% endfor %}
+              </select>
+            </div>
+
+            <div class="form-group row l2-fields">
+              <label class="col-sm-4 col-form-label col-form-label-sm l2-fields" align="right">
+                Bandwidth:
+              </label>
+              <select class="col-sm-6 form-control form-control-sm l2-fields" name="provision-bandwidth-l2"  id="provision-bandwidth-l2">
+                {% for device, name in data['devices'].items()|sort(attribute='1.hostname') %}
+                  {% if data['devices'][device]['policers'] %}
+                    {% for policer in data['devices'][device]['policers'] %}
+                <option class="provision-bandwidth-l2-{{ device }}">
+                  {{ policer }}
+                </option>
+                    {% endfor %}
+                  {% endif %}
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="form-group row l2-fields">
+              <label class="col-sm-4 col-form-label col-form-label-sm l2-fields" align="right">
+                Interface:
+              </label>
+              <select class="col-sm-6 form-control form-control-sm l2-fields" name="provision-interface-l2"  id="provision-interface-l2">
+                {% for device, name in data['devices'].items()|sort(attribute='1.hostname') %}
+                  {% if data['devices'][device]['interfaces'] %}
+                    {% for intf in data['devices'][device]['interfaces'] %}
+                <option class="provision-interface-l2-{{ device }}">
+                  {{ intf }}
+                </option>
+                    {% endfor %}
+                  {% endif %}
+                {% endfor %}
+              </select>
+            </div>
+
+          <!-- end l2 fields -->
+
+
+            <div class="form-group row provision-vrf">
+              <label class="col-sm-4 col-form-label col-form-label-sm provision-vrf" align="right" id="provision-vrf-label">
+                VRF:
+              </label>
+              <select class="col-sm-6 form-control form-control-sm provision-vrf" name="provision-vrf"  id="provision-vrf">
+                {% for device, name in data['devices'].items()|sort(attribute='1.hostname') %}
+                  {% if data['devices'][device]['instances'] %}
+                    {% for vrf in data['devices'][device]['instances'] %}
+                <option class="provision-vrf-{{ device }}">
+                  {{ vrf }}
+                </option>
+                    {% endfor %}
+                  {% endif %}
+                {% endfor %}
+              </select>
+            </div>
+
+
+            <div class="form-group row">
+              <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+                Vlan:
+              </label>
+              <select class="col-sm-6 form-control form-control-sm common-fields" name="provision-vlan-type" id="provision-vlan-type" required>
+                <option>Manual</option>
+                <option>Auto</option>
+              </select>
+            </div>
+
+            <div class="form-group row">
+              <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+                <!-- place holder -->
+              </label>
+              <input class="col-sm-6 form-control form-control-sm common-fields" name="provision-manual-vlanid" id="provision-manual-vlanid" required placeholder="enter the service vlan-id here" onfocusout="validateVlan($('#provision-manual-vlanid'))"/>
+              <select class="col-sm-6 form-control form-control-sm common-fields" name="provision-auto-vlanid" id="provision-auto-vlanid" style="display: none;">
+              </select>
+            </div>
+
+
+            <div class="form-group row l3-fields">
+              <label class="col-sm-4 col-form-label col-form-label-sm l3-fields" align="right" id="provision-ipv4-label">
+                IPv4 address:
+              </label>
+              <select class="col-sm-6 form-control form-control-sm l3-fields" name="provision-ipv4-type" id="provision-ipv4-type" required="">
+                <option>Manual</option>
+                <option>Auto</option>
+              </select>
+            </div>
+
+            <div class="form-group row l3-fields">
+              <label class="col-sm-4 col-form-label col-form-label-sm l3-fields" align="right">
+              </label>
+              <input class="col-sm-6 form-control form-control-sm l3-fields" name="provision-ipv4-input" id="provision-ipv4-input" required placeholder="enter ip address for the service here" style="display: block;" onfocusout="validateIpv4( $('#provision-ipv4-input'), 'net' )"/>
+            </div> 
+
+            <div class="form-group row l3-fields">
+              <label class="col-sm-4 col-form-label col-form-label-sm l3-fields" align="right" id="provision-ipv6-label">
+                IPv6 address:
+              </label>
+              <input class="col-sm-6 form-control form-control-sm l3-fields" name="provision-manual-ipv6" id="provision-manual-ipv6">
+            </div>
+
+            <div class="form-group row">
+              <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+              Description:
+              </label>
+              <input class="col-sm-6 form-control form-control-sm common-fields" name="provision-description" id="provision-description" required/>
+            </div>
+
+            <div class="form-group row l3-fields" style="margin-bottom: 0px;">
+              <label class="col-sm-4 col-form-label col-form-label-sm l3-fields" align="right">
+              </label>
+              <input class="form-control-sm l3-fields" type="checkbox" name="provision-update-netdot" id="provision-update-netdot">
+              <label class="col-sm-4 col-form-label col-form-label-sm l3-fields">
+                Update Netdot
+              </label>
+            </div>
+
+            <div class="form-group row l3-fields">
+              <label class="col-sm-4 col-form-label col-form-label-sm l3-fields" align="right">
+              </label>
+              <input class="form-control-sm l3-fields" type="checkbox" name="provision-update-orion" id="provision-update-orion">
+              <label class="col-sm-4 col-form-label col-form-label-sm l3-fields">
+                Update Orion
+              </label>
+            </div>
+
+
+            <div class="form-group col text-center">
+              <input class="btn btn-secondary btn-sm common-fields-btn" type="submit" value="config" />
+              <input class="btn btn-outline-secondary btn-sm common-fields-btn" type="reset" value="reset" />
+              <!-- onclick="resetFormValues('l3-fields, .l2-fields, .common-fields, .provision-vrf')" -->
+            </div>
+
+
+        </form>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- END SERVICE PROVISION POP UP WINDOW -->
+
+
+
+
+
+
+{% if showTab %}
+<script>
+  {% if showTab.subTab %}
+  function show{{showTab.mainTab[0]|upper}}{{showTab.mainTab[1:]}}{{showTab.subTab[0]|upper}}{{showTab.subTab[1:]}}() {
+  {% else %}
+  function show{{showTab.mainTab[0]|upper}}{{showTab.mainTab[1:]}}() {
+  {% endif%}
+    document.getElementById("nav-{{showTab.mainTab}}-tab").click();
+    {% if showTab.subTab %}
+    document.getElementById("v-pills-{{showTab.mainTab}}-{{showTab.subTab}}-tab").click();
+    {% endif %}
+  }
+  window.addEventListener('load', function() {
+    {% if showTab.subTab %}
+    show{{showTab.mainTab[0]|upper}}{{showTab.mainTab[1:]}}{{showTab.subTab[0]|upper}}{{showTab.subTab[1:]}}();
+    {% else %}
+    show{{showTab.mainTab[0]|upper}}{{showTab.mainTab[1:]}}();
+    {% endif %}
+  });
+  $('html,body').animate({ scrollTop: 0 }, 'slow');
+</script>
+{% endif %}
+{% endblock content %}
+

@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+.links line {
+  stroke: #999;
+  stroke-opacity: 0.6;
+}
+
+.nodes circle {
+  stroke: #fff;
+  stroke-width: 1.5px;
+}
+
+text {
+  font-family: sans-serif;
+  font-size: 10px;
+}
+
+</style>
+
+<header class="navbar navbar-expand navbar-dark flex-column flex-md-row bd-navbar" style="position:sticky;background-color: #7952b3;">
+  <meta name="author" content="Paul S.I. Basondole">
+  <!-- Bootstrap core CSS -->
+  <link href="/static/css/docs.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/bootstrap.min.css" crossorigin="anonymous">
+  <link href="/static/images/paul-icon.ico" rel="shortcut icon" type="image/x-icon">
+
+  <title>Basondole systems | Service Audit</title>
+  <a class="navbar-brand mr-0 mr-md-2" aria-label="Bootstrap" href="/">
+    <svg width="32" height="32" class="d-block" viewBox="0 0 64 64" role="img">
+      <title>Basondole systems</title>
+      <path fill="currentColor" fill-rule="evenodd" d="M16 0h32c8.837 0 16 7.163 16 16v32c0 8.837-7.163 16-16 16H16C7.163 64 0 56.837 0 48V16C0 7.163 7.163 0 16 0zm18.14 49c7.22 0 11.555-3.633 11.555-9.586 0-4.406-3.047-7.664-7.617-8.133v-.398c3.328-.563 5.93-3.727 5.93-7.266 0-5.203-3.82-8.437-10.172-8.437H20.242V49h13.899zm-8.648-29.367h7.125c3.89 0 6.164 1.828 6.164 4.945 0 3.211-2.414 4.922-7.054 4.922h-6.235v-9.867zm0 24.914V33.648h7.29c4.945 0 7.546 1.852 7.546 5.391 0 3.586-2.508 5.508-7.242 5.508h-7.594z">   
+      </path>
+    </svg>
+  </a>
+  <div style="width: 100%">
+    <label style="color: white; font-weight: bold;padding-right: 40px;float:right">Service Audit Report</label>
+  </div>
+  <div id="dowload-link" style="float: right;width: 80%;text-align: right; ">
+      <button class="btn btn-info" href="#" role="button" id="download-xls" aria-haspopup="true" aria-expanded="false" style="background-color: #17a2b803;border-color: #ffffff4d;float: right" onclick="fnExcelReport('table-content');">
+        <span class="fa fa-compress"></span> Download XLS
+        <span id='progress-update' class="badge badge-info"></span>
+      </button>
+  </div>
+</header>
+
+<body>
+  <div id = "alert_placeholder">
+  <!-- alert placeholder -->
+  </div>
+
+  <div id="table-holder" align="center">
+
+    
+    <table class="table" id="table-content">
+      <thead>
+        <tr>
+          <td colspan="7" class="bd-lead" style="font-size: 1.2rem;margin-bottom: 0px;padding-top: 16px;text-align: center;">
+            Generated: Mon Mar  9 16:29:32 2020
+          </td>
+        </tr>
+        
+         
+        <tr class="table-active">
+          <th colspan="7" style="text-align: center;"> BIG 192.168.56.36</th>
+        </tr>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Status</th>
+          <th scope="col">Port</th>
+          <th scope="col">Vlan Id</th>
+          <th scope="col">Subscription (bps)<br/></th>
+          <th scope="col">Service Type<br/></th>
+          <th scope="col">Service Name<br/></th>
+        </tr>
+      </thead>
+      <tbody>
+        
+          <!-- skip juniper physical interfaces: they dont have a '.' -->
+          <!-- and thus they dont have a vlan id -->
+        
+        
+          <!-- skip juniper physical interfaces: they dont have a '.' -->
+          <!-- and thus they dont have a vlan id -->
+        
+        <tr>
+          <th scope="row">2</th>
+          
+          <td class="table-success">Active</td>
+            
+          <td>em0</td>
+          <td>0</td>
+          <td>0/0</td>
+          <td>
+              inet/iso/mpls/
+         </td>
+          <td>BasoNX</td>
+        </tr>
+        
+        
+          <!-- skip juniper physical interfaces: they dont have a '.' -->
+          <!-- and thus they dont have a vlan id -->
+        
+        
+          <!-- skip juniper physical interfaces: they dont have a '.' -->
+          <!-- and thus they dont have a vlan id -->
+        
+        <tr>
+          <th scope="row">4</th>
+          
+          <td class="table-danger">Dormant</td>
+          
+          <td>em1</td>
+          <td>2</td>
+          <td>0/0</td>
+          <td>
+              inet
+         </td>
+          <td>paul-test</td>
+        </tr>
+        
+        
+          <!-- skip juniper physical interfaces: they dont have a '.' -->
+          <!-- and thus they dont have a vlan id -->
+        
+        <tr>
+          <th scope="row">5</th>
+          
+          <td class="table-danger">Dormant</td>
+          
+          <td>em1</td>
+          <td>7</td>
+          <td>5000000/5000000</td>
+          <td>policer_5M
+              inet
+         </td>
+          <td>paultools</td>
+        </tr>
+        
+        
+          <!-- skip juniper physical interfaces: they dont have a '.' -->
+          <!-- and thus they dont have a vlan id -->
+        
+        <tr>
+          <th scope="row">6</th>
+          
+          <td class="table-danger">Dormant</td>
+          
+          <td>em1</td>
+          <td>10</td>
+          <td>5000000/5000000</td>
+          <td>5M
+              inet
+         </td>
+          <td>paul</td>
+        </tr>
+        
+        
+          <!-- skip juniper physical interfaces: they dont have a '.' -->
+          <!-- and thus they dont have a vlan id -->
+        
+        <tr>
+          <th scope="row">7</th>
+          
+          <td class="table-danger">Dormant</td>
+          
+          <td>em1</td>
+          <td>91</td>
+          <td>0/0</td>
+          <td>
+              inet
+         </td>
+          <td>Test BT</td>
+        </tr>
+        
+        
+          <!-- skip juniper physical interfaces: they dont have a '.' -->
+          <!-- and thus they dont have a vlan id -->
+        
+        <tr>
+          <th scope="row">8</th>
+          
+          <td class="table-danger">Dormant</td>
+          
+          <td>em1</td>
+          <td>111</td>
+          <td>5000000/5000000</td>
+          <td>policer_5M
+              inet
+         </td>
+          <td></td>
+        </tr>
+        
+        
+          <!-- skip juniper physical interfaces: they dont have a '.' -->
+          <!-- and thus they dont have a vlan id -->
+        
+        <tr>
+          <th scope="row">9</th>
+          
+          <td class="table-danger">Dormant</td>
+          
+          <td>em1</td>
+          <td>222</td>
+          <td>0/0</td>
+          <td>
+              
+         </td>
+          <td></td>
+        </tr>
+        
+        
+          <!-- skip juniper physical interfaces: they dont have a '.' -->
+          <!-- and thus they dont have a vlan id -->
+        
+        <tr>
+          <th scope="row">10</th>
+          
+          <td class="table-danger">Dormant</td>
+          
+          <td>em1</td>
+          <td>300</td>
+          <td>2000000/2000000</td>
+          <td>2Mbps
+              inet
+         </td>
+          <td></td>
+        </tr>
+        
+        
+          <!-- skip juniper physical interfaces: they dont have a '.' -->
+          <!-- and thus they dont have a vlan id -->
+        
+        <tr>
+          <th scope="row">11</th>
+          
+          <td class="table-danger">Dormant</td>
+          
+          <td>em1</td>
+          <td>400</td>
+          <td>1000000/1000000</td>
+          <td>policer_1M
+              inet
+         </td>
+          <td></td>
+        </tr>
+        
+        
+          <!-- skip juniper physical interfaces: they dont have a '.' -->
+          <!-- and thus they dont have a vlan id -->
+        
+        <tr>
+          <th scope="row">12</th>
+          
+          <td class="table-danger">Dormant</td>
+          
+          <td>em1</td>
+          <td>450</td>
+          <td>5000000/5000000</td>
+          <td>policer_5M
+              inet
+         </td>
+          <td></td>
+        </tr>
+        
+        
+          <!-- skip juniper physical interfaces: they dont have a '.' -->
+          <!-- and thus they dont have a vlan id -->
+        
+        <tr>
+          <th scope="row">13</th>
+          
+          <td class="table-danger">Dormant</td>
+          
+          <td>em1</td>
+          <td>999</td>
+          <td>0/0</td>
+          <td>
+              
+         </td>
+          <td></td>
+        </tr>
+        
+        
+          <!-- skip juniper physical interfaces: they dont have a '.' -->
+          <!-- and thus they dont have a vlan id -->
+        
+        
+          <!-- skip juniper physical interfaces: they dont have a '.' -->
+          <!-- and thus they dont have a vlan id -->
+        
+        <tr>
+          <th scope="row">15</th>
+          
+          <td class="table-danger">Dormant</td>
+          
+          <td>em2</td>
+          <td>9</td>
+          <td>0/0</td>
+          <td>
+              inet
+         </td>
+          <td>paul-test</td>
+        </tr>
+        
+        
+          <!-- skip juniper physical interfaces: they dont have a '.' -->
+          <!-- and thus they dont have a vlan id -->
+        
+        <tr>
+          <th scope="row">16</th>
+          
+          <td class="table-danger">Dormant</td>
+          
+          <td>em2</td>
+          <td>10</td>
+          <td>0/0</td>
+          <td>
+              
+         </td>
+          <td>test</td>
+        </tr>
+        
+        
+          <!-- skip juniper physical interfaces: they dont have a '.' -->
+          <!-- and thus they dont have a vlan id -->
+        
+        <tr>
+          <th scope="row">17</th>
+          
+          <td class="table-danger">Dormant</td>
+          
+          <td>em2</td>
+          <td>100</td>
+          <td>0/0</td>
+          <td>
+              inet
+         </td>
+          <td>bootstrap</td>
+        </tr>
+        
+        
+          <!-- skip juniper physical interfaces: they dont have a '.' -->
+          <!-- and thus they dont have a vlan id -->
+        
+        <tr>
+          <th scope="row">18</th>
+          
+          <td class="table-danger">Dormant</td>
+          
+          <td>em2</td>
+          <td>111</td>
+          <td>0/0</td>
+          <td>
+              inet
+         </td>
+          <td></td>
+        </tr>
+        
+        
+          <!-- skip juniper physical interfaces: they dont have a '.' -->
+          <!-- and thus they dont have a vlan id -->
+        
+        <tr>
+          <th scope="row">19</th>
+          
+          <td class="table-danger">Dormant</td>
+          
+          <td>em2</td>
+          <td>200</td>
+          <td>2000000/2000000</td>
+          <td>2Mbps
+              inet
+         </td>
+          <td></td>
+        </tr>
+        
+        
+          <!-- skip juniper physical interfaces: they dont have a '.' -->
+          <!-- and thus they dont have a vlan id -->
+        
+        <tr>
+          <th scope="row">20</th>
+          
+          <td class="table-danger">Dormant</td>
+          
+          <td>em2</td>
+          <td>222</td>
+          <td>10000000/10000000</td>
+          <td>10M
+              inet
+         </td>
+          <td></td>
+        </tr>
+        
+        
+          <!-- skip juniper physical interfaces: they dont have a '.' -->
+          <!-- and thus they dont have a vlan id -->
+        
+        <tr>
+          <th scope="row">21</th>
+          
+          <td class="table-danger">Dormant</td>
+          
+          <td>em2</td>
+          <td>333</td>
+          <td>10000000/10000000</td>
+          <td>policer_10M
+              inet
+         </td>
+          <td></td>
+        </tr>
+        
+        
+          <!-- skip juniper physical interfaces: they dont have a '.' -->
+          <!-- and thus they dont have a vlan id -->
+        
+        <tr>
+          <th scope="row">22</th>
+          
+          <td class="table-danger">Dormant</td>
+          
+          <td>em2</td>
+          <td>450</td>
+          <td>0/0</td>
+          <td>
+              
+         </td>
+          <td></td>
+        </tr>
+        
+        
+          <!-- skip juniper physical interfaces: they dont have a '.' -->
+          <!-- and thus they dont have a vlan id -->
+        
+        <tr>
+          <th scope="row">23</th>
+          
+          <td class="table-danger">Dormant</td>
+          
+          <td>em2</td>
+          <td>555</td>
+          <td>0/0</td>
+          <td>
+              
+         </td>
+          <td>CONFIGURED BY NAPLAM</td>
+        </tr>
+        
+        
+          <!-- skip juniper physical interfaces: they dont have a '.' -->
+          <!-- and thus they dont have a vlan id -->
+        
+        <tr>
+          <th scope="row">24</th>
+          
+          <td class="table-danger">Dormant</td>
+          
+          <td>em2</td>
+          <td>666</td>
+          <td>20000000/20000000</td>
+          <td>20M
+              inet
+         </td>
+          <td>BasoNX</td>
+        </tr>
+        
+        
+          <!-- skip juniper physical interfaces: they dont have a '.' -->
+          <!-- and thus they dont have a vlan id -->
+        
+        <tr>
+          <th scope="row">25</th>
+          
+          <td class="table-danger">Dormant</td>
+          
+          <td>em2</td>
+          <td>999</td>
+          <td>2000000/2000000</td>
+          <td>2Mbps
+              inet
+         </td>
+          <td>configured by ansible</td>
+        </tr>
+        
+        
+          <!-- skip juniper physical interfaces: they dont have a '.' -->
+          <!-- and thus they dont have a vlan id -->
+        
+        <tr>
+          <th scope="row">26</th>
+          
+          <td class="table-danger">Dormant</td>
+          
+          <td>em2</td>
+          <td>1000</td>
+          <td>0/0</td>
+          <td>
+              ccc
+         </td>
+          <td>MPLS L2</td>
+        </tr>
+        
+        
+          <!-- skip juniper physical interfaces: they dont have a '.' -->
+          <!-- and thus they dont have a vlan id -->
+        
+        <tr>
+          <th scope="row">27</th>
+          
+          <td class="table-danger">Dormant</td>
+          
+          <td>em2</td>
+          <td>1002</td>
+          <td>0/0</td>
+          <td>
+              ccc
+         </td>
+          <td>BT test l2</td>
+        </tr>
+        
+        
+          <!-- skip juniper physical interfaces: they dont have a '.' -->
+          <!-- and thus they dont have a vlan id -->
+        
+        
+          <!-- skip juniper physical interfaces: they dont have a '.' -->
+          <!-- and thus they dont have a vlan id -->
+        
+        <tr>
+          <th scope="row">29</th>
+          
+          <td class="table-success">Active</td>
+            
+          <td>em3</td>
+          <td>0</td>
+          <td>0/0</td>
+          <td>
+              inet/iso/inet6/
+         </td>
+          <td>backhaul configured by ansible</td>
+        </tr>
+        
+        
+          <!-- skip juniper physical interfaces: they dont have a '.' -->
+          <!-- and thus they dont have a vlan id -->
+        
+        
+          <!-- skip juniper physical interfaces: they dont have a '.' -->
+          <!-- and thus they dont have a vlan id -->
+        
+        <tr>
+          <th scope="row">31</th>
+          
+          <td class="table-success">Active</td>
+            
+          <td>em4</td>
+          <td>100</td>
+          <td>0/0</td>
+          <td>
+              inet/iso/inet6/mpls/
+         </td>
+          <td>connection to ios</td>
+        </tr>
+        
+        
+          <!-- skip juniper physical interfaces: they dont have a '.' -->
+          <!-- and thus they dont have a vlan id -->
+        
+        <tr>
+          <th scope="row">32</th>
+          
+          <td class="table-success">Active</td>
+            
+          <td>em4</td>
+          <td>300</td>
+          <td>0/0</td>
+          <td>
+              inet/iso/inet6/mpls/
+         </td>
+          <td>connection to iosxe</td>
+        </tr>
+        
+        
+          <!-- skip juniper physical interfaces: they dont have a '.' -->
+          <!-- and thus they dont have a vlan id -->
+        
+        <tr>
+          <th scope="row">33</th>
+          
+          <td class="table-success">Active</td>
+            
+          <td>em4</td>
+          <td>900</td>
+          <td>0/0</td>
+          <td>
+              inet
+         </td>
+          <td></td>
+        </tr>
+        
+        
+        <tr>
+          <td colspan="4" style="text-align: center;font-weight: bold">Total subscription</td>
+          <td style="font-weight: bold"> 67000000/67000000</td>
+        </tr>
+      </tbody>
+      
+      
+        
+      
+    </table>
+    
+  </div>
+
+  <br/>
+  <br/>
+
+  <div style="padding-left: 8px;">
+    
+    <label class="bd-lead">
+      Errors
+    </label>
+    <br/>
+    <samp>
+  Mon Mar  9 16:29:32 2020 user = fisi failed authentication &gt; 41.188.128.46
+
+    </samp>
+    
+  </div>
+
+  <!-- below iframe for fnExcelReport script -->
+  <iframe id="txtArea1" style="display:none"></iframe> 
+  <script type="text/javascript">
+    function fnExcelReport(tableId) {
+      var tab_text="<table border='2px'><tr bgcolor='#87AFC6'>";
+      var textRange;
+      var j=0;
+      tab = document.getElementById(tableId);
+
+      for(j = 0 ; j < tab.rows.length ; j++) {     
+          tab_text = tab_text + tab.rows[j].innerHTML+ "</tr>";
+      }
+      tab_text = tab_text + "</table>";
+
+      var ua = window.navigator.userAgent;
+      var msie = ua.indexOf("MSIE "); 
+      if (msie > 0 || !!navigator.userAgent.match(/Trident.*rv\:11\./))      // If Internet Explorer
+      {
+          txtArea1.document.open("txt/html","replace");
+          txtArea1.document.write(tab_text);
+          txtArea1.document.close();
+          txtArea1.focus(); 
+          sa=txtArea1.document.execCommand("SaveAs",true,"Say Thanks to Sumit.xls");
+      }  
+      else                 //other browser not tested on IE 11
+          sa = window.open('data:application/vnd.ms-excel,' + encodeURIComponent(tab_text));  
+
+      return (sa);
+    }
+  </script>
+</body>

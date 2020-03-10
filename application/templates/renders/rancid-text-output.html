@@ -1,0 +1,162 @@
+<style>
+	pre[class*=language-] {
+    background: #2d2d2d;
+	}
+	code[class*=language-], pre[class*=language-] {
+		color: #ccc;
+		font-family: Consolas,Monaco,"Andale Mono",monospace;
+		direction: ltr;
+		text-align: left;
+		white-space: pre;
+		word-spacing: normal;
+		word-break: normal;
+		line-height: 1.5;
+		-moz-tab-size: 4;
+		-o-tab-size: 4;
+		tab-size: 4;
+		-webkit-hyphens: none;
+		-ms-hyphens: none;
+		hyphens: none;
+	}
+	.token.boolean, .token.number, .token.function {
+    color: #f08d49;
+	}
+	.token.selector, .token.important, .token.atrule, .token.keyword, .token.builtin {
+    color: #cc99cd;
+	}
+	html body {
+	    background-color: #2b2d2f !important;
+	}
+</style>
+
+<header class="navbar navbar-expand navbar-dark flex-column flex-md-row bd-navbar" style="position:sticky;background-color: #7952b3;">
+  <meta name="author" content="Paul S.I. Basondole">
+
+  <!-- Bootstrap core CSS and font awesome -->
+  <link href="/static/css/docs.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/bootstrap.min.css" crossorigin="anonymous">
+  <link rel="stylesheet" href="/static/css/fontawesome.all.css" crossorigin="anonymous">
+  <link href="/static/images/paul-icon.ico" rel="shortcut icon" type="image/x-icon">
+
+  <title>Basondole systems | Config Backup Summary</title>
+  <a class="navbar-brand mr-0 mr-md-2" aria-label="Bootstrap" href="/">
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" class="d-block" viewBox="0 0 64 64" role="img">
+      <title>Basondole systems</title>
+      <path fill="currentColor" fill-rule="evenodd" d="M16 0h32c8.837 0 16 7.163 16 16v32c0 8.837-7.163 16-16 16H16C7.163 64 0 56.837 0 48V16C0 7.163 7.163 0 16 0zm18.14 49c7.22 0 11.555-3.633 11.555-9.586 0-4.406-3.047-7.664-7.617-8.133v-.398c3.328-.563 5.93-3.727 5.93-7.266 0-5.203-3.82-8.437-10.172-8.437H20.242V49h13.899zm-8.648-29.367h7.125c3.89 0 6.164 1.828 6.164 4.945 0 3.211-2.414 4.922-7.054 4.922h-6.235v-9.867zm0 24.914V33.648h7.29c4.945 0 7.546 1.852 7.546 5.391 0 3.586-2.508 5.508-7.242 5.508h-7.594z">   
+      </path>
+    </svg>
+  </a>
+
+
+  <div style="text-align: right;width: 100%">
+    <label style="color: white;" >
+	    Config Backup Summary
+	</label>
+  </div>
+
+  <div id="dowload-link" style="float: right;width: 80%;text-align: right; ">
+	    <button class="btn btn-info" href="#" role="button" id="download-zip" aria-haspopup="true" aria-expanded="false" style="background-color: #17a2b803;border-color: #ffffff4d;float: right">
+	      <span class="fa fa-compress"></span> Generate zip
+	      <span id='progress-update' class="badge badge-info"></span>
+	    </button>
+  </div>
+  
+</header>
+
+
+<body>
+	<pre class="">
+<code class="" style="color: #ccc">
+<span style="color: #56ffa5;"> COMPLETED
+ +----------------------+-----------------+------------+-----------------+---------------+-----------------------------+------------+
+ | HOSTNAME             | DEVICE IP       | VENDOR     | MODEL           | SERIAL        | SOFTWARE                    | UPTIME (s) |
+ +----------------------+-----------------+------------+-----------------+---------------+-----------------------------+------------+
+ | pycon-ios            | 192.168.56.63   | Cisco      | 7206VXR         | 4279256517    | 7200 Software 15.2(4)S5     | 60         |
+ +----------------------+-----------------+------------+-----------------+---------------+-----------------------------+------------+</span>
+
+ SUMMARY
+ -------
+ Failed connections: 0
+ Collected config files: 1/1
+
+ [Finished in 10s] 
+</code>
+</pre>
+
+	
+	<a href="/download/backup-config" download id='save-file'style="display: none;"></a>
+	
+</body>
+
+
+<script src="/static/jquery/jquery-3.3.1.min.js"></script>
+
+
+
+<script>
+	// document.getElementById('save-file').click();
+	// delete the file from server after download
+	function deleteZipFile() {
+		$.ajax({
+              url: '/delete/backup-config',
+              type: "post",
+              dataType: "json",
+              data: {}
+        })
+	    .done(function(data) { console.log(data) })
+	} 
+	// setTimeout("deleteZipFile();", 100000); // not working
+</script>
+
+
+<script name="https://usefulangle.com/post/68/javascript-ajax-download-file">
+// This will hold the the file as a local object URL
+var _OBJECT_URL;
+// Call an AJAX
+document.querySelector('#download-zip').addEventListener('click', function() {
+	var request = new XMLHttpRequest();
+    
+    request.addEventListener('readystatechange', function(e) {
+    	if(request.readyState == 2 && request.status == 200) {/*Download is being started*/}
+    	else if(request.readyState == 3) {/*Download is under progress*/}
+    	else if(request.readyState == 4) {
+    		// Downloaing has finished
+
+    		// delete the zip file from server
+    		deleteZipFile();
+
+    		_OBJECT_URL = URL.createObjectURL(request.response);
+
+	    	// replace the existing button with a new button to download the loaded file
+	    	document.getElementById('dowload-link').innerHTML = '<button id="download-file" class="btn btn-info" style="background-color: #17a2b803;border-color: #ffffff4d;float: right"><span class="fa fa-download"></span> Download</button>'
+
+	    	$('#download-file').click(function() {
+	    		document.getElementById('save-file').click();
+	    	});
+
+    		// Set href as a local object URL
+    		document.querySelector('#save-file').setAttribute('href', _OBJECT_URL);
+    		
+    		// Set name of download
+    		document.querySelector('#save-file').setAttribute('download', 'backup.zip');
+    		
+    		// Recommended : Revoke the object URL after some time to free up resources
+    		// There is no way to find out whether user finished downloading
+    		setTimeout(function() {
+    			window.URL.revokeObjectURL(_OBJECT_URL);
+    		}, 60*1000);
+    	}
+    });
+	request.addEventListener('progress', function(e) {
+    	var percent_complete = (e.loaded / e.total)*100;
+    	console.log(percent_complete);
+    	document.getElementById('progress-update').innerHTML = percent_complete+'%';
+    });
+    
+    request.responseType = 'blob';
+    // downloading the file
+    request.open('get', '/download/backup-config'); 
+    
+    request.send(); 
+});
+</script>

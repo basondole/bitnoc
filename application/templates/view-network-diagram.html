@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+.links line {
+  stroke: #999;
+  stroke-opacity: 0.6;
+}
+.nodes circle {
+  stroke: #fff;
+  stroke-width: 1.5px;
+}
+text {
+  font-family: sans-serif;
+  font-size: 10px;
+}
+</style>
+
+<header class="navbar navbar-expand navbar-dark flex-column flex-md-row bd-navbar" style="position:sticky;background-color: #7952b3;">
+  <meta name="author" content="Paul S.I. Basondole">
+  <!-- Bootstrap core CSS -->
+  <link href="{{ url_for('static', filename='css/docs.min.css') }}" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}" crossorigin="anonymous">
+  <link href="{{ url_for('static', filename='images/paul-icon.ico') }}" rel="shortcut icon" type="image/x-icon">
+
+  <title>Basondole systems | Network Logical View</title>
+  <a class="navbar-brand mr-0 mr-md-2" aria-label="Bootstrap" href="/">
+    <svg width="32" height="32" class="d-block" viewBox="0 0 64 64" role="img">
+      <title>Basondole systems</title>
+      <path fill="currentColor" fill-rule="evenodd" d="M16 0h32c8.837 0 16 7.163 16 16v32c0 8.837-7.163 16-16 16H16C7.163 64 0 56.837 0 48V16C0 7.163 7.163 0 16 0zm18.14 49c7.22 0 11.555-3.633 11.555-9.586 0-4.406-3.047-7.664-7.617-8.133v-.398c3.328-.563 5.93-3.727 5.93-7.266 0-5.203-3.82-8.437-10.172-8.437H20.242V49h13.899zm-8.648-29.367h7.125c3.89 0 6.164 1.828 6.164 4.945 0 3.211-2.414 4.922-7.054 4.922h-6.235v-9.867zm0 24.914V33.648h7.29c4.945 0 7.546 1.852 7.546 5.391 0 3.586-2.508 5.508-7.242 5.508h-7.594z">   
+      </path>
+    </svg>
+  </a>
+  <div style="text-align: center;width: 100%">
+    <label style="color: white;" >Logical view of the network</label>
+  </div>
+</header>
+
+<div align="center" style="background-color: #212529">
+  <svg width="960" height="600" id="logical_view">
+    <style>
+      .bags { 
+        font: bold 10px sans-serif;
+        fill: white;
+      }
+    </style>
+    <!-- place holder for devices map -->
+  </svg>
+</div>
+
+<script src="{{ url_for('static', filename='js/d3.v4.min.js') }}"></script>
+
+<script>
+var svg = d3.select("#logical_view"),
+    width = +svg.attr("width"),
+    height = +svg.attr("height");
+
+var color = d3.scaleOrdinal(d3.schemeCategory20);
+
+var simulation = d3.forceSimulation()
+    .force("link", d3.forceLink().id(function(d) { return d.id; }))
+    .force("charge", d3.forceManyBody())
+    .force("center", d3.forceCenter(width / 2, height / 2));
+
+d3.json("{{ url_for('static', filename='miserables.json') }}", function(error, graph) {
+  if (error) throw error;
+
+  var link = svg.append("g")
+    .attr("class", "links")
+    .selectAll("line")
+    .data(graph.links)
+    .enter().append("line")
+    .attr("stroke-width", function(d) { return Math.sqrt(d.value); });
+
+  var node = svg.append("g")
+    .attr("class", "nodes")
+    .selectAll("g")
+    .data(graph.nodes)
+    .enter().append("g")
+    // Added by Basondole from circles var below
+    .call(d3.drag()
+          .on("start", dragstarted)
+          .on("drag", dragged)
+          .on("end", dragended));
+    // End added by Basondole
+    
+  var circles = node.append("circle")
+      .attr("r", 5)
+      .attr("fill", function(d) { return color(d.group); })
+      .call(d3.drag()
+          .on("start", dragstarted)
+          .on("drag", dragged)
+          .on("end", dragended));
+
+// Added by Basondole from logicalView.js eNMS
+  node.append('image')
+    .attr('xlink:href', function(d) {
+      return d.img;
+    })
+    .attr('x', -16)
+    .attr('y', -16)
+    .attr('width', 32)
+    .attr('height', 32);
+
+    var lables = node.append("text")
+      .text(function(d) {
+        return d.id;
+      })
+      .attr('x', 6)
+      .attr('y', 3)
+      .attr('class', 'bags');
+// End added by Basondole
+
+
+  node.append("title")
+      .text(function(d) { return d.id; });
+
+  simulation
+      .nodes(graph.nodes)
+      .on("tick", ticked);
+
+  simulation.force("link")
+  //  added by Basondole
+      .distance(100)
+  //  end added by Basondole
+      .links(graph.links);
+
+  function ticked() {
+    link
+        .attr("x1", function(d) { return d.source.x; })
+        .attr("y1", function(d) { return d.source.y; })
+        .attr("x2", function(d) { return d.target.x; })
+        .attr("y2", function(d) { return d.target.y; });
+
+    node
+        .attr("transform", function(d) {
+          return "translate(" + d.x + "," + d.y + ")";
+        })
+  }
+});
+
+function dragstarted(d) {
+  if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+  d.fx = d.x;
+  d.fy = d.y;
+}
+
+function dragged(d) {
+  d.fx = d3.event.x;
+  d.fy = d3.event.y;
+}
+
+function dragended(d) {
+  if (!d3.event.active) simulation.alphaTarget(0);
+  d.fx = null;
+  d.fy = null;
+}
+
+</script>

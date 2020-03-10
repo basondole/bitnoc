@@ -1,0 +1,168 @@
+<html>
+  <head>
+    <title>Force with Labelled Links</title>
+    <script src="../static/d3.v3.min.js"></script>
+    <style type="text/css">
+.node {
+  fill: #88f;
+  stroke: #44a;
+  stroke-width: 1px;
+}
+.aEnd,
+.zEnd {
+  fill: #444;
+  font-family: helvetica;
+  font-size: 8pt;
+}
+.default {
+  stroke: #fbb;
+  stroke-width: 4px;
+}
+.outline {
+  stroke: #844;
+  stroke-width: 6px;
+}
+    </style>
+  </head>
+  <body>
+  <div id="chart"></div>
+  <script type="text/javascript">
+var topo = {};  
+topo.nodes = [ 
+    { 'name' : 'Node 1' },
+    { 'name' : 'Node 2' },
+    { 'name' : 'Node 3' },
+    { 'name' : 'Node 4' },
+    { 'name' : 'Node 5' },
+    { 'name' : 'Node 6' },
+    { 'name' : 'Node 7' }
+  ];
+topo.links = [
+    { 'a' : ['Node 1', 'one'], 'z' : ['Node 2', 'two'] }, 
+    { 'a' : ['Node 2', 'three'], 'z' : ['Node 3', 'four'] }, 
+    { 'a' : ['Node 2', 'five'], 'z' : ['Node 4', 'six'] }, 
+    { 'a' : ['Node 1', 'seven'], 'z' : ['Node 5', 'eight'] },
+    { 'a' : ['Node 1', 'nine'], 'z' : ['Node 6', 'ten'] },
+    { 'a' : ['Node 1', 'eleven'], 'z' : ['Node 7', 'twelve'] }
+  ];
+
+var div = d3.select("#chart");
+var vis = div.append("svg:svg")
+        .attr("class", "panel")
+        .attr("width", 800)
+        .attr("height", 600);
+
+var data = parseTopo(topo);
+var force = d3.layout.force()
+      .gravity(.05)
+        .charge(-400)
+        .distance(150)
+        .nodes(data.nodes)
+        .links(data.links)
+        .size([800, 600]);
+
+force.on("tick", function(e) {
+  vis.selectAll("circle")
+    .attr("cx", function(d) { return d.x; })
+    .attr("cy", function(d) { return d.y; });
+    
+  vis.selectAll("line")
+    .attr("x1", function(d) { return d.source.x; })
+    .attr("y1", function(d) { return d.source.y; })
+    .attr("x2", function(d) { return d.target.x; })
+    .attr("y2", function(d) { return d.target.y; });
+       
+  vis.selectAll('text.aEnd')
+    .attr('x', function(d) { return xpos(d.source, d.target); })
+    .attr('y', function(d) { return ypos(d.source, d.target); });
+       
+  vis.selectAll('text.zEnd')
+    .attr('x', function(d) { return xpos(d.target, d.source); })
+    .attr('y', function(d) { return ypos(d.target, d.source); });
+});
+  
+restart();
+
+function restart() {
+    force.start();
+    
+    var link = vis.selectAll("line")
+      .data(data.links).enter()
+      .insert("svg:g", "circle") // insert before the nodes
+      .attr('class', 'link');
+    addLink(link);
+
+    var node = vis.selectAll("circle")
+      .data(data.nodes).enter()
+      .append("svg:circle")
+      .call(force.drag)
+      .attr("class", "node")
+      .attr("r", 10)
+      .attr("cx", function(d) { return d.x; })
+      .attr("cy", function(d) { return d.y; });   
+  }
+  
+function parseTopo(topo, canvas) {
+  var data = {};
+  data.links = topo.links.map(function (value) {
+    var nodes = topo.nodes;
+    var link = {};
+    link.type = value.type || 'default';
+    for (i = 0; i < nodes.length; i++) {
+      if (nodes[i].name === value.a[0]) {
+        link.source = i;
+        link.a = value.a[1];
+      }
+      if (nodes[i].name === value.z[0]) {
+        link.target = i;
+        link.z = value.z[1];
+      }
+    }
+    return link;
+  });
+  data.nodes = topo.nodes;
+  return data;
+};
+
+function xpos(s, t) {
+  var angle = Math.atan2(t.y - s.y, t.x - s.x);
+  return 30 * Math.cos(angle) + s.x;
+};
+
+function ypos(s, t) {
+  var angle = Math.atan2(t.y - s.y, t.x - s.x);
+  return 30 * Math.sin(angle) + s.y;
+};
+
+function addLink(l) {
+  l.append('svg:line')
+  // .attr("class", "outline")
+  .attr("x1", function(d) { return d.source.x; })
+  .attr("y1", function(d) { return d.source.y; })
+  .attr("x2", function(d) { return d.target.x; })
+  .attr("y2", function(d) { return d.target.y; });
+  
+  l.append('svg:line')
+  .attr("class", function(d) { return d.type; })
+  .attr("x1", function(d) { return d.source.x; })
+  .attr("y1", function(d) { return d.source.y; })
+  .attr("x2", function(d) { return d.target.x; })
+  .attr("y2", function(d) { return d.target.y; });
+  
+  l.append('svg:text')
+  .attr('class', 'aEnd')
+  .attr('x', function(d) { return d.source.x; })
+  .attr('y', function(d) { return d.source.y; })
+  .attr('text-anchor', 'middle')
+  .text(function(d) { return d.a; });
+
+  l.append('svg:text')
+  .attr('class', 'zEnd')
+  .attr('x', function(d) { return d.target.x; })
+  .attr('y', function(d) { return d.target.y; })
+  .attr('text-anchor', 'middle')
+  .text(function(d) { return d.z; });
+};
+  </script>
+  </body>
+</html>
