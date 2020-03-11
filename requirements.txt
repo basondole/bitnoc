@@ -47,6 +47,7 @@ pyserial==3.4
 pysmi==0.3.4
 pysnmp==4.4.12
 python-dateutil==2.8.1
+python-dotenv==0.12.0
 PyYAML==5.3
 requests==2.23.0
 scp==0.13.2
@@ -59,3 +60,4 @@ urllib3==1.25.8
 Werkzeug==1.0.0
 WTForms==2.2.1
 yamlordereddictloader==0.4.0
+
