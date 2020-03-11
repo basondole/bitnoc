@@ -78,7 +78,7 @@ patsy==0.5.1
 pefile==2018.8.8
 pexpect==4.7.0
 pickleshare==0.7.5
-Pillow==6.0.0
+Pillow==6.2.0
 plotly==3.9.0
 plotly-express==0.2.2
 ply==3.11
