@@ -43,12 +43,12 @@ def register_user():
 			db.session.commit()
 			log(command='create: user-account', user_id=user.id)
 			flash(f'Account created for <b>{form.username.data}</b>. \
-						Please login', 'success')
+					Please login', 'success')
 			return redirect(url_for('.login'))
 		else:
 			flash(f'Credentials for user <b>{form.username.data}</b> \
-						could not be verified by authentication server. \
-						Confirm username and password', 'danger')
+					could not be verified by authentication server. \
+					Confirm username and password', 'danger')
 	return render_template('register.html', form = form)
 
 
@@ -66,11 +66,14 @@ def login():
 	elif request.method == "POST":
 
 		if type(settings) != dict :
-			_data = {'settings': {},'devices': {}}
-			return render_template('home.html', showTab={'mainTab': 'settings'},
-														 data=_data, user_id='default',
-														 alert={'status':'danger',
-																	  'message': 'Settings missing. General settings are required for system to work. Please setup the system'} )
+			settings = readsettings()
+			if type(settings) == str:
+				_data = {'settings': {},'devices': {}}
+				return render_template('home.html', showTab={'mainTab': 'settings'},
+							data=_data, user_id='default',
+							alert={'status':'danger',
+								   'message': 'Settings missing. General settings are required for system to work.\
+											   Please setup the system'} )
 
 		session['password'] = request.form['pswrd']
 		password = session['password']
@@ -172,11 +175,11 @@ def remove_device():
 				'status': 'success',
 				'message': f'Device <b>{ device }</b> removed',
 				'data': render_template('home.html',
-																data=data,
-																showTab={'mainTab':'devices','subTab':'remove'},
-																alert={'status': 'success','message': f'Device <b>{ device }</b> removed'},
-																user_id=current_user.username
-																)
+										data=data,
+										showTab={'mainTab':'devices','subTab':'remove'},
+										alert={'status': 'success','message': f'Device <b>{ device }</b> removed'},
+										user_id=current_user.username
+										)
 				}
 	else:
 		info = {

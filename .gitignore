@@ -4,3 +4,5 @@ core/__pycache__/
 other/__pycache__/
 to-do.txt
 windows/__pycache__/
+windows/WindowBandwidthOnDemand.py
+windows/WindowBurstPackages.py

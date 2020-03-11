@@ -1590,7 +1590,7 @@
     }
   </script>
 
-  {% if not data['device_refresh_time'] %}
+  {% if not data['device_refresh_time'] and showTab == {'mainTab': 'settings'} %}
   <script>
     $(document).ready(function(){
       bootstrap_alert.alertify('Devices are not synced. Please perform a device refresh', 'warning');
