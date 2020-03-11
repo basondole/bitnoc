@@ -14,6 +14,11 @@ from core.find_vlan_uno import find_vlan_uno
 from core.find_vlan_duo import find_vlan_duo
 from core.service_provision import CONFIGURE
 from other.getDeviceData import verifyUser, Device, readfile, ip_to_name_as_key
+from application.forms import UserRegistrationForm
+from application.models import User, LogBook, log
+from application import app, bcrypt, db
+from flask import render_template, request, flash, redirect, url_for, session, jsonify, g
+from flask_login import login_user, current_user, logout_user, login_required
 
 import threading
 import os
@@ -21,12 +26,9 @@ import ipaddress
 import time
 import pprint
 
-from flask import render_template, request, flash, redirect, url_for, session, jsonify, g
-from application import app, bcrypt, db
-from application.forms import UserRegistrationForm
-from application.models import User, LogBook, log
-
-from flask_login import login_user, current_user, logout_user, login_required
+#from dotenv import load_dotenv
+#dotenv_path = join(dirname(__file__), '.env')
+#load_dotenv(dotenv_path)
 
 @app.route("/register-user", methods=['GET', 'POST'])
 def register_user():
@@ -80,7 +82,7 @@ def login():
 
 		global context_output
 		context_output[request.form['userid']] = {}
-		
+
 		session.pop(request.form['userid'], None) # drop exixting session
 
 		# if form.validate_on_submit():
@@ -242,7 +244,6 @@ def add_device():
 				}
 
 		return jsonify(info)
-		
 
 
 @app.route("/devices/:refresh-database/<refresh_ip>", methods=['GET', 'POST'])
@@ -270,7 +271,7 @@ def refresh_device_database(refresh_ip):
 		info = {
 				'status': 'success',
 				'message': f'Device <b>{ devinfo[ refresh_ip ]["hostname"] }</b> data refreshed successfully',
-				'data': render_template('home.html', 
+				'data': render_template('home.html',
 																data=data,
 																showTab={'mainTab':'devices','subTab':'add'},
 																alert={'status': 'success',
@@ -376,7 +377,7 @@ def vops_vlan_finder_duo():
 
 	result = find_vlan_duo(username, password, host_a, if_a, host_b, if_b, devinfo,
 												 OUT, search=search, start=start, end=end)
-	
+
 	with open(f'application/templates/renders/{current_user.username}-text-output.html', 'w') as f:
 		f.write(render_template('view-text-output.html', data = result))
 
@@ -673,7 +674,7 @@ def command():
 		message = 'Config summary printed on new tab'
 		status = 'success'
 		with open(f'application/templates/renders/{username}-text-output.html', 'w') as f:
-			f.write(render_template('view-text-output.html', 
+			f.write(render_template('view-text-output.html',
 															data = result['summary'],
 															backup_conf_download = result['file_path'],
 															user_id = username
@@ -698,7 +699,7 @@ def command():
 		message = 'Service report printed on new tab'
 		status = 'success'
 		with open(f'application/templates/renders/{username}-audit-output.html', 'w') as f:
-			f.write(render_template('view-service-audit.html', 
+			f.write(render_template('view-service-audit.html',
 															data = result['results'],
 															errors = result['errors'],
 															refresh_time = time.ctime()
@@ -708,7 +709,7 @@ def command():
 
 
 	elif commands.lower() == 'link state':
-		global final_devices_list, neighborship_dict, link_state_build_end_time 
+		global final_devices_list, neighborship_dict, link_state_build_end_time
 		comm = values['command-link-state-community']
 		name = values['command-link-state-device']
 		ip = data['devices'][name]['ip']
@@ -795,7 +796,7 @@ def clear_link_state_data():
 @app.route("/command/:link-state-present/<presentation>", methods=['GET', 'POST'])
 @login_required
 def present_link_state_data(presentation):
-	global neighborship_dict, final_devices_list 
+	global neighborship_dict, final_devices_list
 	print('INFO: test.py via function present_link_state_data says: link state data fetched from cache')
 	if presentation.lower() == 'text':
 		result = '/present-link-state-txt'
@@ -821,7 +822,7 @@ def present(prompt=None):
 
 @app.route("/present-link-state-logical-view")
 def logical_view():
-	global neighborship_dict, final_devices_list 
+	global neighborship_dict, final_devices_list
 	device_list = final_devices_list
 	device_dict = neighborship_dict
 	all_host_ids = {host_id for tuple_of_two_ids in neighborship_dict for host_id in tuple_of_two_ids}
@@ -879,7 +880,7 @@ def delete_config_backup (path = None):
 @app.template_filter('toyaml')
 def toyaml(d, indent=2, result=''):
 	for key, value in d.items():
-		result += " "*indent + str(key) 
+		result += " "*indent + str(key)
 		if isinstance(value, dict):
 			result = toyaml(value, indent+2, f'{result}:\n')
 		elif isinstance(value, list):
@@ -926,172 +927,10 @@ def collectdevdata(username,password,path):
 
 
 if __name__ == "__main__":
-	# global data, settings, device_refresh_time
 	settings = readsettings()
 	data = {}
 	device_refresh_time = ''
 	context_output = {}
-
-	# devdata = {'big': {'errors': {},
- #         'hostid': '',
- #         'hostname': 'big',
- #         'instances': {},
- #         'interfaces': [],
- #         'ip': '192.168.56.36',
- #         'logicalsystem': {'KUR': {'ip': '192.168.56.50', 'residentblock': ''},
- #                           'TAN': {'ip': '192.168.56.75', 'residentblock': ''}},
- #         'model': '',
- #         'policers': [],
- #         'residentblock': ['41.188.170.0/24'],
- #         'serialnumber': '',
- #         'software': 'junos',
- #         'synced': False,
- #         'version': '',
- #         'xconnects': [('up', 0), ('down', 0)]},
- # 'big--KUR': {'errors': {},
- #              'hostid': '',
- #              'hostname': 'big--KUR',
- #              'instances': {},
- #              'interfaces': [],
- #              'ip': '192.168.56.50',
- #              'logicalsystem': 'KUR',
- #              'mainsystemip': '192.168.56.36',
- #              'model': '',
- #              'policers': [],
- #              'residentblock': ['41.188.170.0/24'],
- #              'serialnumber': '',
- #              'software': 'junos',
- #              'synced': False,
- #              'systemname': 'KUR',
- #              'version': '',
- #              'xconnects': [('up', 0), ('down', 0)]},
- # 'big--TAN': {'errors': {},
- #              'hostid': '',
- #              'hostname': 'big--TAN',
- #              'instances': {},
- #              'interfaces': [],
- #              'ip': '192.168.56.75',
- #              'logicalsystem': 'TAN',
- #              'mainsystemip': '192.168.56.36',
- #              'model': '',
- #              'policers': [],
- #              'residentblock': ['41.188.170.0/24'],
- #              'serialnumber': '',
- #              'software': 'junos',
- #              'synced': False,
- #              'systemname': 'TAN',
- #              'version': '',
- #              'xconnects': [('up', 0), ('down', 0)]},
- # 'router-1': {'errors': {},
- #              'hostid': '',
- #              'hostname': 'router-1',
- #              'instances': {},
- #              'interfaces': [],
- #              'ip': '41.188.128.46',
- #              'logicalsystem': '',
- #              'model': '',
- #              'policers': [],
- #              'residentblock': ['41.188.170.0/24'],
- #              'serialnumber': '',
- #              'software': 'ios',
- #              'synced': False,
- #              'version': '',
- #              'xconnects': [('up', 0), ('down', 0)]},
- # 'router-2': {'errors': {},
- #              'hostid': '',
- #              'hostname': 'router-2',
- #              'instances': {},
- #              'interfaces': [],
- #              'ip': '41.188.128.23',
- #              'logicalsystem': '',
- #              'model': '',
- #              'policers': [],
- #              'residentblock': ['41.188.170.0/24'],
- #              'serialnumber': '',
- #              'software': 'ios',
- #              'synced': False,
- #              'version': '',
- #              'xconnects': [('up', 0), ('down', 0)]},
- # 'router-3': {'errors': {},
- #              'hostid': '',
- #              'hostname': 'router-3',
- #              'instances': {},
- #              'interfaces': [],
- #              'ip': '41.188.128.41',
- #              'logicalsystem': '',
- #              'model': '',
- #              'policers': [],
- #              'residentblock': ['41.188.170.0/24'],
- #              'serialnumber': '',
- #              'software': 'ios',
- #              'synced': False,
- #              'version': '',
- #              'xconnects': [('up', 0), ('down', 0)]}}
-
-
-	# data = {'devices': devdata,
-	# 'device_refresh_time': True,
- # 'settings': settings}
-
-	# devinfo = {'192.168.56.36': {'errors': {},
- #                   'hostid': '',
- #                   'hostname': 'big',
- #                   'instances': {},
- #                   'interfaces': [],
- #                   'logicalsystem': {'KUR': {'ip': '192.168.56.50',
- #                                             'residentblock': ''},
- #                                     'TAN': {'ip': '192.168.56.75',
- #                                             'residentblock': ''}},
- #                   'model': '',
- #                   'policers': [],
- #                   'residentblock': ['41.188.170.0/24'],
- #                   'serialnumber': '',
- #                   'software': 'junos',
- #                   'synced': False,
- #                   'version': '',
- #                   'xconnects': [('up', 0), ('down', 0)]},
- # '41.188.128.46': {'errors': {},
- #                   'hostid': '',
- #                   'hostname': 'router-1',
- #                   'instances': {},
- #                   'interfaces': [],
- #                   'logicalsystem': '',
- #                   'model': '',
- #                   'policers': [],
- #                   'residentblock': ['41.188.170.0/24'],
- #                   'serialnumber': '',
- #                   'software': 'ios',
- #                   'synced': False,
- #                   'version': '',
- #                   'xconnects': [('up', 0), ('down', 0)]},
- #  '41.188.128.23': {'errors': {},
- #                   'hostid': '',
- #                   'hostname': 'router-2',
- #                   'instances': {},
- #                   'interfaces': [],
- #                   'logicalsystem': '',
- #                   'model': '',
- #                   'policers': [],
- #                   'residentblock': ['41.188.170.0/24'],
- #                   'serialnumber': '',
- #                   'software': 'ios',
- #                   'synced': False,
- #                   'version': '',
- #                   'xconnects': [('up', 0), ('down', 0)]},
- #  '41.188.128.41': {'errors': {},
- #                   'hostid': '',
- #                   'hostname': 'router-3',
- #                   'instances': {},
- #                   'interfaces': [],
- #                   'logicalsystem': '',
- #                   'model': '',
- #                   'policers': [],
- #                   'residentblock': ['41.188.170.0/24'],
- #                   'serialnumber': '',
- #                   'software': 'ios',
- #                   'synced': False,
- #                   'version': '',
- #                   'xconnects': [('up', 0), ('down', 0)]}                 }
 	app.run(debug=True)
 
 
