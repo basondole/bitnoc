@@ -1,7 +1,8 @@
 __pycache__/
 application/__pycache__/
-application/templates/logical-view-with-interfaces.html
+application/database/user.db
 application/static/js/d3.v3.min.js
+application/templates/logical-view-with-interfaces.html
 bitnoc/
 core/__pycache__/
 core/bandwidthOnDemand.py

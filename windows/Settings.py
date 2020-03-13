@@ -24,17 +24,12 @@ warning_icon = resource_path(r'warning-icon.png')
 
 def savesettings(settings):
 
-
-    subprocess.check_call(["attrib","-H","main.conf"])
-
     with open('main.conf','w') as settingsfile:
         settingsfile.write('---\n')
         for key,value in settings.items(): 
             settingsfile.write(key+': '+value+'\n')
         settingsfile.write('\n')
         settingsfile.write('...\n')
-
-    subprocess.check_call(["attrib","+H","main.conf"])
 
     return
 
