@@ -142,5 +142,9 @@ python run.py
  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
  </pre>
  
- Open the browser and access <code>http://127.0.0.1:5000/</code> or <code>http://localhost:5000/</code>
- 
+Open the browser and access <code>http://127.0.0.1:5000/</code> or <code>http://localhost:5000/</code>
+
+Click sign up to create a user account and you will be redirected to a settings page.
+Set Path to device database: as <code>./application/database/</code> also specify the ssh authentication server with its port number.
+Save the settings and you will be redirected to the login page from which you can create a user account via a sig up link.
+It may take a minute for a user to be registered as the server tries to verify the user credentials against the specified authentication server.
