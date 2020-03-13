@@ -30,8 +30,19 @@ import pprint
 
 @app.route("/register-user", methods=['GET', 'POST'])
 def register_user():
+	global settings
+
 	if current_user.is_authenticated:
 		return redirect(url_for('.index'))
+
+	if type(settings) != dict :
+				settings = readsettings()
+				if type(settings) == str:
+					data = {'settings': {},'devices': {}}
+					flash(f'Settings missing. General settings are required for system to work.\
+												   Please setup the system', 'danger')
+					return render_template('home.html', showTab={'mainTab': 'settings'},
+											data=data, user_id='default')
 
 	form = UserRegistrationForm()
 	if form.validate_on_submit():
@@ -139,7 +150,8 @@ def save_settings():
 
 	data.update({'settings': settings})
 	showTab='settings'
-	log(command='update: settings', user_id=current_user.id)
+	if str(current_user) == 'None':
+		log(command='update: settings', user_id=current_user.id)
 	return redirect(url_for('.index', showTab=showTab))
 
 
