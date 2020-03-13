@@ -56,7 +56,6 @@ tree
 │   │   │   └── jquery-ui.js
 │   │   ├── js
 │   │   │   ├── bootstrap.min.js
-│   │   │   ├── d3.v3.min.js
 │   │   │   ├── d3.v4.min.js
 │   │   │   ├── jquery.validate.min.js
 │   │   │   └── popper.min.js
@@ -68,9 +67,10 @@ tree
 │       ├── json
 │       │   └── rasimu.json
 │       ├── layout.html
-│       ├── logical-view-with-interfaces.html
 │       ├── login.html
 │       ├── register.html
+│       ├── renders
+│       │   └── text-output.html
 │       ├── view-bgp-neighbor-monitor.html
 │       ├── view-network-diagram.html
 │       ├── view-service-audit.html
@@ -103,7 +103,7 @@ tree
     ├── Settings.py
     └── __init__.py
 
-15 directories, 55 files
+16 directories, 54 files
 </pre>
 
 Create a python virtual environment
