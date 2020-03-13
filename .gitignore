@@ -1,8 +1,12 @@
 __pycache__/
 application/__pycache__/
 application/templates/logical-view-with-interfaces.html
+application/static/js/d3.v3.min.js
 bitnoc/
 core/__pycache__/
+core/bandwidthOnDemand.py
+core/burstServiceEditor.py
+core/get_intf_cisco_summary.py
 other/__pycache__/
 to-do.txt
 main.conf
