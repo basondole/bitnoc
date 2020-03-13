@@ -202,7 +202,7 @@ class Parse:
 
 
    @staticmethod
-   def parseCiscoOutput(loopbackIp,ipDict,output,subnet):
+   def parseCiscoOutput(loopbackIp,ipDict,output,subnet,context_output):
 
       sections = {}
       regex = r'^(interface|ip route|ip prefix-list|access-list|ip access-list)'
@@ -408,7 +408,7 @@ class kazi:
 
             sshClient.close()
 
-            Parse.parseCiscoOutput(loopbackIp,ipDict,console_output,subnet)
+            Parse.parseCiscoOutput(loopbackIp,ipDict,console_output,subnet,context_output)
 
 
 

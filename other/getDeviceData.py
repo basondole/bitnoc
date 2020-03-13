@@ -488,31 +488,25 @@ def ip_to_name_as_key(device_dict):
   return devdata
 
 def verifyUser(username,password,server=None):
-   ''' Verifies the user credential by login to the server
-   '''
-   if server: host = server
-   else: return
+    ''' Verifies the user credential by login to the server
+    '''
+    if server: host = server
+    else: return
 
-   sshClient = paramiko.SSHClient()
-   sshClient.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    sshClient = paramiko.SSHClient()
+    sshClient.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
-   try:
-      try:
-         sshClient.connect(host, username=username, password=password,
-                           timeout=40,allow_agent=False,look_for_keys=False)
-         authenticated = True
-      except (socket.error, paramiko.AuthenticationException):
-         print(time.ctime()+" (user = "+username+") failed authentication > "+host.rjust(15))
-         return None # no username and password
+    try:
+       sshClient.connect(host, username=username, password=password,
+                         timeout=40,allow_agent=False,look_for_keys=False)
+       authenticated = True
+    except (socket.error, paramiko.AuthenticationException):
+       print(time.ctime()+" (user = "+username+") failed authentication > "+host.rjust(15))
+       return None # no username and password
 
 
-      if authenticated:
-         sshClient.close()
-         return username,password
-
-   except socket.error:
-      print(time.ctime()+" (user = "+username+") failed to connect > "+host.rjust(15))
-      return None # no username and password
-
+    if authenticated:
+       sshClient.close()
+       return username,password
 
 
