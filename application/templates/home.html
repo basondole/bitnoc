@@ -530,28 +530,28 @@ Use comma for multiple entries, example 10.0.0.0/24, 172.16.0.0/16"/>
             <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
               Authentication server:
             </label>
-            <input class="col-sm-6 form-control form-control-sm settings-general" placeholder="resolvable name or ip address" name="general-authentication-server" value="{{data['settings']['general-authentication-server']}}" />
+            <input class="col-sm-6 form-control form-control-sm settings-general" placeholder="resolvable name or ip address" name="general-authentication-server" value="{{data['settings']['general-authentication-server']}}" required/>
           </div>
 
           <div class="form-group row">
             <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
               Server ssh port:
             </label>
-            <input class="col-sm-6 form-control form-control-sm settings-general" name="general-authentication-server-port" value="{{data['settings']['general-authentication-server-port']}}" />
+            <input class="col-sm-6 form-control form-control-sm settings-general" name="general-authentication-server-port" value="{{data['settings']['general-authentication-server-port']}}" required/>
           </div>
 
           <div class="form-group row">
             <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
               Path to device database:
             </label>
-            <input class="col-sm-6 form-control form-control-sm settings-general" name="general-database" value="{{data['settings']['general-database']}}" />
+            <input class="col-sm-6 form-control form-control-sm settings-general" name="general-database" value="{{data['settings']['general-database']}}" required/>
           </div>
 
           <br/>
 
           <div class="form-group col text-center">
-            <input class="btn btn-secondary btn-sm" type="submit" value="Save"/>
-            <input class="btn btn-outline-secondary btn-sm" type="reset" value="Reset" onclick="resetFormValues('settings-general')" />
+            <input class="btn btn-secondary btn-sm" id="settings-general-submit" type="submit" value="Save"/>
+            <input class="btn btn-outline-secondary btn-sm" id="settings-general-reset" value="Reset" onclick="resetFormValues('settings-general')" />
           </div>
 
         </div>
@@ -1328,7 +1328,7 @@ Use comma for multiple entries, example 10.0.0.0/24, 172.16.0.0/16"/>
         </p>
 
         <br/><br/>
-        <div>
+        <!-- <div> -->
         <h2>
           <div>Users database
             <a class="anchorjs-link " href="#" aria-label="Anchor" data-anchorjs-icon="#" style="padding-left: 0.375em;"></a>
@@ -1478,6 +1478,16 @@ User('rancid', 'rancid@bassonation.org')</pre>
         </p>
         <p>
           <div class="highlight" style="margin-bottom: 0px;">
+           Query the user object and get its associated logs
+          </div>
+          <div class="bd-example pad-8" style="margin-top: 0px;" >
+            <pre style="font-size: 15px">>>> user = User.query.filter_by(username='rancid').first()
+>>> user.log
+[LogBook('login: web', '2020-03-02 00:07:33.693600'), LogBook('monitor: bgp', '2020-03-02 00:07:45.627261'), LogBook('command: refresh-bgp-monitor', '2020-03-02 00:08:41.810634'), LogBook('command: refresh-bgp-monitor', '2020-03-02 00:10:41.867917'), LogBook('command: refresh-bgp-monitor', '2020-03-02 00:12:41.733774')]</pre>
+          </div>
+        </p>
+        <p>
+          <div class="highlight" style="margin-bottom: 0px;">
            Removing all tables from the database
           </div>
           <div class="bd-example pad-8" style="margin-top: 0px;" >
@@ -1490,7 +1500,7 @@ User('rancid', 'rancid@bassonation.org')</pre>
 []</pre>
           </div>
         </p>
-      </div>
+      <!-- </div> -->
       <br/>
 
       </p>
@@ -2202,8 +2212,6 @@ User('rancid', 'rancid@bassonation.org')</pre>
 
 
 
-
-
 {% if showTab %}
 <script>
   {% if showTab.subTab %}
@@ -2226,5 +2234,6 @@ User('rancid', 'rancid@bassonation.org')</pre>
   $('html,body').animate({ scrollTop: 0 }, 'slow');
 </script>
 {% endif %}
+
 {% endblock content %}
 

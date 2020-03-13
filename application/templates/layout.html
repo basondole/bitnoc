@@ -125,25 +125,6 @@
 
   <body>
 
-    {% if error %}
-      <div class="alert">
-        <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span> 
-        <strong>Error!</strong> {{error}}
-      </div>
-      <br/>
-    {% endif %}
-
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for category, message in messages %}
-          <div class="alert alert-{{ category }}" >
-            {{ message }}
-          </div>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
-
-
     <header class="navbar navbar-expand navbar-dark flex-column flex-md-row bd-navbar" style="position:sticky;background-color: #7952b3;">
 
       <a class="navbar-brand mr-0 mr-md-2" aria-label="Bootstrap" href="https://basondole.github.io">
@@ -178,10 +159,8 @@
 
       {% if user_id %}
       <div class="dropdown show" style="float: right;width: 100%;">
-    
-        
 
-        <button class="btn btn-info dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="background-color: #17a2b803;border-color: #ffffff4d;float: right">
+        <button class="btn btn-info dropdown-toggle" href="#" role="button" id="user-account-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="background-color: #17a2b803;border-color: #ffffff4d;float: right">
           <svg width="36" height="36" class="navbar-nav-svg" fill="currentColor" fill-rule="evenodd" viewBox="0 0 40 41" role="img" style="margin-top: 4px;">
             <path fill-opacity=".4" d="M32.8 21c0 2.4-.8 4.9-2 6.9l5.1 5.1c2.5-3.4 4.1-7.6 4.1-12 0-4.6-1.6-8.8-4-12.2L30.7 14c1.2 2 2 4.3 2 7z"></path>
             <path d="M20 33.7a12.8 12.8 0 0 1 0-25.6c2.6 0 5 .7 7 2.1L32 5a20 20 0 1 0 .1 31.9l-5-5.2a13 13 0 0 1-7 2z"></path>
@@ -189,7 +168,7 @@
           {{ user_id }}
         </button>
 
-        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuLink">
+        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="user-account-button">
           <a class="dropdown-item" href="#" onclick="window.location='/logout'">Logout</a>
           <a class="dropdown-item" href="#" onclick="$('#nav-settings-tab').click();">Settings</a>
         </div>
@@ -237,7 +216,26 @@
         </div>
          
         <main class="col-12 col-md-9 col-xl-8 py-md-3 pl-md-5 bd-content" role="main" id="main" style="opacity:0;">
-          <div>          
+          <div>
+            {% if error %}
+              <div class="alert">
+                <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span> 
+                <strong>Error!</strong> {{error}}
+              </div>
+              <br/>
+            {% endif %}
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                {% for category, message in messages %}
+                  <div class="alert alert-{{ category }}" >
+                    {{ message }}
+                  </div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+          </div>
+          <div>       
             {% block content %}
             {% endblock %}
           </div>
@@ -453,7 +451,7 @@
             return
           }
           else {
-            bootstrap_alert(data.message, data.status);
+            bootstrap_alert.alertify(data.message, data.status);
           }
         });
       });
@@ -1583,26 +1581,28 @@
 
   <script type="text/javascript">
     function resizeDivs(currentDiv) {
-      console.log(currentDiv.height())
+      // console.log(currentDiv.height())
       // $('#right-nav-bar').height(currentDiv.height());
       // $('#left-nav-bar').height(currentDiv.height());
       $('#main').height(currentDiv.height());
     }
   </script>
 
-  {% if not data['device_refresh_time'] and showTab != {'mainTab': 'settings'} %}
+  {% if not data['device_refresh_time'] %}
   <script>
     $(document).ready(function(){
       bootstrap_alert.alertify('Devices are not synced. Please perform a device refresh', 'warning');
-      // $("input").hide();
-      // $("button").hide();
-      // $("select").hide();
       $("input").prop('disabled', true);
       $("button").prop('disabled', true);
       $("select").prop('disabled', true);
+      $("#user-account-button, #settings-general-reset, #settings-general-submit").prop('disabled', false);
+      $(".col-sm-6.form-control.form-control-sm.settings-general").each( function() {
+        $(this).prop('disabled', false);
+      })
     });
   </script>
   {%endif%}
+
 
 
 </html>

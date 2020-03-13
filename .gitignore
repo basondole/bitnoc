@@ -1,4 +1,6 @@
+__pycache__/
 application/__pycache__/
+application/templates/logical-view-with-interfaces.html
 bitnoc/
 core/__pycache__/
 other/__pycache__/

@@ -1,9 +1,8 @@
 {
   "nodes": [
-    {"id": "0.0.0.86.0.80", "group": 1, "img":  "../static/images/default/router.gif"},
     {"id": "big", "group": 1, "img":  "../static/images/default/router.gif"}
   ],
   "links":[
-    {"source": "big", "target": "0.0.0.86.0.80", "value": 10}
+    {"source": "big", "target": "big", "value": 10}
   ]
 }

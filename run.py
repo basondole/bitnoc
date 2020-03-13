@@ -26,9 +26,7 @@ import ipaddress
 import time
 import pprint
 
-#from dotenv import load_dotenv
-#dotenv_path = join(dirname(__file__), '.env')
-#load_dotenv(dotenv_path)
+
 
 @app.route("/register-user", methods=['GET', 'POST'])
 def register_user():
@@ -67,45 +65,44 @@ def login():
 
 	elif request.method == "POST":
 
-		if type(settings) != dict :
-			settings = readsettings()
-			if type(settings) == str:
-				_data = {'settings': {},'devices': {}}
-				return render_template('home.html', showTab={'mainTab': 'settings'},
-							data=_data, user_id='default',
-							alert={'status':'danger',
-								   'message': 'Settings missing. General settings are required for system to work.\
-											   Please setup the system'} )
-
 		session['password'] = request.form['pswrd']
 		password = session['password']
 
 		global context_output
 		context_output[request.form['userid']] = {}
 
-		session.pop(request.form['userid'], None) # drop exixting session
-
-		# if form.validate_on_submit():
+		session.pop(request.form['userid'], None) # drop existing session
 		user = User.query.filter_by(username=request.form['userid']).first()
+
 		if not user:
-			flash(f'User {username} does not exist', 'danger')
+			flash(f'User {request.form["userid"]} does not exist', 'danger')
 		elif bcrypt.check_password_hash(user.password, password):
-			if not data:
+
+			login_user(user, remember=False)
+
+			if type(settings) != dict :
+				settings = readsettings()
+				if type(settings) == str:
+					data = {'settings': {},'devices': {}}
+					flash(f'Settings missing. General settings are required for system to work.\
+												   Please setup the system', 'danger')
+					return render_template('home.html', showTab={'mainTab': 'settings'},
+											data=data, user_id=user.username)
+			if not data['devices']:
 				devices = Device(user.username, password, path=settings['general-database'])
 				devinfo = devices.database()
 				devdata = ip_to_name_as_key(devinfo)
 				data = {
-								'settings': settings,
-								'devices': devdata,
-								'device_refresh_time': device_refresh_time
-								}
+						'settings': settings,
+						'devices': devdata,
+						'device_refresh_time': device_refresh_time
+						}
 			print('\n====> Loaded devices | ip as key\n')
 			pprint.pprint(devinfo)
 			print('\n====> Loaded devices | hostname as key\n')
 			pprint.pprint(devdata)
 			print('\n====> data\n')
 			pprint.pprint(data)
-			login_user(user, remember=False)
 			next_page = request.args.get('next')
 			log(command='login: web', user_id=user.id)
 			return redirect(url_for('.index'))
@@ -133,7 +130,7 @@ def index():
 
 
 @app.route("/save-settings", methods=['GET', 'POST'])
-def save_ettings():
+def save_settings():
 	global data, showTab
 	settings = request.form
 	print('====> Updating settings')
@@ -250,10 +247,14 @@ def add_device():
 def refresh_device_database(refresh_ip):
 	global data, devdata, devinfo
 	if not current_user.is_authenticated:
-		info = {
-				'status': 'danger',
+		info = {'status': 'danger',
 				'message': f'User session timed out'}
 		return jsonify(info)
+	if type(data['settings']) != dict:
+		info = {'status': 'danger',
+				'message': f'Path to device database is not defined'}
+		return jsonify(info)
+
 
 	username = current_user.username
 	password = session['password']
@@ -272,11 +273,11 @@ def refresh_device_database(refresh_ip):
 				'status': 'success',
 				'message': f'Device <b>{ devinfo[ refresh_ip ]["hostname"] }</b> data refreshed successfully',
 				'data': render_template('home.html',
-																data=data,
-																showTab={'mainTab':'devices','subTab':'add'},
-																alert={'status': 'success',
-																			 'message': f'Device <b>{ devinfo[ refresh_ip ]["hostname"] }</b> data refreshed successfully'},
-																user_id=username)
+										data=data,
+										showTab={'mainTab':'devices','subTab':'add'},
+										alert={'status': 'success',
+											   'message': f'Device <b>{ devinfo[ refresh_ip ]["hostname"] }</b> data refreshed successfully'},
+										user_id=username)
 				}
 		log(command=f'refresh-device: {refresh_ip}', user_id=current_user.id)
 		return jsonify(info)
@@ -928,10 +929,8 @@ def collectdevdata(username,password,path):
 
 if __name__ == "__main__":
 	settings = readsettings()
-	data = {}
 	device_refresh_time = ''
+	data = {'settings': {},'devices': {}}
 	context_output = {}
 	app.run(debug=True)
-
-
 

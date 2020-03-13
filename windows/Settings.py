@@ -54,7 +54,10 @@ def readsettings():
         if not setdict['general-database']:
             return 'Devices database not found \nPlease go to general settings tab \nand specify the database full path \n'
         
-        if not setdict['bgp-neighbor-monitor-timer']:
+        try:
+            if not setdict['bgp-neighbor-monitor-timer']:
+                setdict['bgp-neighbor-monitor-timer'] = 5 #minutes
+        except KeyError:
             setdict['bgp-neighbor-monitor-timer'] = 5 #minutes
 
         return setdict
