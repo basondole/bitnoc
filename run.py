@@ -171,7 +171,10 @@ def remove_device():
 		for system in data['devices'][device]['logicalsystem'].keys():
 			# pop the logical system by its name from the device dict
 			hostname = device+'--'+system
-			data['devices'].pop(hostname) # also affects devdata dictionary since data['devices'] = devdict
+			try:
+				data['devices'].pop(hostname) # also affects devdata dictionary since data['devices'] = devdict
+			except KeyError: # device is not synced thus the logical systems are not added to data['devices']
+				continue
 		for system in devinfo[ipaddr]['logicalsystem'].keys():
 			# pop the logical system by its ip from the devinfo dict
 			devinfo.pop(devinfo[ipaddr]['logicalsystem'][system]['ip'])
