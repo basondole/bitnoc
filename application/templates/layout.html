@@ -495,11 +495,6 @@
       if ( !validateDeviceRegistrationForm() ) {
         return false
       }
-      $('#devices-add-device-hostname').prop('disabled', true);
-      $('#devices-add-device-ip').prop('disabled', true);
-      $('#devices-add-device-software').prop('disabled', true);
-      $('#devices-add-device-resident-block').prop('disabled', true);
-      $('#devices-add-device-logical-system').prop('disabled', true);
       $.ajax(
           {
               url: "/devices/:add-device",
@@ -514,11 +509,6 @@
               }
           })
       .done(function(data) {
-        $('#devices-add-device-hostname').prop('disabled', false);
-        $('#devices-add-device-ip').prop('disabled', false);
-        $('#devices-add-device-software').prop('disabled', false);
-        $('#devices-add-device-resident-block').prop('disabled', false);
-        $('#devices-add-device-logical-system').prop('disabled', false);
         if ( data.timeout && data.data ) {
           resetFormValues('devices-add-device');
           refreshDevicesData( ip_address );
@@ -1419,6 +1409,10 @@
               if ( !router ) {
                 alert("Select router");
                 $(this).val("Manual");
+                return
+              }
+              if ( $('[name="api-netdot-url"]') == '' ) {
+                alert('Netdot url is not configured');
                 return
               }
 
