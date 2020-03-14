@@ -3,7 +3,6 @@
 
 import yaml
 import ipaddress
-import time
 from other.Essential import dotted
 
 
@@ -306,7 +305,6 @@ def detail(ip_dict):
 
     keylist = list(ip_dict.keys())
     keylist.sort()
-    raw_output = f'Last refresh {time.ctime()}\n\n'
 
     try:
         for key in keylist:

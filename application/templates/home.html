@@ -208,7 +208,7 @@
         <div align="center">
           <h1 class="bd-lead">Devices Detail</h1><hr><br/>
         </div>
-        {{ '\n'.join((data['devices']|detail_view).split('\n')[2:]) | safe }} <!-- skip the first line which shows the last refresh time used by table view header -->
+        {{ data['devices']|detail_view | safe }}
       </div>
             
 
