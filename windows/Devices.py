@@ -305,122 +305,114 @@ def detail(ip_dict):
 
     keylist = list(ip_dict.keys())
     keylist.sort()
+    raw_output = ''
 
-    try:
-        for key in keylist:
+    for key in keylist:
 
-            if '--' in key:
-                raw_output+=f'''
-                    <div class="table table-warning">
-                        <label style="margin-left: 5px;">{key}</label>
-                    </div>
-                    <pre>'''
-            else:
-                raw_output+=f'''
-                    <div class="table table-active">
-                        <label style="margin-left: 5px;">{key}</label>
-                    </div>
-                    <pre>'''
+        if '--' in key:
+            raw_output+=f'''
+                <div class="table table-warning">
+                    <label style="margin-left: 5px;">{key}</label>
+                </div>
+                <pre>'''
+        else:
+            raw_output+=f'''
+                <div class="table table-active">
+                    <label style="margin-left: 5px;">{key}</label>
+                </div>
+                <pre>'''
 
+        raw_output+=(' ')*4
+        raw_output+=('ip: '+str(ip_dict[key]['ip'])+'\n')
+
+        try:
             raw_output+=(' ')*4
-            raw_output+=('ip: '+str(ip_dict[key]['ip'])+'\n')
+            raw_output+=('synchronised: '+str(ip_dict[key]['synced'])+'\n')
+        except KeyError:
+            raw_output = raw_output[:-4] # remove the spaces
+            pass
 
-            try:
-                raw_output+=(' ')*4
-                raw_output+=('synchronised: '+str(ip_dict[key]['synced'])+'\n')
-            except KeyError:
-                raw_output = raw_output[:-4] # remove the spaces
-                pass
+        # try:
+        raw_output+=(' ')*4
+        raw_output+=('location: '+ip_dict[key]['hostname'].lower()+'\n')
+        # except KeyError: pass
 
-            # try:
+        try:
             raw_output+=(' ')*4
-            raw_output+=('location: '+ip_dict[key]['hostname'].lower()+'\n')
-            # except KeyError: pass
+            raw_output+=('hostname: '+ip_dict[key]['hostid']+'\n')
+        except KeyError:
+            raw_output = raw_output[:-4] # remove the spaces
+            pass
 
-            try:
-                raw_output+=(' ')*4
-                raw_output+=('hostname: '+ip_dict[key]['hostid']+'\n')
-            except KeyError:
-                raw_output = raw_output[:-4] # remove the spaces
-                pass
+        # try:
+        raw_output+=(' ')*4
+        raw_output+=('software: '+ip_dict[key]['software'].lower()+'\n')
+        # except KeyError: pass
 
-            # try:
+        try:
             raw_output+=(' ')*4
-            raw_output+=('software: '+ip_dict[key]['software'].lower()+'\n')
-            # except KeyError: pass
+            raw_output+=('version: '+ip_dict[key]['version']+'\n')
+        except KeyError:
+            raw_output = raw_output[:-4] # remove the spaces
+            pass
 
-            try:
-                raw_output+=(' ')*4
-                raw_output+=('version: '+ip_dict[key]['version']+'\n')
-            except KeyError:
-                raw_output = raw_output[:-4] # remove the spaces
-                pass
+        try:
+            raw_output+=(' ')*4
+            raw_output+=('serial: '+ip_dict[key]['serialnumber']+'\n')
+        except KeyError:
+            raw_output = raw_output[:-4] # remove the spaces
+            pass
 
-            try:
-                raw_output+=(' ')*4
-                raw_output+=('serial: '+ip_dict[key]['serialnumber']+'\n')
-            except KeyError:
-                raw_output = raw_output[:-4] # remove the spaces
-                pass
+        try:
+            raw_output+=(' ')*4
+            raw_output+=('model: '+ip_dict[key]['model']+'\n')
+        except KeyError:
+            raw_output = raw_output[:-4] # remove the spaces
+            pass
 
-            try:
-                raw_output+=(' ')*4
-                raw_output+=('model: '+ip_dict[key]['model']+'\n')
-            except KeyError:
-                raw_output = raw_output[:-4] # remove the spaces
-                pass
+        vrf_count = 0
+        up_xco_count = 0
+        dn_xco_count = 0
 
-            vrf_count = 0
-            up_xco_count = 0
-            dn_xco_count = 0
-
-            if ip_dict[key]['logicalsystem']:
-                raw_output+=(' ')*4
-                raw_output+=('logicalsystem:\n')
-                for systemname in ip_dict[key]['logicalsystem'].keys():
-                    try:        
-                        raw_output+=(' ')*8
-                        systemip = ip_dict[key]['logicalsystem'][systemname]['ip']
-                        raw_output+=(systemname+': '+systemip+'\n')
-                        try:
-                            vrf_count += len(ip_dict[systemip]['instances'])
-                            up_xco_count += ip_dict[systemip]['xconnects'][0][1]
-                            dn_xco_count += ip_dict[systemip]['xconnects'][1][1]
-                        except KeyError:
-                            continue # no info about the logical system when main system aint synced
+        if ip_dict[key]['logicalsystem']:
+            raw_output+=(' ')*4
+            raw_output+=('logicalsystem:\n')
+            for systemname in ip_dict[key]['logicalsystem'].keys():
+                try:        
+                    raw_output+=(' ')*8
+                    systemip = ip_dict[key]['logicalsystem'][systemname]['ip']
+                    raw_output+=(systemname+': '+systemip+'\n')
+                    try:
+                        vrf_count += len(ip_dict[systemip]['instances'])
+                        up_xco_count += ip_dict[systemip]['xconnects'][0][1]
+                        dn_xco_count += ip_dict[systemip]['xconnects'][1][1]
                     except KeyError:
-                        continue # ip address of logical system is not defined
+                        continue # no info about the logical system when main system aint synced
+                except KeyError:
+                    continue # ip address of logical system is not defined
 
-            raw_output+=(' ')*4
-            vrf_count += len(ip_dict[key]['instances'])
-            raw_output+=('vrf: '+str(vrf_count)+'\n')
+        raw_output+=(' ')*4
+        vrf_count += len(ip_dict[key]['instances'])
+        raw_output+=('vrf: '+str(vrf_count)+'\n')
 
-            raw_output+=(' ')*4
-            up_xco_count += ip_dict[key]['xconnects'][0][1]
-            dn_xco_count += ip_dict[key]['xconnects'][1][1]
-            raw_output+=('xconnects: up: %d down: %d total: %d\n'%(up_xco_count,dn_xco_count,up_xco_count+dn_xco_count))
-
-
-            for x in range(4): raw_output+=(' ')
-            raw_output+=('Errors:\n')
-            try:
-                for errortype in ip_dict[key]['errors']:
-                    for x in range(8): raw_output+=(' ')
-                    raw_output+=(errortype+':\n')
-                    for x in range(12): raw_output+=(' ')
-                    raw_output+=('- '+ip_dict[key]['errors'][errortype]+'  \n')
-            except: pass
+        raw_output+=(' ')*4
+        up_xco_count += ip_dict[key]['xconnects'][0][1]
+        dn_xco_count += ip_dict[key]['xconnects'][1][1]
+        raw_output+=('xconnects: up: %d down: %d total: %d\n'%(up_xco_count,dn_xco_count,up_xco_count+dn_xco_count))
 
 
-            raw_output+='</pre>'
+        for x in range(4): raw_output+=(' ')
+        raw_output+=('Errors:\n')
+        try:
+            for errortype in ip_dict[key]['errors']:
+                for x in range(8): raw_output+=(' ')
+                raw_output+=(errortype+':\n')
+                for x in range(12): raw_output+=(' ')
+                raw_output+=('- '+ip_dict[key]['errors'][errortype]+'  \n')
+        except: pass
 
 
-        return raw_output
-
-    except:
-        return
+        raw_output+='</pre>'
 
 
-
-
-
+    return raw_output
