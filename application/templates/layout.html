@@ -1411,7 +1411,7 @@
                 $(this).val("Manual");
                 return
               }
-              if ( $('[name="api-netdot-url"]') == '' ) {
+              if ( $('[name="api-netdot-url"]').val() == '' ) {
                 alert('Netdot url is not configured');
                 return
               }
