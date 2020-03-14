@@ -377,8 +377,8 @@ def detail(ip_dict):
         if ip_dict[key]['logicalsystem']:
             raw_output+=(' ')*4
             raw_output+=('logicalsystem:\n')
-            for systemname in ip_dict[key]['logicalsystem'].keys():
-                try:        
+            try:        
+                for systemname in ip_dict[key]['logicalsystem'].keys():
                     raw_output+=(' ')*8
                     systemip = ip_dict[key]['logicalsystem'][systemname]['ip']
                     raw_output+=(systemname+': '+systemip+'\n')
@@ -388,8 +388,8 @@ def detail(ip_dict):
                         dn_xco_count += ip_dict[systemip]['xconnects'][1][1]
                     except KeyError:
                         continue # no info about the logical system when main system aint synced
-                except KeyError:
-                    continue # ip address of logical system is not defined
+            except AttributeError:
+                continue # 'str' object has no attribute 'keys' if the ip_dict[key]['logicalsystem'] is not dict
 
         raw_output+=(' ')*4
         vrf_count += len(ip_dict[key]['instances'])
