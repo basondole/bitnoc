@@ -1413,6 +1413,7 @@
               }
               if ( $('[name="api-netdot-url"]').val() == '' ) {
                 alert('Netdot url is not configured');
+                $(this).val("Manual");
                 return
               }
 
