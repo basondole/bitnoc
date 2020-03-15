@@ -21,6 +21,7 @@ The functionality offered provides simple means to execute common time consuming
 -    IPv4 operations
 -    Service provisioning
 -    BGP Neighbor monitoring
+-    Services auditing
 -    Burst packages management
 -    Bandwidth on demand management
 
