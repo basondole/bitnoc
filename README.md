@@ -59,6 +59,8 @@ Offloads manual tracking of temporary bandwidth change requests that is not very
 -    Solarwinds Orion Swis
 -    Netdot REST
 
+# Application architecture
+![bitnoc building blocks](https://user-images.githubusercontent.com/50369643/76944900-d7425d80-6912-11ea-917b-5dae40a663c4.png)
 
 # Installation
 These instructions assume you already have python installed and python vitual environment module installed
