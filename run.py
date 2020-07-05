@@ -653,8 +653,13 @@ def command():
 		_data = '/text-output'
 
 	elif commands.lower() == 'bgp summary':
-		filtering = values['command-bgp-filter']
-		filtering = True if filtering == 'true' else False
+		filtering = {}
+		filtering['state'] = False if values['command-bgp-filter-state'] == 'true' else True
+		filtering['arp'] = True if values['command-bgp-filter-arp'] == 'true' else False
+		filtering['alias'] = True if values['command-bgp-filter-alias'] == 'true' else False
+		filtering['loss'] = True if values['command-bgp-filter-loss'] == 'true' else False
+		filtering['format'] = values['command-bgp-filter-format'].lower()
+
 		_ipdict = {}
 		for device in devices_list:
 			try:
@@ -666,16 +671,27 @@ def command():
 			message = 'Device(s) not in database'
 			status = 'warning'
 			_data = False
-		result = cool_bgp_summary(_ipdict, username, password, OUT, filtering=filtering)
-		if len(result.strip().split('\n')) <= 3 :
-			message = 'There was an error please check logs'
-			status = 'danger'
 		else:
-			message = 'BGP summary info printed on new tab'
-			status = 'info'
-		with open(f'application/templates/renders/{username}-text-output.html', 'w') as f:
-			f.write(render_template('view-text-output.html', data = result))
-		_data = '/text-output'
+			if filtering['format'] == 'ascii':
+				result = cool_bgp_summary(_ipdict, username, password, OUT, filtering=filtering)
+				with open(f'application/templates/renders/{username}-text-output.html', 'w') as f:
+					f.write(render_template('view-text-output.html', data = result))
+				_data = '/text-output'
+			else:
+				result = cool_bgp_summary(_ipdict, username, password, OUT, monitor=True,filtering=filtering)
+				with open(f'application/templates/renders/{current_user.username}-bgp-summary-table-output.html', 'w') as f:
+					f.write(render_template('html/bgp-neighbor-summary-table.html', data = result, filtering=filtering))
+				_data = '/bgp-summary-table-output'
+			if (type(result) == list and len(result.strip().split('\n')) <= 3) or (type(result) == dict and len(result) == 0):
+				message = 'There was an error please check logs'
+				status = 'danger'
+			else:
+				message = 'BGP summary info printed on new tab'
+				status = 'info'
+
+
+
+
 
 	elif commands.lower() == 'configuration backup':
 		_ipdict = {}
@@ -860,6 +876,12 @@ def logical_view():
 	return render_template('view-network-diagram.html')
 
 
+@app.route("/bgp-summary-table-output", methods=['GET', 'POST'])
+def present_bgp_table_output():
+	if not current_user.is_authenticated:
+		redirect(url_for('.login'))
+	return render_template(f'renders/{current_user.username}-bgp-summary-table-output.html')
+
 @app.route("/text-output", methods=['GET', 'POST'])
 def present_text_output():
 	if not current_user.is_authenticated:
@@ -950,5 +972,5 @@ if __name__ == "__main__":
 	device_refresh_time = ''
 	data = {'settings': {},'devices': {}}
 	context_output = {}
-	app.run(debug=True)
+	app.run(debug=True, port=5000)
 

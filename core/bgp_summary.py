@@ -16,7 +16,7 @@ __email__ = "bassosimons@me.com"
 
 class getBGPdata:
 
-    def kazi(ipdict,username,password,context_output,filtering=True, monitor=False):
+    def kazi(ipdict,username,password,context_output,filtering={'state': False}, monitor=False):
 
         context_output['_out_'] = f'Last refresh {time.ctime()}\n'
         context_output['errors'] = ''
@@ -49,7 +49,8 @@ class getBGPdata:
 
 
 
-    def bgp_summary(host,ipdict,username,password,lock,context_output,filtering=True, monitor=False):
+    def bgp_summary(host,ipdict,username,password,lock,context_output,filtering={'state': False}, monitor=False):
+
 
         def rpc_to_dict(rpc_element):
           rpc_xml = etree.tostring(rpc_element, pretty_print=True, encoding='unicode')
@@ -112,84 +113,84 @@ class getBGPdata:
                   return
 
 
-
-                bgp_neighbor_info[peer] = {'peer': peer['peer-address'],
-                                           'peer_as': peer['peer-as'],
-                                           'state': peer['peer-state'],
-                                           'time': peer['elapsed-time'],
+                if filtering['state'] and bgp_data[peer]['peer-state'].lower() == 'established':
+                  continue
+                bgp_neighbor_info[peer] = {'peer': bgp_data[peer]['peer-address'],
+                                           'peer_as': bgp_data[peer]['peer-as'],
+                                           'state': bgp_data[peer]['peer-state'],
+                                           'time': bgp_data[peer]['elapsed-time'],
                                            'vrf': table,
                                            'status': 'Enabled',}
               
               # ping the peers that are down
+              if filtering['loss']:
               
-              for peer in bgp_neighbor_info:
-                  if filtering:
-                    if bgp_neighbor_info[peer]['state'].lower() == 'established':
-                      continue
-                  table = bgp_neighbor_info[peer]['vrf']
-                  if table == 'inet.0':
-                    rpc_ping = router.rpc.ping(rapid=True, host=peer, logical_system=system_name)
-                  else:
-                    vrf_name = table.split('.')[0]
-                    rpc_ping = router.rpc.ping(rapid=True, host=peer, logical_system=system_name, routing_instance=vrf_name)
+                for peer in bgp_neighbor_info:
 
-                  ping_results = rpc_to_dict(rpc_ping)
+                    table = bgp_neighbor_info[peer]['vrf']
+                    if table == 'inet.0':
+                      rpc_ping = router.rpc.ping(rapid=True, host=peer, logical_system=system_name)
+                    else:
+                      vrf_name = table.split('.')[0]
+                      rpc_ping = router.rpc.ping(rapid=True, host=peer, logical_system=system_name, routing_instance=vrf_name)
 
-                  try:
-                      packet_loss = ping_results['probe-results-summary']['packet-loss']
-                      packet_loss = f'Loss {packet_loss}%'
-                  except KeyError:
-                      packet_loss = ping_results['rpc-error']['error-message'][0:9] # take only nine characters of the error statement
+                    ping_results = rpc_to_dict(rpc_ping)
 
-                  bgp_neighbor_info[peer]['ping'] = packet_loss
+                    try:
+                        packet_loss = ping_results['probe-results-summary']['packet-loss']
+                        packet_loss = f'Loss {packet_loss}%'
+                    except KeyError:
+                        packet_loss = ping_results['rpc-error']['error-message'][0:9] # take only nine characters of the error statement
+
+                    bgp_neighbor_info[peer]['ping'] = packet_loss
 
               # route entries for extracting outgoing interface for peers that are down
+              if filtering['alias']:
+                for peer in bgp_neighbor_info:
 
-              for peer in bgp_neighbor_info:
-                if filtering:
-                  if bgp_neighbor_info[peer]['state'].lower() == 'established':
-                    continue
+                  rpc_show_route = router.rpc.get_route_information(logical_system=system_name, destination=peer, table=bgp_neighbor_info[peer]['vrf'])
+                  routes_data = rpc_to_dict(rpc_show_route)
+                  routes_data = routes_data['route-information']['route-table']
+                  egress_interface = routes_data ['rt']['rt-entry']['nh']['via']
 
-                rpc_show_route = router.rpc.get_route_information(logical_system=system_name, destination=peer, table=bgp_neighbor_info[peer]['vrf'])
-                routes_data = rpc_to_dict(rpc_show_route)
-                routes_data = routes_data['route-information']['route-table']
-                egress_interface = routes_data ['rt']['rt-entry']['nh']['via']
-
-                bgp_neighbor_info[peer]['interface'] = egress_interface
+                  bgp_neighbor_info[peer]['interface'] = egress_interface
 
               # arp entries
+              if filtering['arp']:
 
-              for peer in bgp_neighbor_info:
+                for peer in bgp_neighbor_info:
 
-                if filtering:
-                  if bgp_neighbor_info[peer]['state'].lower() == 'established':
-                    continue
+                  bgp_neighbor_info[peer]['if_arp'] = []
+                  if filtering['alias']:
+                    rpc_arp = router.rpc.get_arp_table_information(interface=bgp_neighbor_info[peer]['interface'])
+                    arp_data = rpc_to_dict(rpc_arp)
+                    arp_table = arp_data['arp-table-information']['arp-table-entry']
+                    if type(arp_table) == list:
+                      for arp_entry in arp_table:
+                        bgp_neighbor_info[peer]['if_arp'].append(f"{arp_entry['ip-address']}:{arp_entry['mac-address']}")
+                    else:
+                      bgp_neighbor_info[peer]['if_arp'].append(f"{arp_table['ip-address']}:{arp_table['mac-address']}")
+                  
+                  bgp_neighbor_info[peer]['ip_arp'] = []
+                  rpc_arp = router.rpc.get_arp_table_information(hostname=peer)
+                  arp_data = rpc_to_dict(rpc_arp)
+                  arp_table = arp_data['arp-table-information']['arp-table-entry']
+                  if type(arp_table) == list:
+                    for arp_entry in arp_table:
+                      bgp_neighbor_info[peer]['ip_arp'].append(f"{arp_entry['ip-address']}:{arp_entry['mac-address']}")
+                  else:
+                    bgp_neighbor_info[peer]['ip_arp'].append(f"{arp_table['ip-address']}:{arp_table['mac-address']}")
 
-                bgp_neighbor_info[peer]['if_arp'] = []
-                rpc_arp = router.rpc.get_arp_table_information(interface=bgp_neighbor_info[peer]['interface'])
-                arp_data = rpc_to_dict(rpc_arp)
-                arp_table = arp_data['arp-table-information']['arp-table-entry']
-                if type(arp_table) == list:
-                  for arp_entry in arp_table:
-                    bgp_neighbor_info[peer]['if_arp'].append({arp_entry['ip-address']: arp_entry['mac-address']})
-                else:
-                  bgp_neighbor_info[peer]['if_arp'].append({arp_table['ip-address']: arp_table['mac-address']})
-                
-                bgp_neighbor_info[peer]['ip_arp'] = []
-                rpc_arp = router.rpc.get_arp_table_information(hostname=peer)
-                arp_data = rpc_to_dict(rpc_arp)
-                arp_table = arp_data['arp-table-information']['arp-table-entry']
-                if type(arp_table) == list:
-                  for arp_entry in arp_table:
-                    bgp_neighbor_info[peer]['ip_arp'].append({arp_entry['ip-address']: arp_entry['mac-address']})
-                else:
-                  bgp_neighbor_info[peer]['ip_arp'].append({arp_table['ip-address']: arp_table['mac-address']})
 
-                # for presentation purposes when using format.presentation method
-                if not bgp_neighbor_info[peer]['ip_arp']:
-                  bgp_neighbor_info[peer]['ip_arp'] = ['-']
-                if not bgp_neighbor_info[peer]['if_arp']:
-                  bgp_neighbor_info[peer]['if_arp'] = ['-']
+                  # for presentation purposes when using format.presentation method
+                  if not bgp_neighbor_info[peer]['ip_arp']:
+                    bgp_neighbor_info[peer]['ip_arp'] = ['-']
+                  if filtering['alias']:
+                    if not bgp_neighbor_info[peer]['if_arp']:
+                      bgp_neighbor_info[peer]['if_arp'] = ['-']
+
+                  # consolidate arp entries
+                  bgp_neighbor_info[peer]['arp'] = bgp_neighbor_info[peer]['if_arp'] + bgp_neighbor_info[peer]['ip_arp']
 
               router.close() # close pyez session
 
@@ -203,6 +204,10 @@ class getBGPdata:
                       state = bgp_data[table]['peers'][peer]['is_up']
                       if state == True: state = 'Established'
                       else: state = 'Down'
+
+                      if filtering['state'] and state.lower() == 'established':
+                        continue
+
                       status = bgp_data[table]['peers'][peer]['is_enabled']
                       if status == True: status = 'Enabled'
                       else: status = 'Shutdown'
@@ -216,136 +221,126 @@ class getBGPdata:
                                                  'time': duration,
                                                  'vrf': table}
               # ping the peers that are down
+              if filtering['loss']:
 
-              for peer in bgp_neighbor_info:
+                for peer in bgp_neighbor_info:
 
-                  if filtering:
-                    if bgp_neighbor_info[peer]['state'].lower() == 'established': continue
+                    table = bgp_neighbor_info[peer]['vrf']
+                    if table == 'global': table = ''
 
+                    ping_results = ipdict[host]['napalm'].ping(peer,vrf=table)
+                    try:
+                        packet_loss = ping_results['success']['packet_loss']
+                        packet_loss = 'Loss %d%%'%(packet_loss*20)
 
-                  table = bgp_neighbor_info[peer]['vrf']
-                  if table == 'global': table = ''
+                    except KeyError:
+                        try: 
+                            packet_loss = ping_results['error']
+                            if packet_loss == 'Packet loss 100': packet_loss='Loss 100%'
+                            else: packet_loss = ping_results['error'][0:9] # take only nine characters of the error statement
+                        except: packet_loss = ' '
 
-                  ping_results = ipdict[host]['napalm'].ping(peer,vrf=table)
-                  try:
-                      packet_loss = ping_results['success']['packet_loss']
-                      packet_loss = 'Loss %d%%'%(packet_loss*20)
-
-                  except KeyError:
-                      try: 
-                          packet_loss = ping_results['error']
-                          if packet_loss == 'Packet loss 100': packet_loss='Loss 100%'
-                          else: packet_loss = ping_results['error'][0:9] # take only nine characters of the error statement
-                      except: packet_loss = ' '
-
-                  bgp_neighbor_info[peer]['ping'] = packet_loss
-
+                    bgp_neighbor_info[peer]['ping'] = packet_loss
 
 
               # route entries for extracting outgoig interface for peers that are down
+              if filtering['alias']:
 
-              for peer in bgp_neighbor_info:
+                for peer in bgp_neighbor_info:
 
-                if filtering:
-                  if bgp_neighbor_info[peer]['state'].lower() == 'established':
-                    continue
+                  routes_data = ipdict[host]['napalm'].get_route_to(peer)
 
-                routes_data = ipdict[host]['napalm'].get_route_to(peer)
+                  table = bgp_neighbor_info[peer]['vrf']
 
-                table = bgp_neighbor_info[peer]['vrf']
-
-                if table == 'global': 
-                  if ':' in peer:
-                    table = 'inet6.0'
-                  else:
-                    table = 'inet.0'
+                  if table == 'global': 
+                    if ':' in peer:
+                      table = 'inet6.0'
+                    else:
+                      table = 'inet.0'
 
 
-                egress_interface = []
+                  egress_interface = []
 
-                for route in routes_data:
-                    if route != '0.0.0.0/0':
-                        for entry in  routes_data[route]:
-                           if entry['routing_table'].startswith(table):
-                              egress_interface.append(entry['outgoing_interface'])
+                  for route in routes_data:
+                      if route != '0.0.0.0/0':
+                          for entry in  routes_data[route]:
+                             if entry['routing_table'].startswith(table):
+                                egress_interface.append(entry['outgoing_interface'])
+
+                  try:
+                      egress_interface
+                      egress_interface = egress_interface[0] # take the first entry if there are many
+
+                  except: egress_interface = ''
+
+                  bgp_neighbor_info[peer]['interface'] = egress_interface
+
+
+              # arp entries
+              if filtering['arp']:
+
+                arp_table = ipdict[host]['napalm'].get_arp_table()
+
+                for peer in bgp_neighbor_info:
+
+                  bgp_neighbor_info[peer]['ip_arp'] = []
+                  bgp_neighbor_info[peer]['if_arp'] = []
+
+                  for arp_entry in arp_table:
+                      if arp_entry['ip'] == peer:
+                          bgp_neighbor_info[peer]['ip_arp'].append(f"{arp_entry['ip']}:{arp_entry['mac']}")
+
+                      if filtering['alias']:
+                        if arp_entry['interface'] == bgp_neighbor_info[peer]['interface']:
+                          bgp_neighbor_info[peer]['if_arp'].append(f"{arp_entry['ip']}:{arp_entry['mac']}")
+
+                  # for presentation purposes when using format.presentation method
+                  if not bgp_neighbor_info[peer]['ip_arp']:
+                    bgp_neighbor_info[peer]['ip_arp'] = ['-']
+                  if filtering['alias']:
+                    if not bgp_neighbor_info[peer]['if_arp']:
+                      bgp_neighbor_info[peer]['if_arp'] = ['-']
+
+                  # consolidate arp entries
+                  bgp_neighbor_info[peer]['arp'] = bgp_neighbor_info[peer]['if_arp'] + bgp_neighbor_info[peer]['ip_arp']
+
+              # interface status for both main and logical system
+              if filtering['alias']:
 
                 try:
-                    egress_interface
-                    egress_interface = egress_interface[0] # take the first entry if there are many
+                  interfaces = ipdict[host]['napalm'].get_interfaces()
+                except:
+                  interfaces = {} # if napalm fails
 
-                except: egress_interface = ''
+                for peer in bgp_neighbor_info:
 
-                bgp_neighbor_info[peer]['interface'] = egress_interface
+                  bgp_neighbor_info[peer]['if_description'] = '-'
+                  bgp_neighbor_info[peer]['if_oper_status'] = '- '
+                  bgp_neighbor_info[peer]['if_admin_status'] = '-  '
 
-
-
-              
-              # arp entries
-
-              arp_table = ipdict[host]['napalm'].get_arp_table()
-
-              for peer in bgp_neighbor_info:
-
-                if filtering:
-                  if bgp_neighbor_info[peer]['state'].lower() == 'established':
+                  # if the interface does not exist there is no intf info
+                  if not bgp_neighbor_info[peer]['interface']:
+                    bgp_neighbor_info[peer]['interface'] = '- '
                     continue
 
-                bgp_neighbor_info[peer]['ip_arp'] = []
-                bgp_neighbor_info[peer]['if_arp'] = []
+                  for interface in interfaces.keys():
+                    if interface == bgp_neighbor_info[peer]['interface']:
 
-                for arp_entry in arp_table:
-                    if arp_entry['ip'] == peer:
-                        bgp_neighbor_info[peer]['ip_arp'].append({arp_entry['ip']:arp_entry['mac']})
+                       op_state = interfaces[interface]['is_up']
+                       if op_state==True:
+                        op_state = 'Up'
+                       else:
+                        op_state = 'Down'
 
-                    if arp_entry['interface'] == bgp_neighbor_info[peer]['interface']:
-                        bgp_neighbor_info[peer]['if_arp'].append({arp_entry['ip']:arp_entry['mac']})
+                       ad_state = interfaces[interface]['is_enabled']
+                       if ad_state==True:
+                        ad_state = 'Up'
+                       else:
+                        ad_state = 'Down'
 
-                # for presentation purposes when using format.presentation method
-                if not bgp_neighbor_info[peer]['ip_arp']:
-                  bgp_neighbor_info[peer]['ip_arp'] = ['-']
-                if not bgp_neighbor_info[peer]['if_arp']:
-                  bgp_neighbor_info[peer]['if_arp'] = ['-']
-
-            # interface status for both main and logical system
-
-              try:
-                interfaces = ipdict[host]['napalm'].get_interfaces()
-              except:
-                interfaces = {} # if napalm fails
-
-              for peer in bgp_neighbor_info:
-
-                if filtering:
-                  if bgp_neighbor_info[peer]['state'].lower() == 'established':
-                    continue
-
-                bgp_neighbor_info[peer]['if_description'] = '-'
-                bgp_neighbor_info[peer]['if_oper_status'] = '- '
-                bgp_neighbor_info[peer]['if_admin_status'] = '-  '
-
-                # if the interface does not exist there is no intf info
-                if not bgp_neighbor_info[peer]['interface']:
-                  bgp_neighbor_info[peer]['interface'] = '- '
-                  continue
-
-                for interface in interfaces.keys():
-                  if interface == bgp_neighbor_info[peer]['interface']:
-
-                     op_state = interfaces[interface]['is_up']
-                     if op_state==True:
-                      op_state = 'Up'
-                     else:
-                      op_state = 'Down'
-
-                     ad_state = interfaces[interface]['is_enabled']
-                     if ad_state==True:
-                      ad_state = 'Up'
-                     else:
-                      ad_state = 'Down'
-
-                     bgp_neighbor_info[peer]['if_description'] = interfaces[interface]['description']
-                     bgp_neighbor_info[peer]['if_oper_status'] = op_state
-                     bgp_neighbor_info[peer]['if_admin_status'] = ad_state
+                       bgp_neighbor_info[peer]['if_description'] = interfaces[interface]['description']
+                       bgp_neighbor_info[peer]['if_oper_status'] = op_state
+                       bgp_neighbor_info[peer]['if_admin_status'] = ad_state
 
 
 
@@ -356,178 +351,174 @@ class getBGPdata:
 
             bgp_data = format.parseCiscoBGP(bgp_txt_data)
 
-            bgp_neighbor_info = bgp_data
+            bgp_neighbor_info = {}
+            for peer in bgp_data:
+              if filtering['state'] and bgp_data[peer]['state'].lower() == 'established':
+                continue
+              bgp_neighbor_info[peer] = bgp_data[peer]
 
 
             # ping the peers
+            if filtering['loss']:
 
-            for peer in bgp_neighbor_info:
+              for peer in bgp_neighbor_info:
 
-              if filtering:
-                if bgp_neighbor_info[peer]['state'].lower() == 'established':
-                  continue
+                table = bgp_neighbor_info[peer]['vrf']
 
+                ping_results = ipdict[host]['napalm'].ping(peer,vrf=table)
+                try: 
+                  packet_loss = ping_results['success']['packet_loss']
+                  packet_loss = 'Loss %d%%'%(packet_loss*20) # napalm sends 5 packets multiply by 20 to get percentage
 
-              table = bgp_neighbor_info[peer]['vrf']
+                except KeyError:
+                    try: 
+                        packet_loss = ping_results['error']
+                        if packet_loss == 'Packet loss 100':
+                          packet_loss='Loss 100%'
+                        else:
+                          packet_loss = ping_results['error'][0:9] # take only nine characters of the error statement
+                    except:
+                      packet_loss = ' '
 
-              ping_results = ipdict[host]['napalm'].ping(peer,vrf=table)
-              try: 
-                packet_loss = ping_results['success']['packet_loss']
-                packet_loss = 'Loss %d%%'%(packet_loss*20) # napalm sends 5 packets multiply by 20 to get percentage
-
-              except KeyError:
-                  try: 
-                      packet_loss = ping_results['error']
-                      if packet_loss == 'Packet loss 100':
-                        packet_loss='Loss 100%'
-                      else:
-                        packet_loss = ping_results['error'][0:9] # take only nine characters of the error statement
-                  except:
-                    packet_loss = ' '
-
-              bgp_neighbor_info[peer]['ping'] = packet_loss
-
+                bgp_neighbor_info[peer]['ping'] = packet_loss
 
 
             # route entries for extracting outgoig interface
+            if filtering['alias']:
 
-            for peer in bgp_neighbor_info:
+              for peer in bgp_neighbor_info:
 
-              if filtering:
-                if bgp_neighbor_info[peer]['state'].lower() == 'established':
-                  continue
+                table = bgp_neighbor_info[peer]['vrf']
 
-              table = bgp_neighbor_info[peer]['vrf']
+                if not table:
+                    if ':' in peer: # for ipv6
+                      routes_txt_dict = ipdict[host]['napalm'].cli(['show ipv6 route '+peer])
+                      routes_txt_data = routes_txt_dict['show ipv6 route '+peer]
+                    else:
+                      routes_txt_dict = ipdict[host]['napalm'].cli(['show ip route '+peer])
+                      routes_txt_data = routes_txt_dict['show ip route '+peer]
+                else:
+                    if ':' in peer: # for ipv6
+                      routes_txt_dict = ipdict[host]['napalm'].cli(['show ipv6 route vrf %s %s'%(table,peer)])
+                      routes_txt_data = routes_txt_dict['show ipv6 route vrf %s %s'%(table,peer)]
+                    else:
+                      routes_txt_dict = ipdict[host]['napalm'].cli(['show ip route vrf %s %s'%(table,peer)])
+                      routes_txt_data = routes_txt_dict['show ip route vrf %s %s'%(table,peer)]
 
-              if not table:
-                  if ':' in peer: # for ipv6
-                    routes_txt_dict = ipdict[host]['napalm'].cli(['show ipv6 route '+peer])
-                    routes_txt_data = routes_txt_dict['show ipv6 route '+peer]
-                  else:
-                    routes_txt_dict = ipdict[host]['napalm'].cli(['show ip route '+peer])
-                    routes_txt_data = routes_txt_dict['show ip route '+peer]
-              else:
-                  if ':' in peer: # for ipv6
-                    routes_txt_dict = ipdict[host]['napalm'].cli(['show ipv6 route vrf %s %s'%(table,peer)])
-                    routes_txt_data = routes_txt_dict['show ipv6 route vrf %s %s'%(table,peer)]
-                  else:
-                    routes_txt_dict = ipdict[host]['napalm'].cli(['show ip route vrf %s %s'%(table,peer)])
-                    routes_txt_data = routes_txt_dict['show ip route vrf %s %s'%(table,peer)]
-
-              egress_interface = ''
+                egress_interface = ''
 
 
-              for line in routes_txt_data.split('\n'):
-                  # if there is one route entry
-                  if re.search(r'^  \*.*via (\S+)',line):
-                      egress_interface = (re.findall(r'^  \*.*via (\S+)',line))[0]
-                  # if there are multiple entries
-                  elif re.search(r'via \d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3},',line):
-                      egress_interface = line.split()[-1]
-                  # for ipv6
-                  elif re.search(r':.*, ',line):
-                      egress_interface = line.split()[-1]
+                for line in routes_txt_data.split('\n'):
+                    # if there is one route entry
+                    if re.search(r'^  \*.*via (\S+)',line):
+                        egress_interface = (re.findall(r'^  \*.*via (\S+)',line))[0]
+                    # if there are multiple entries
+                    elif re.search(r'via \d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3},',line):
+                        egress_interface = line.split()[-1]
+                    # for ipv6
+                    elif re.search(r':.*, ',line):
+                        egress_interface = line.split()[-1]
 
-             
-              bgp_neighbor_info[peer]['interface'] = egress_interface
-                
-
+               
+                bgp_neighbor_info[peer]['interface'] = egress_interface
 
 
             # arp entries
+            if filtering['arp']:
 
-            for peer in bgp_neighbor_info:
+              for peer in bgp_neighbor_info:
 
-              if filtering:
-                if bgp_neighbor_info[peer]['state'].lower() == 'established': continue
+                bgp_neighbor_info[peer]['ip_arp'] = []
+                bgp_neighbor_info[peer]['if_arp'] = []
 
-              bgp_neighbor_info[peer]['ip_arp'] = []
-              bgp_neighbor_info[peer]['if_arp'] = []
+                table = bgp_neighbor_info[peer]['vrf']
+                if filtering['alias']:
+                  interface = bgp_neighbor_info[peer]['interface']
 
-              table = bgp_neighbor_info[peer]['vrf']
-              interface = bgp_neighbor_info[peer]['interface']
-
-              if not table:
+                if not table:
                   ip_arp_txt_dict = ipdict[host]['napalm'].cli(['show arp '+peer])
                   ip_arp_txt_data = ip_arp_txt_dict['show arp '+peer]
-                  if_arp_txt_dict = ipdict[host]['napalm'].cli(['show arp '+interface])
-                  if_arp_txt_data = if_arp_txt_dict['show arp '+interface]
-              else:
+                  if filtering['alias']:
+                    if_arp_txt_dict = ipdict[host]['napalm'].cli(['show arp '+interface])
+                    if_arp_txt_data = if_arp_txt_dict['show arp '+interface]
+                else:
                   ip_arp_txt_dict = ipdict[host]['napalm'].cli(['show arp vrf %s %s'%(table,peer)])
                   ip_arp_txt_data = ip_arp_txt_dict['show arp vrf %s %s'%(table,peer)]
-                  if_arp_txt_dict = ipdict[host]['napalm'].cli(['show arp vrf %s %s'%(table,interface)])
-                  if_arp_txt_data = if_arp_txt_dict['show arp vrf %s %s'%(table,interface)]
-              
+                  if filtering['alias']:
+                    if_arp_txt_dict = ipdict[host]['napalm'].cli(['show arp vrf %s %s'%(table,interface)])
+                    if_arp_txt_data = if_arp_txt_dict['show arp vrf %s %s'%(table,interface)]
+                
 
 
-              arp_table = []
-              for entry in ip_arp_txt_data.split('\n'):
-                  if re.search(r'^Internet',entry):
-                      arp_table.append({'ip':entry.split()[1],
-                                        'mac':entry.split()[3],
-                                        'interface':entry.split()[-1]
-                                      })
+                arp_table = []
+                for entry in ip_arp_txt_data.split('\n'):
+                    if re.search(r'^Internet',entry):
+                        arp_table.append({'ip':entry.split()[1],
+                                          'mac':entry.split()[3],
+                                          'interface':entry.split()[-1]
+                                        })
 
-              for arp_entry in arp_table:
-                  if arp_entry['ip'] == peer:
-                      bgp_neighbor_info[peer]['ip_arp'].append({arp_entry['ip']:arp_entry['mac']})
-              # for presentation purposes when using format.presentation method
-              if not bgp_neighbor_info[peer]['ip_arp']: bgp_neighbor_info[peer]['ip_arp'] = ['-']
+                for arp_entry in arp_table:
+                    if arp_entry['ip'] == peer:
+                        bgp_neighbor_info[peer]['ip_arp'].append(f"{arp_entry['ip']}:{arp_entry['mac']}")
+                # for presentation purposes when using format.presentation method
+                if not bgp_neighbor_info[peer]['ip_arp']: bgp_neighbor_info[peer]['ip_arp'] = ['-']
 
 
-              arp_table = []
-              for entry in if_arp_txt_data.split('\n'):
-                  if re.search(r'^Internet',entry):
-                      arp_table.append({'ip':entry.split()[1],
-                                        'mac':entry.split()[3],
-                                        'interface':entry.split()[-1]
-                                      })
+                if filtering['alias']:
+                  arp_table = []
+                  for entry in if_arp_txt_data.split('\n'):
+                      if re.search(r'^Internet',entry):
+                          arp_table.append({'ip':entry.split()[1],
+                                            'mac':entry.split()[3],
+                                            'interface':entry.split()[-1]
+                                          })
+                  for arp_entry in arp_table:
+                      if arp_entry['interface'] == bgp_neighbor_info[peer]['interface']:
+                          bgp_neighbor_info[peer]['if_arp'].append(f"{arp_entry['ip']}:{arp_entry['mac']}")
 
-              for arp_entry in arp_table:
-                  if arp_entry['interface'] == bgp_neighbor_info[peer]['interface']:
-                      bgp_neighbor_info[peer]['if_arp'].append({arp_entry['ip']:arp_entry['mac']})
-
-              # for presentation purposes when using format.presentation method
-              if not bgp_neighbor_info[peer]['if_arp']: bgp_neighbor_info[peer]['if_arp'] = ['-']
+                # for presentation purposes when using format.presentation method
+                if filtering['alias']:
+                  if not bgp_neighbor_info[peer]['if_arp']: bgp_neighbor_info[peer]['if_arp'] = ['-']
+                # consolidate arp
+                bgp_neighbor_info[peer]['arp'] = bgp_neighbor_info[peer]['if_arp'] + bgp_neighbor_info[peer]['ip_arp']
 
 
 
             # interface status
+            if filtering['alias']:
 
-            try: interfaces = ipdict[host]['napalm'].get_interfaces()
-            except: interfaces = [] # if napalm fails
+              try: interfaces = ipdict[host]['napalm'].get_interfaces()
+              except: interfaces = [] # if napalm fails
 
-            for peer in bgp_neighbor_info:
+              for peer in bgp_neighbor_info:
 
-              if filtering:
-                if bgp_neighbor_info[peer]['state'].lower() == 'established': continue
-
-              bgp_neighbor_info[peer]['if_description'] = '- '
-              bgp_neighbor_info[peer]['if_oper_status'] = '- '
-              bgp_neighbor_info[peer]['if_admin_status'] = '-  '
+                bgp_neighbor_info[peer]['if_description'] = '- '
+                bgp_neighbor_info[peer]['if_oper_status'] = '- '
+                bgp_neighbor_info[peer]['if_admin_status'] = '-  '
 
 
-              # if the interface does not exist there is no intf info
-              if not bgp_neighbor_info[peer]['interface']:
-                bgp_neighbor_info[peer]['interface'] = '- '
-                continue
+                # if the interface does not exist there is no intf info
+                if not bgp_neighbor_info[peer]['interface']:
+                  bgp_neighbor_info[peer]['interface'] = '- '
+                  continue
 
-              else:
+                else:
 
-                for interface in interfaces.keys():
-                  if interface == bgp_neighbor_info[peer]['interface']:
+                  for interface in interfaces.keys():
+                    if interface == bgp_neighbor_info[peer]['interface']:
 
-                     op_state = interfaces[interface]['is_up']
-                     if op_state==True: op_state = 'Up'
-                     else: op_state = 'Down'
+                       op_state = interfaces[interface]['is_up']
+                       if op_state==True: op_state = 'Up'
+                       else: op_state = 'Down'
 
-                     ad_state = interfaces[interface]['is_enabled']
-                     if ad_state==True: ad_state = 'Up'
-                     else: ad_state = 'Down'
+                       ad_state = interfaces[interface]['is_enabled']
+                       if ad_state==True: ad_state = 'Up'
+                       else: ad_state = 'Down'
 
-                     bgp_neighbor_info[peer]['if_description'] = interfaces[interface]['description']
-                     bgp_neighbor_info[peer]['if_oper_status'] = op_state
-                     bgp_neighbor_info[peer]['if_admin_status'] = ad_state
+                       bgp_neighbor_info[peer]['if_description'] = interfaces[interface]['description']
+                       bgp_neighbor_info[peer]['if_oper_status'] = op_state
+                       bgp_neighbor_info[peer]['if_admin_status'] = ad_state
 
 
         else: return 
@@ -591,7 +582,7 @@ Start
           
         return parsed
 
-    def presentation(bgpdict,filtering=True):
+    def presentation(bgpdict,filtering={'state': True}):
 
         output = ' PEER ID'.ljust(17)+'PEER AS'.ljust(10)+'STATE'.ljust(13)+'STATUS'.ljust(10)+'TIME'.ljust(15)+'PING'.ljust(11)
         output+= 'INTERFACE'.ljust(15)+'IF ADMIN'.ljust(9)+'IF STATE'.ljust(9)+'ARP\\r IF ARP'.ljust(34)+'IF ALIAS'
@@ -604,37 +595,38 @@ Start
         output+= '\n'
 
         for peer in bgpdict:
-            if filtering:
-                # do not include established state in output
-                if bgpdict[peer]['state'].lower() == 'established': continue
+            if filtering['state'] and bgpdict[peer]['state'].lower() == 'established': continue
             output+=' '
             output+=peer.ljust(17)+str(bgpdict[peer]['peer_as']).ljust(10)+bgpdict[peer]['state'].ljust(13)+bgpdict[peer]['status'].ljust(10)
             output+=bgpdict[peer]['time'].ljust(15)
-            output+=bgpdict[peer]['ping'].ljust(11)
+            if filtering['loss']: output+=bgpdict[peer]['ping'].ljust(11)
             
             # for consistent presentation modify the interface name length (cisco)
-            egress_interface = bgpdict[peer]['interface']
-            if len(egress_interface) > 14:
-                egress_interface = egress_interface.replace('thernet','')
-                egress_interface = egress_interface.replace('abit','')
-                bgpdict[peer]['interface'] = egress_interface
+            if filtering['alias']:
+              egress_interface = bgpdict[peer]['interface']
+              if len(egress_interface) > 14:
+                  egress_interface = egress_interface.replace('thernet','')
+                  egress_interface = egress_interface.replace('abit','')
+                  bgpdict[peer]['interface'] = egress_interface
 
-            output+=bgpdict[peer]['interface'].ljust(15)+bgpdict[peer]['if_admin_status'].ljust(9)+bgpdict[peer]['if_oper_status'].ljust(9)
+              output+=bgpdict[peer]['interface'].ljust(15)+bgpdict[peer]['if_admin_status'].ljust(9)+bgpdict[peer]['if_oper_status'].ljust(9)
 
-            for arp in bgpdict[peer]['ip_arp']:
-                # arp is a dict convert to string and remove brackets
-                arp = str(arp).replace("'","").replace("{","").replace("}","")
-                output+= arp.ljust(34)
-            
-            output+= bgpdict[peer]['if_description']
-            output+='\n'
+            if filtering['arp']:
+              for arp in bgpdict[peer]['ip_arp']:
+                  # arp is a dict convert to string and remove brackets
+                  arp = str(arp).replace("'","").replace("{","").replace("}","")
+                  output+= arp.ljust(34)
 
-            for arp in bgpdict[peer]['if_arp']:
-                # arp is a dict convert to string and remove brackets
-                arp = str(arp).replace("'","").replace("{","").replace("}","")
-                output+= ' '*109 # adjust the column
-                output+= arp
-                output+= '\n'
+            if filtering['alias']:
+              output+= bgpdict[peer]['if_description']
+              output+='\n'
+
+              for arp in bgpdict[peer]['if_arp']:
+                  # arp is a dict convert to string and remove brackets
+                  arp = str(arp).replace("'","").replace("{","").replace("}","")
+                  output+= ' '*109 # adjust the column
+                  output+= arp
+                  output+= '\n'
             output+= '\n'
             
         output+= '\n'
@@ -646,7 +638,9 @@ Start
 
 
 
-def cool_bgp_summary(ipdict,username,password,context_output,filtering=True, monitor=False):
+def cool_bgp_summary(ipdict,username,password,context_output,filtering={'state': False}, monitor=False):
+
+
 
     start_time = time.time()
     print(f'[{time.ctime()}] INFO: bgp_summary.py via function cool_bgp_summary says: started collecting bgp data')
@@ -658,6 +652,7 @@ def cool_bgp_summary(ipdict,username,password,context_output,filtering=True, mon
 
     if monitor:
       result.update({'run_time': run_time})
+      result.update({'errors': context_output["errors"].split('\n')})
       return result # neighbor dict
 
     else:

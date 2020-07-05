@@ -367,8 +367,38 @@ Use comma for multiple entries, example 10.0.0.0/24, 172.16.0.0/16"/>
         <input class="col-sm-6 form-control form-control-sm command-command-device" name="command-command-manual" id="command-command-manual" style="display: none;" placeholder="type command(s) here">
         <input type="file" id="command-command-file" style="display: none; padding-left: 0px;" onchange="loadFile('command-command-file', 'command-command-manual');">
         <div class="form-check" id="command-bgp-filter-box" style="display: none;">
-          <input class="form-check-input" name="command-bgp-filter" type="checkbox" id="command-bgp-filter">
-          <label class="form-check-label form-control-sm">Show non established neighbors only</label>
+          <ul>
+            <li>
+              <input class="form-check-input" name="command-bgp-filter-state" type="checkbox" id="command-bgp-filter-state" style="margin-top: 7px;">
+              <label class="form-check-label form-control-sm">Display all neighbors (includes established sessions)</label>
+            </li>
+            <li>
+              <input class="form-check-input" name="command-bgp-filter-arp" type="checkbox" id="command-bgp-filter-arp" style="margin-top: 7px;">
+              <label class="form-check-label form-control-sm">Display ARP entries</label>
+            </li>
+            <li>
+              <input class="form-check-input" name="command-bgp-filter-alias" type="checkbox" id="command-bgp-filter-alias" style="margin-top: 7px;">
+              <label class="form-check-label form-control-sm">Display interface description</label>
+            </li>
+            <li>
+              <input class="form-check-input" name="command-bgp-filter-loss" type="checkbox" id="command-bgp-filter-loss" style="margin-top: 7px;">
+              <label class="form-check-label form-control-sm">Display ping loss</label>
+            </li>
+          </ul>
+          <label class="col-sm-4 col-form-label col-form-label-sm" align="">
+          Format:
+          </label>
+          <select class="col-sm-6 form-control form-control-sm" name="command-bgp-filter-format" id="command-bgp-filter-format" required>
+            <option>
+              CSS
+            </option>
+            <option>
+              ASCII
+            </option>
+            <option>
+              HTML
+            </option>
+          </select>
         </div>
       </div>
 

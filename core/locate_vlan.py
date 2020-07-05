@@ -111,7 +111,8 @@ class Getters:
      usedVlans = []
 
      for line in lines:
-        if 'show interface' in line and not re.search(r'^show',line):
+        if ('show interface' in line or 'show ip interface' in line) and not re.search(r'^show',line):
+           print('LINE LOOP: ' +str(line))
            index = lines.index(line)
            break
 
@@ -135,7 +136,6 @@ class Getters:
         if 'show interfaces description' in line and not re.search(r'^show',line):
            index = desc.index(line)
            break
-     
 
      if not desc: #if there is no description match return the interface terse output
         for vlan in vlan_list:
@@ -150,14 +150,25 @@ class Getters:
         return
 
      # if the show command is not found in the output return
-     try: index
-     except: return
+     try:
+        index
+     except NameError:
+        for vlan in vlan_list:
+           if not re.search(r'^[ud]',vlan.split()[1]):
+             continue #if the admin status doesnot start with u or d for up or down skip the line
+           # hostname plus last octate of ip
+           context_output['_match_']+=((ipDict[loopbackIp])['hostname']+'.'+(loopbackIp.split('.'))[-1]).ljust(20)
+           # interface name admin status and operation state 
+           context_output['_match_']+=vlan.split()[0].rjust(13)+vlan.split()[1].rjust(7)+vlan.split()[2].rjust(8)
+           context_output['_match_']+=("\n")        
+        return
 
      for vlan in vlan_list:
-        if not re.search(r'^[ud]',vlan.split()[1]): continue #if the admin status doesnot start with u or d for up or down skip the line
+        if not re.search(r'^[ud]',vlan.split()[1]) and ipDict[loopbackIp]['software'] == 'junos':
+          continue #if the admin status doesnot start with u or d for up or down skip the line
         for name in desc[index+1:]:
            # if the logical interface in terse matches the logical interface in desciption
-           if vlan.split()[0] == name.split()[0]:
+           if vlan.split()[0] == name.split()[0] or ipDict[loopbackIp]['software'] == 'ios':
               # hostname plus last octate of ip
               context_output['_match_']+=((ipDict[loopbackIp])['hostname']+'.'+(loopbackIp.split('.'))[-1]).ljust(20)
               # interface name admin status and operation state 
@@ -204,6 +215,7 @@ class Onesha:
      lock = threading.Lock()
 
      for loopbackIp in ipDict.keys():
+        if '--' in ipDict[loopbackIp]['hostname']: continue
         t = threading.Thread(target=Onesha.kazi, args=(loopbackIp,ipDict,vlan,username,password,lock,context_output))
         t.start()
         threads.append(t)
