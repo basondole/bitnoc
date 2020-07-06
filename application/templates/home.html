@@ -152,7 +152,7 @@
                 <th scope="col">software</th>
                 <th scope="col"># vrf</th>
                 <th scope="col"># l2ckt</th>
-                <th scope="col">Config size</th>
+                <th scope="col">conf size</th>
 
               </tr>
             </thead>
@@ -172,7 +172,7 @@
                 <td>{{ data['devices'][device]['software'] }}</td>
                 <td>{{ data['devices'][device]['instances'] | length }}</td>
                 <td>{{ data['devices'][device]['xconnects'][0][1] + data['devices'][device]['xconnects'][1][1] }}</td> <!-- up + down -->
-                <td>{{ data['devices'][device]['conf_size']}}</td>
+                <td style="font-size: 12px;">{{ data['devices'][device]['conf_size']}}</td>
               </tr>
               {% if data['devices'][device]['logicalsystem'] %}
               {% for name in data['devices'][device]['logicalsystem'] %}

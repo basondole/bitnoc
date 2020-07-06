@@ -246,8 +246,9 @@ class Device:
                 'model': facts['model'],
                 'hostid': facts['hostname']}
       # config size
-      config_bytes = len(devicesDict[host]['napalm'].get_config()['running'])
-      config_lines = len(devicesDict[host]['napalm'].get_config()['running'].split('\n'))
+      config_bytes = len(devicesDict[host]['napalm'].get_config()['running'].strip())
+      config_lines = len(devicesDict[host]['napalm'].get_config()['running'].strip().split('\n'))
+      
 
       devicesDict[host]['napalm'].close()
        
