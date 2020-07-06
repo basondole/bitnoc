@@ -456,6 +456,7 @@ class format:
 
 def readfile(path=None):
    if path:
+      path = path.replace('\\','/')
       if path.strip()[-1] != '/': devicefilepath = path+'/devices.yml'
       else: devicefilepath = path+'devices.yml'
    else: devicefilepath = 'devices.yml'

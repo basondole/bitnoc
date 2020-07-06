@@ -46,7 +46,7 @@ def LoginGetTerse(loopbackIp,ipDict,interface,username,password,lock, context_ou
      authenticated = True
   except Exception as e:
      authenticated = False
-     context_output['error']+='\n '+(time.ctime()+" (user = "+username+") failed authentication > "+loopbackIp)
+     context_output['errors']+='\n '+(time.ctime()+" (user = "+username+") failed authentication > "+loopbackIp)
 
 
   if authenticated==True:
@@ -247,8 +247,8 @@ def display_all_free_vlans_from_both(pe_a, pe_b, context_output):
 
       if context_output['out']:
         summary_output = context_output['out'] # this info will be added in the end of output
-      if context_output['error']:
-        errors = [error.strip() for error in context_output['error'].split('\n') if error.strip()]
+      if context_output['errors']:
+        errors = [error.strip() for error in context_output['errors'].split('\n') if error.strip()]
 
 
       context_output['out'] ='\n'+ ("Tags information:")
@@ -277,10 +277,10 @@ def display_all_free_vlans_from_both(pe_a, pe_b, context_output):
       try: context_output['out']+='\n'+ summary_output +'\n'
       except: context_output['out']+='\n\n' # if summary output not there
       context_output['out']+='\n <span class="token function">Errors:\n -------'
-      if not context_output['error']: context_output['out']+= '\n </span>[0] error(s)\n'
+      if not context_output['errors']: context_output['out']+= '\n </span>[0] error(s)\n'
       else:
          context_output['out']+= '\n [{}] error(s)'.format(len(errors))
-         context_output['out']+= context_output['error'] +'</span>\n'
+         context_output['out']+= context_output['errors'] +'</span>\n'
 
 
 
@@ -305,8 +305,8 @@ def display_free_vlans_range_from_both(pe_a,pe_b,startNumber,endNumber, context_
 
    if context_output['out']:
     summary_output = context_output['out'] # this info will be added in the end of output
-   if context_output['error']:
-    errors = [error.strip() for error in context_output['error'].split('\n') if error.strip()]
+   if context_output['errors']:
+    errors = [error.strip() for error in context_output['errors'].split('\n') if error.strip()]
 
    context_output['out'] ='\n' + ("Tags information:")
    context_output['out']+='\n' + ("-----------------")
@@ -331,11 +331,11 @@ def display_free_vlans_range_from_both(pe_a,pe_b,startNumber,endNumber, context_
      context_output['out']+='\n\n' # if summary output not there
 
    context_output['out']+='\n <span class="token function">Errors:\n -------'
-   if not context_output['error']:
+   if not context_output['errors']:
     context_output['out']+= '\n </span>[0] error(s)\n'
    else:
       context_output['out']+= '\n [{}] error(s)'.format(len(errors))
-      context_output['out']+= context_output['error'] +'</span>\n'
+      context_output['out']+= context_output['errors'] +'</span>\n'
 
 
 
@@ -366,7 +366,7 @@ def dualVlanFinder(username, password,host_a,if_a, host_b,if_b, ipDict,
 
    
    context_output['out'] = ''
-   context_output['error'] = ''
+   context_output['errors'] = ''
 
    pe_a = {'loopbackIp':host_a,'interface':if_a}
    pe_b = {'loopbackIp':host_b,'interface':if_b}

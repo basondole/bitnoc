@@ -40,7 +40,7 @@ def LoginGetTerse(loopbackIp,ipDict,interface,username,password, context_output)
      authenticated = True
   except Exception as e:
      authenticated = False
-     context_output['error']+='\n '+(time.ctime()+" (user = "+username+") failed authentication > "+loopbackIp)
+     context_output['errors']+='\n '+(time.ctime()+" (user = "+username+") failed authentication > "+loopbackIp)
 
 
   if authenticated==True:

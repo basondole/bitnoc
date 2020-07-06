@@ -30,7 +30,7 @@ def get_run_sec_if(username,password,host, context_output):
      authenticated = True
   except Exception as e:
      authenticated = False
-     context_output['error']+='\n '+(time.ctime()+" (user = "+username+") failed authentication > "+host)
+     context_output['errors']+='\n '+(time.ctime()+" (user = "+username+") failed authentication > "+host)
 
   if authenticated==True:
 

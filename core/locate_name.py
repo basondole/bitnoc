@@ -31,7 +31,7 @@ class TafutaJina:
       except (socket.error, paramiko.AuthenticationException):
          authenticated = False
          with lock:
-            context_output['error']+='\n '+ (time.ctime()+" (user = "+username+") failed authentication > "+loopbackIp)
+            context_output['errors']+='\n '+ (time.ctime()+" (user = "+username+") failed authentication > "+loopbackIp)
       
       if authenticated==True:
 
@@ -108,7 +108,7 @@ class TafutaJina:
 
       context_output['description'] = ''
       context_output['out'] = ''
-      context_output['error'] = ''
+      context_output['errors'] = ''
 
       ipList = list(ipDict.keys()) # useful in indentifying the last ip to run operation on
 
@@ -125,8 +125,8 @@ class TafutaJina:
       for t in threads:
          t.join()
 
-      if context_output['error']:
-         errors = [ error.strip() for error in context_output['error'].split('\n') if error.strip()]
+      if context_output['errors']:
+         errors = [ error.strip() for error in context_output['errors'].split('\n') if error.strip()]
       else:
          errors = []
       if context_output['out']:
@@ -162,12 +162,12 @@ class TafutaJina:
          context_output['out']+='\n\n' # if summary output not there
 
       context_output['out']+='\n <span class="token function">Errors:\n -------'
-      if not context_output['error']:
+      if not context_output['errors']:
          context_output['out']+= '\n [0] error(s)</span>\n'
       else:
          context_output['out']+= '\n [{}] error(s)'.format(len(errors))
          context_output['out']+= '\n'
-         context_output['out']+= context_output['error'] +'</span>\n'
+         context_output['out']+= context_output['errors'] +'</span>\n'
 
       result = context_output['out']
 
