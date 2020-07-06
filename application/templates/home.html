@@ -119,6 +119,7 @@
         <a class="nav-link" id="v-pills-devices-detail-tab" data-toggle="pill" href="#v-pills-devices-detail" role="tab" aria-controls="v-pills-devices-detail" aria-selected="false" style="padding: 0px 12px;">Detail view</a>
         <a class="nav-link" id="v-pills-devices-raw-tab" data-toggle="pill" href="#v-pills-devices-raw" role="tab" aria-controls="v-pills-devices-raw" aria-selected="false" style="padding: 0px 12px;">Raw view</a>
         <a class="nav-link" id="v-pills-devices-add-tab" data-toggle="pill" href="#v-pills-devices-add" role="tab" aria-controls="v-pills-devices-add" aria-selected="false" style="padding: 0px 12px;">Add device</a>
+        <a class="nav-link" id="v-pills-devices-refresh-tab" data-toggle="pill" href="#v-pills-devices-refresh" role="tab" aria-controls="v-pills-devices-refresh" aria-selected="false" style="padding: 0px 12px;">Refresh device</a>
         <a class="nav-link" id="v-pills-devices-remove-tab" data-toggle="pill" href="#v-pills-devices-remove" role="tab" aria-controls="v-pills-devices-remove" aria-selected="false" style="padding: 0px 12px;">Remove device</a>
       </div>
     </div>
@@ -151,6 +152,7 @@
                 <th scope="col">software</th>
                 <th scope="col"># vrf</th>
                 <th scope="col"># l2ckt</th>
+                <th scope="col">Config size</th>
 
               </tr>
             </thead>
@@ -170,6 +172,7 @@
                 <td>{{ data['devices'][device]['software'] }}</td>
                 <td>{{ data['devices'][device]['instances'] | length }}</td>
                 <td>{{ data['devices'][device]['xconnects'][0][1] + data['devices'][device]['xconnects'][1][1] }}</td> <!-- up + down -->
+                <td>{{ data['devices'][device]['conf_size']}}</td>
               </tr>
               {% if data['devices'][device]['logicalsystem'] %}
               {% for name in data['devices'][device]['logicalsystem'] %}
@@ -289,6 +292,36 @@ Use comma for multiple entries, example 10.0.0.0/24, 172.16.0.0/16"/>
         </div>
 
       </div>
+
+
+      <!-- DEVICE REFRESH -->
+      <div class="tab-pane fade" id="v-pills-devices-refresh" role="tabpanel" aria-labelledby="v-pills-devices-refresh-tab">
+        <div align="center">
+          <h1 class="bd-lead">Device refresh</h1><hr><br/>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+          Hostname:
+          </label>
+          <select class="col-sm-6 form-control form-control-sm devices-refresh-device" name="devices-refresh-device-ip" id="devices-refresh-device-ip" required>
+          {% for device, name in data['devices'].items()|sort(attribute='1.ip') %}
+            {% if '--' not in device%}
+            <option>
+              {{ data['devices'][device]['ip']}}
+            </option>
+            {% endif %}
+          {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group col text-center">
+          <button class="btn btn-secondary" id="devices-refresh-device-submit" onclick="refreshDevicesData( $('#devices-refresh-device-ip').val() )">refresh device</button>
+          <input class="btn btn-outline-secondary" type="reset" value="clear values" onclick="resetFormValues('devices-refresh-device')" />
+        </div>
+
+      </div>
+
 
       <!-- DEVICE REMOVAL -->
       <div class="tab-pane fade" id="v-pills-devices-remove" role="tabpanel" aria-labelledby="v-pills-devices-remove-tab">

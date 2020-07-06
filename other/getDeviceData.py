@@ -245,10 +245,15 @@ class Device:
                 'version': facts['os_version'],
                 'model': facts['model'],
                 'hostid': facts['hostname']}
-       
+      # config size
+      config_bytes = len(devicesDict[host]['napalm'].get_config()['running'])
+      config_lines = len(devicesDict[host]['napalm'].get_config()['running'].split('\n'))
+
       devicesDict[host]['napalm'].close()
        
       devicesDict[host].update(_facts)
+      devicesDict[host]['conf_size'] = str(config_lines)+' lines ('+str(config_bytes)+'B)'
+      devicesDict[host].update({'napalm_interfaces': facts['interface_list']})
 
       return _facts
 
@@ -325,9 +330,16 @@ class Device:
          if authenticated == True:
 
             Device.assign_napalm_driver(devicesDict,host,username,password)
+            Device.facts(devicesDict,host)
             
-            secureCli = Device.cli(host, username, password, sshClient)
-            Device.showInterfaces(secureCli,devicesDict,host)
+            # if napalm can get interfaces use those else get interfaces from cli
+            try:
+              devicesDict[host]['interfaces'] = [ intf for intf in devicesDict[host]['napalm_interfaces'] if '.' not in intf]
+            except KeyError:
+              pass
+            if not devicesDict[host]['interfaces']:
+              secureCli = Device.cli(host, username, password, sshClient)
+              Device.showInterfaces(secureCli,devicesDict,host)
 
             secureCli = Device.cli(host, username, password, sshClient)
             Device.showInstances(secureCli,devicesDict,host)
@@ -338,7 +350,6 @@ class Device:
             secureCli = Device.cli(host, username, password, sshClient)
             Device.showPolicers(secureCli,devicesDict,host)
 
-            Device.facts(devicesDict,host)
 
             Device.genarate_logical_system_data(host,devicesDict,sshClient,username,password)
 
