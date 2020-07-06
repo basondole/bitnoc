@@ -2,18 +2,15 @@
 # and finds common unused vlans from the two hosts' interfaces (as sub-intefaces)
 # The affected hosts are accessed via ssh using paramiko lib
 
-
 import os
 import re
 import sys
 import time
-import queue
 import socket
 import getpass
 import paramiko
 import datetime
-import threading
-import queue
+
 
 
 __author__ = "Paul S.I. Basondole"
@@ -35,7 +32,7 @@ def ciscoPort(interface):
 
 
 
-def LoginGetTerse(loopbackIp,ipDict,interface,username,password,lock, context_output):
+def LoginGetTerse(loopbackIp,ipDict,interface,username,password, context_output):
 
  
   sshClient = paramiko.SSHClient()
@@ -84,8 +81,6 @@ def LoginGetTerse(loopbackIp,ipDict,interface,username,password,lock, context_ou
 
 
 
-
-
 def getUsedVlan(host,ipDict,interface,console_output):
 
    if not console_output:
@@ -109,7 +104,6 @@ def getUsedVlan(host,ipDict,interface,console_output):
          if vlantag:
           usedVlans.append(vlantag[0].strip())
 
-
    return usedVlans
 
 
@@ -128,84 +122,25 @@ def findAllFreeVlan(host,interface,usedVlans, context_output):
 
       return freeVlans
 
+   for vlan in range(1,4095):
+    if str(vlan) not in usedVlans:
+      freeVlans.append(int(vlan))
 
-   if int(usedVlans[0])>1:
-      for freeVlanPrefix in range(1,int(usedVlans[0])):
-         freeVlans.append(freeVlanPrefix)
+   if len(freeVlans) == 0:
+      try:
+         context_output['out']+='\n ['+ (host+': '+interface+']')
+         context_output['out']+='\n '+ ('all vlan tags are used... no free Vlan tag available')
+      except NameError: pass
 
-   for x in range(len(usedVlans)):
-      if int(usedVlans[x])-int(usedVlans[x-1]) > 1:
-         diff = int(usedVlans[x])-int(usedVlans[x-1])
-         counter = 0
-         while diff != 1:
-            diff -=1
-            counter +=1
-            if int(usedVlans[x-1])+counter <= 4094:
-               freeVlans.append(int(usedVlans[x-1])+counter)
-
-   if int(usedVlans[-1]) <= 4094:
-      for freeVlanSufix in range(int(usedVlans[-1])+1,4095): #counting from zero 4094 is the 4095th number
-         freeVlans.append(freeVlanSufix)
-
-   else:
-      if len(freeVlans) == 0:
-         try:
-            context_output['out']+='\n ['+ (host+': '+interface+']')
-            context_output['out']+='\n '+ ('all vlan tags are used... no free Vlan tag available')
-         except NameError: pass
-
-
-   return freeVlans # list
+   return freeVlans # list of int
 
 
 
 
-def groupVlans(freeVlans):
-   tempdic={}
-   for vlan in freeVlans:
-      if vlan-1 in tempdic:
-         tempdic[vlan-1]= vlan
-      elif vlan-1 in tempdic.values():
-         for key in tempdic.keys():
-            if vlan-1==tempdic[key]:
-               foundkey = key
-         tempdic[foundkey]=vlan
-      else:
-         tempdic[vlan]=0
-   keylist = sorted(tempdic)
-   noRangeVlan = []
-   rangeVlan = []
-   for key in keylist:
-      if tempdic[key] > 0:
-         if tempdic[key] > 4094: tempdic[key] = 4094
-         rangeVlan.append("["+(str(key)).rjust(4)+"-"+(str(tempdic[key])).ljust(4)+"]")
-      else:
-         noRangeVlan.append((str(key)).ljust(4))
-
-   formatedRangeVlan = ""
-   column = 0
-   for vRange in rangeVlan:
-      formatedRangeVlan +=(vRange+" ")
-      column +=1
-      if column%6==0:
-         formatedRangeVlan +=("\n")
-
-   column = 0
-   formatedNoRangeVlan = ""
-   for noVRange in noRangeVlan:
-      formatedNoRangeVlan +=(" "+noVRange)
-      column +=1
-      if column%14==0:
-         formatedNoRangeVlan +=("\n")
-
-   return formatedRangeVlan, formatedNoRangeVlan # string
+def vlanFinder(loopbackIp,ipDict,interface,username,password, context_output):
 
 
-
-def vlanFinder(loopbackIp,ipDict,interface,username,password,outputQ,lock, context_output):
-
-
-   console_output = LoginGetTerse(loopbackIp,ipDict,interface,username,password,lock, context_output)
+   console_output = LoginGetTerse(loopbackIp,ipDict,interface,username,password, context_output)
 
    if type(console_output) == str:
 
@@ -218,8 +153,45 @@ def vlanFinder(loopbackIp,ipDict,interface,username,password,outputQ,lock, conte
    else:
        freeVlans = ['ConnectError'] #  due to error from login get terse function
 
-   outputQ.put(freeVlans)
+   return freeVlans
 
+
+
+def all_free_vlans_from_both(pe_a,pe_b):
+
+   if ['ConnectError'] in (pe_a['freeVlans'],pe_b['freeVlans']):
+      return ['ConnectError']
+
+   matchingFreeVlans = list(set(pe_a['freeVlans']) & set(pe_b['freeVlans']))
+
+   return matchingFreeVlans
+
+
+
+def dualVlanFinder(username, password,host_a,if_a, host_b,if_b, ipDict,
+                   context_output, search=None, start=None, end=None):
+
+   context_output['out'] = ''
+   context_output['errors'] = ''   
+
+   freeVlansFromPeA = vlanFinder(host_a,ipDict,if_a,username,password,context_output)
+   if host_a == host_b:
+    time.sleep(5) # if polling the same router give a break between logins to release resources
+   freeVlansFromPeB = vlanFinder(host_b,ipDict,if_b,username,password,context_output)
+
+   pe_a = {'loopbackIp':host_a,'interface':if_a,'freeVlans': freeVlansFromPeA}
+   pe_b = {'loopbackIp':host_b,'interface':if_b,'freeVlans': freeVlansFromPeB}
+
+
+   if search == 'list_range' and start and end : 
+     display_free_vlans_range_from_both(pe_a, pe_b, start, end, context_output)
+   elif search == 'list_all':
+     display_all_free_vlans_from_both(pe_a, pe_b, context_output)
+   else:
+      freevlans = all_free_vlans_from_both(pe_a, pe_b)
+      return freevlans
+
+   return context_output['out']
 
 
 
@@ -339,83 +311,46 @@ def display_free_vlans_range_from_both(pe_a,pe_b,startNumber,endNumber, context_
 
 
 
-
-def all_free_vlans_from_both(pe_a,pe_b):
-
-   if ['ConnectError'] in (pe_a['freeVlans'],pe_b['freeVlans']):
-      return ['ConnectError']
-
-   matchingFreeVlans = []
-
-   if len(pe_a['freeVlans']) >= len(pe_b['freeVlans']):
-      for vlan in pe_a['freeVlans']:
-         if vlan in pe_b['freeVlans']: matchingFreeVlans.append(vlan)
-   else:
-      for vlan in pe_b['freeVlans']:
-         if vlan in pe_a['freeVlans']: matchingFreeVlans.append(vlan)
-
-
-   return matchingFreeVlans
-
-
-
-
-
-def dualVlanFinder(username, password,host_a,if_a, host_b,if_b, ipDict,
-                   context_output, search=None, start=None, end=None):
-
-   
-   context_output['out'] = ''
-   context_output['errors'] = ''
-
-   pe_a = {'loopbackIp':host_a,'interface':if_a}
-   pe_b = {'loopbackIp':host_b,'interface':if_b}
-
-   outputQA = queue.Queue()
-   outputQB = queue.Queue()
-
-
-   loopbacks = {(0,pe_a['loopbackIp']):{'interface':pe_a['interface'],'outputQ':outputQA},
-                (1,pe_b['loopbackIp']):{'interface':pe_b['interface'],'outputQ':outputQB}}
-
-   threads = []
-   lock = threading.Lock()
-
-   for key in loopbacks.keys(): # key is of type tuple
-
-      index,ip = key
-
-      t = threading.Thread(target=vlanFinder,
-                           args=(ip,ipDict,loopbacks[key]['interface'],username,password,
-                                 loopbacks[key]['outputQ'], lock, context_output))
-      t.start()
-      threads.append(t)
-
-   for t in threads:
-    t.join()
-
-
-   if outputQA and outputQB:
-
-      freeVlansFromPeA = outputQA.get()
-      freeVlansFromPeB = outputQB.get()
-
-      pe_a['freeVlans'] = freeVlansFromPeA
-      pe_b['freeVlans'] = freeVlansFromPeB
-
-      if ['ConnectError'] not in (pe_a['freeVlans'], pe_b['freeVlans']):
-        # will have to find what to do here
-        time.sleep(1)
-
-      if search == 'list_range' and start and end : 
-        display_free_vlans_range_from_both(pe_a, pe_b, start, end, context_output)
-      elif search == 'list_all':
-        display_all_free_vlans_from_both(pe_a, pe_b, context_output)
+def groupVlans(freeVlans):
+   tempdic={}
+   for vlan in freeVlans:
+      if vlan-1 in tempdic:
+         tempdic[vlan-1]= vlan
+      elif vlan-1 in tempdic.values():
+         for key in tempdic.keys():
+            if vlan-1==tempdic[key]:
+               foundkey = key
+         tempdic[foundkey]=vlan
       else:
-         freevlans = all_free_vlans_from_both(pe_a, pe_b)
-         return freevlans
+         tempdic[vlan]=0
+   keylist = sorted(tempdic)
+   noRangeVlan = []
+   rangeVlan = []
+   for key in keylist:
+      if tempdic[key] > 0:
+         if tempdic[key] > 4094: tempdic[key] = 4094
+         rangeVlan.append("["+(str(key)).rjust(4)+"-"+(str(tempdic[key])).ljust(4)+"]")
+      else:
+         noRangeVlan.append((str(key)).ljust(4))
 
-   return context_output['out']
+   formatedRangeVlan = ""
+   column = 0
+   for vRange in rangeVlan:
+      formatedRangeVlan +=(vRange+" ")
+      column +=1
+      if column%6==0:
+         formatedRangeVlan +=("\n")
+
+   column = 0
+   formatedNoRangeVlan = ""
+   for noVRange in noRangeVlan:
+      formatedNoRangeVlan +=(" "+noVRange)
+      column +=1
+      if column%14==0:
+         formatedNoRangeVlan +=("\n")
+
+   return formatedRangeVlan, formatedNoRangeVlan # string
+
 
 
 
