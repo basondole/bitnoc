@@ -281,20 +281,29 @@ def refresh_device_database(refresh_ip):
 		devices_from_updated_file = Device(username,password,path=data['settings']['general-database']) # object for all the device dict including the added device
 		all_devices = devices_from_updated_file.database()
 		new_device = Device(username, password, dictdb={refresh_ip: all_devices[refresh_ip]})
-		new_device_data = new_device.get_data() # dictionary with ip as key
-		new_device_data[ refresh_ip ]['ip'] = refresh_ip
-		devdata[new_device_data[ refresh_ip ]['hostname']] = new_device_data[ refresh_ip ]
-		devinfo[ refresh_ip ] = new_device_data[ refresh_ip ]
-		data['devices'] = devdata
+		try:
+			new_device_data = new_device.get_data() # dictionary with ip as key
+			new_device_data[ refresh_ip ]['ip'] = refresh_ip
+			devdata[new_device_data[ refresh_ip ]['hostname']] = new_device_data[ refresh_ip ]
+			devinfo[ refresh_ip ] = new_device_data[ refresh_ip ]
+			data['devices'] = devdata
+			if devinfo[ refresh_ip ]['synced'] == False:
+				raise Exception
+			status = 'success'
+			message = f'Device <b>{ devinfo[ refresh_ip ]["hostname"] }</b> data refreshed successfully'
+
+		except:
+			status = 'danger'
+			message = f'Device <b>{ devinfo[ refresh_ip ]["hostname"] }</b> did not complete request. Confirm reachability or authentication'
 
 		info = {
-				'status': 'success',
-				'message': f'Device <b>{ devinfo[ refresh_ip ]["hostname"] }</b> data refreshed successfully',
+				'status': status,
+				'message': message,
 				'data': render_template('home.html',
 										data=data,
-										showTab={'mainTab':'devices','subTab':'add'},
-										alert={'status': 'success',
-											   'message': f'Device <b>{ devinfo[ refresh_ip ]["hostname"] }</b> data refreshed successfully'},
+										showTab={'mainTab':'devices','subTab':'table'},
+										alert={'status': status,
+											   'message': message},
 										user_id=username)
 				}
 		log(command=f'refresh-device: {refresh_ip}', user_id=current_user.id)
@@ -973,4 +982,3 @@ if __name__ == "__main__":
 	data = {'settings': {},'devices': {}}
 	context_output = {}
 	app.run(debug=True, port=5000)
-

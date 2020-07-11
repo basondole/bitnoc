@@ -121,10 +121,10 @@ class getBGPdata:
                                            'time': bgp_data[peer]['elapsed-time'],
                                            'vrf': table,
                                            'status': 'Enabled',}
-              
+
               # ping the peers that are down
               if filtering['loss']:
-              
+
                 for peer in bgp_neighbor_info:
 
                     table = bgp_neighbor_info[peer]['vrf']
@@ -170,7 +170,7 @@ class getBGPdata:
                         bgp_neighbor_info[peer]['if_arp'].append(f"{arp_entry['ip-address']}:{arp_entry['mac-address']}")
                     else:
                       bgp_neighbor_info[peer]['if_arp'].append(f"{arp_table['ip-address']}:{arp_table['mac-address']}")
-                  
+
                   bgp_neighbor_info[peer]['ip_arp'] = []
                   rpc_arp = router.rpc.get_arp_table_information(hostname=peer)
                   arp_data = rpc_to_dict(rpc_arp)
@@ -234,7 +234,7 @@ class getBGPdata:
                         packet_loss = 'Loss %d%%'%(packet_loss*20)
 
                     except KeyError:
-                        try: 
+                        try:
                             packet_loss = ping_results['error']
                             if packet_loss == 'Packet loss 100': packet_loss='Loss 100%'
                             else: packet_loss = ping_results['error'][0:9] # take only nine characters of the error statement
@@ -252,7 +252,7 @@ class getBGPdata:
 
                   table = bgp_neighbor_info[peer]['vrf']
 
-                  if table == 'global': 
+                  if table == 'global':
                     if ':' in peer:
                       table = 'inet6.0'
                     else:
@@ -366,12 +366,12 @@ class getBGPdata:
                 table = bgp_neighbor_info[peer]['vrf']
 
                 ping_results = ipdict[host]['napalm'].ping(peer,vrf=table)
-                try: 
+                try:
                   packet_loss = ping_results['success']['packet_loss']
                   packet_loss = 'Loss %d%%'%(packet_loss*20) # napalm sends 5 packets multiply by 20 to get percentage
 
                 except KeyError:
-                    try: 
+                    try:
                         packet_loss = ping_results['error']
                         if packet_loss == 'Packet loss 100':
                           packet_loss='Loss 100%'
@@ -419,7 +419,7 @@ class getBGPdata:
                     elif re.search(r':.*, ',line):
                         egress_interface = line.split()[-1]
 
-               
+
                 bgp_neighbor_info[peer]['interface'] = egress_interface
 
 
@@ -447,7 +447,7 @@ class getBGPdata:
                   if filtering['alias']:
                     if_arp_txt_dict = ipdict[host]['napalm'].cli(['show arp vrf %s %s'%(table,interface)])
                     if_arp_txt_data = if_arp_txt_dict['show arp vrf %s %s'%(table,interface)]
-                
+
 
 
                 arp_table = []
@@ -521,7 +521,7 @@ class getBGPdata:
                        bgp_neighbor_info[peer]['if_admin_status'] = ad_state
 
 
-        else: return 
+        else: return
 
         #close the session
         ipdict[host]['napalm'].close()
@@ -579,7 +579,7 @@ Start
             if not parsed[peer]['status']:
                 parsed[peer]['status'] = 'Enabled'
             else: parsed[peer]['status'] = 'Shutdown'
-          
+
         return parsed
 
     def presentation(bgpdict,filtering={'state': True}):
@@ -600,7 +600,7 @@ Start
             output+=peer.ljust(17)+str(bgpdict[peer]['peer_as']).ljust(10)+bgpdict[peer]['state'].ljust(13)+bgpdict[peer]['status'].ljust(10)
             output+=bgpdict[peer]['time'].ljust(15)
             if filtering['loss']: output+=bgpdict[peer]['ping'].ljust(11)
-            
+
             # for consistent presentation modify the interface name length (cisco)
             if filtering['alias']:
               egress_interface = bgpdict[peer]['interface']
@@ -628,7 +628,7 @@ Start
                   output+= arp
                   output+= '\n'
             output+= '\n'
-            
+
         output+= '\n'
         output+= 'Total bgp sessions %d'%len(bgpdict)
         output+= '\n'
@@ -645,6 +645,13 @@ def cool_bgp_summary(ipdict,username,password,context_output,filtering={'state':
     start_time = time.time()
     print(f'[{time.ctime()}] INFO: bgp_summary.py via function cool_bgp_summary says: started collecting bgp data')
 
+    if monitor:
+      filtering = {
+                      'state': False,
+                      'arp': False,
+                      'alias': False,
+                      'loss': False,
+                  }
     result = getBGPdata.kazi(ipdict,username,password,context_output,filtering=filtering, monitor=monitor)
 
     run_time = round(time.time()-start_time)
@@ -661,6 +668,3 @@ def cool_bgp_summary(ipdict,username,password,context_output,filtering={'state':
       result += f'{context_output["errors"]}</span>'
       result += '\n'+ '[Finished in %s seconds]'%str(run_time)
       return result # text blob
-
-
-

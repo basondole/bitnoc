@@ -22,7 +22,7 @@ class Device:
    def __init__(self,username,password,path=None, dictdb=None):
        ''' Read the device attributes from a YAML file and return a dictionary
        '''
-       
+
        if not dictdb:
         dictdb = readfile(path=path)
 
@@ -40,6 +40,7 @@ class Device:
           _dictdb[host]['version'] = ''
           _dictdb[host]['model'] = ''
           _dictdb[host]['hostid'] = ''
+          _dictdb[host]['conf_size'] = ''
           _dictdb[host]['synced'] = False
 
        self.readfile = dictdb
@@ -87,7 +88,7 @@ class Device:
 
    @staticmethod
    def setTerminal(secureCli,software):
-   
+
       if software == 'junos':
          secureCli.send('set cli screen-length 0\n')
          secureCli.send('set cli screen-width 0\n')
@@ -248,10 +249,10 @@ class Device:
       # config size
       config_bytes = len(devicesDict[host]['napalm'].get_config()['running'].strip())
       config_lines = len(devicesDict[host]['napalm'].get_config()['running'].strip().split('\n'))
-      
+
 
       devicesDict[host]['napalm'].close()
-       
+
       devicesDict[host].update(_facts)
       devicesDict[host]['conf_size'] = str(config_lines)+' lines ('+str(config_bytes)+'B)'
       devicesDict[host].update({'napalm_interfaces': facts['interface_list']})
@@ -265,7 +266,7 @@ class Device:
       if devicesDict[host]['errors']: return # return if the main system has errors
 
       if devicesDict[host]['logicalsystem']:
-        
+
           for logicalsystem in  devicesDict[host]['logicalsystem'].keys():
 
               secureCli = Device.cli(host, username, password, sshClient)
@@ -318,7 +319,7 @@ class Device:
                                     'residentblock': devicesDict[host]['logicalsystem'][logicalsystem]['residentblock'],
                                     'mainsystemip': host,
                                     'synced' : True}
-              
+
 
    @staticmethod
    def bigData(username,password,host,devicesDict):
@@ -332,7 +333,7 @@ class Device:
 
             Device.assign_napalm_driver(devicesDict,host,username,password)
             Device.facts(devicesDict,host)
-            
+
             # if napalm can get interfaces use those else get interfaces from cli
             try:
               devicesDict[host]['interfaces'] = [ intf for intf in devicesDict[host]['napalm_interfaces'] if '.' not in intf]
@@ -404,12 +405,12 @@ class format:
                policerList.append(item.split()[1])
       return policerList
 
-   
+
    @staticmethod
    def instances(devicesDict,ip,output):
       output = output.split('\n')
       instancesList = []
-      if devicesDict[ip]['software'] == 'ios': 
+      if devicesDict[ip]['software'] == 'ios':
          for line in output:
             if re.findall(r'(# )?show run vrf',line): # line where show command was issued
                _line = line
@@ -443,7 +444,7 @@ class format:
       up_circuits = 0
       down_circuits = 0
 
-      if devicesDict[ip]['software'] == 'ios': 
+      if devicesDict[ip]['software'] == 'ios':
          for line in output:
             if re.search(r'^DN',line):
                down_circuits += 1
@@ -521,5 +522,3 @@ def verifyUser(username,password,server=None):
     if authenticated:
        sshClient.close()
        return username,password
-
-
