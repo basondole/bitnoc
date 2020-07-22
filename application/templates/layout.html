@@ -204,7 +204,7 @@
             <li class="toc-entry toc-h2"><a href="#" onclick="refreshDevicesData('all')">Refresh device data</a></li>
             {% if data['settings']['api-oxidized'] %}
             <li class="toc-entry toc-h2" id="oxidized-link">
-              <a href="{{api-oxidized}}">Configuration database</a></li>
+              <a href="{{data['settings']['api-oxidized']}}">Configuration database</a></li>
             {% endif %}
             <li class="toc-entry toc-h2" id="bgp-refresh-link">
               <a href="#" onclick="window.open('/bgp-monitor')">BGP status monitor</a></li>
