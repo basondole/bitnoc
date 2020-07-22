@@ -202,8 +202,10 @@
         <div class="d-none d-xl-block col-xl-2 bd-toc" id="right-nav-bar" style="position:sticky;">
           <ul class="section-nav">
             <li class="toc-entry toc-h2"><a href="#" onclick="refreshDevicesData('all')">Refresh device data</a></li>
-            <li class="toc-entry toc-h2" id="bgp-refresh-link">
-              <a href="http://41.221.32.208:8888">Configuration database</a></li>
+            {% if data['settings']['api-oxidized'] %}
+            <li class="toc-entry toc-h2" id="oxidized-link">
+              <a href="{{api-oxidized}}">Configuration database</a></li>
+            {% endif %}
             <li class="toc-entry toc-h2" id="bgp-refresh-link">
               <a href="#" onclick="window.open('/bgp-monitor')">BGP status monitor</a></li>
             <li class="toc-entry toc-h2 link-state-output-link" style="display: none;">
@@ -1599,7 +1601,7 @@
     }
   </script>
 
-  {% if not data['device_refresh_time'] %}
+  {% if not data['settings'][''] %}
   <script>
     $(document).ready(function(){
       bootstrap_alert.alertify('Devices are not synced. Please perform a device refresh', 'warning');
