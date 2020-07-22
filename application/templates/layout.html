@@ -1601,7 +1601,7 @@
     }
   </script>
 
-  {% if not data['settings'][''] %}
+  {% if not data['device_refresh_time'] %}
   <script>
     $(document).ready(function(){
       bootstrap_alert.alertify('Devices are not synced. Please perform a device refresh', 'warning');
