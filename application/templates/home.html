@@ -43,7 +43,7 @@
   <!-- HOME -->
   <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab"><br/>
 
-    <div class="row"> 
+    <div class="row">
       <div class="col-sm-6" align="center">
         <button type="button" class="btn btn-primary home-buttons" data-toggle="modal" data-target="#vlan-operations-menu" style="background-image: linear-gradient(#614092, #7952b3);">
           <h1 class="bd-lead" align="right">
@@ -65,7 +65,7 @@
       <!-- place holder -->
     </div>
 
-    <div class="row"> 
+    <div class="row">
       <div class="col-sm-6" align="center">
         <button type="button" class="btn btn-primary home-buttons" data-toggle="modal" data-target="#service-provisioning-menu" style="background-image: linear-gradient(#614092, #7952b3);">
           <h1 class="bd-lead" align="right">
@@ -74,7 +74,7 @@
         </button>
       </div>
 
-      <div class="col-sm-6" align="center">      
+      <div class="col-sm-6" align="center">
         <button type="button" class="btn btn-primary home-buttons" data-toggle="modal" data-target="#locate-service-menu" style="background-image: linear-gradient(#614092, #7952b3);">
           <h1 class="bd-lead" align="right">
             LOCATE SERVICE
@@ -87,7 +87,7 @@
       <!-- place holder -->
     </div>
 
-    <div class="row"> 
+    <div class="row">
       <div class="col-sm-6" align="center">
         <button type="button" class="btn btn-primary home-buttons" data-toggle="modal" data-target="#burst-packages-menu" style="background-image: linear-gradient(#614092, #7952b3);">
           <h1 class="bd-lead" align="right">
@@ -104,7 +104,7 @@
         </button>
       </div>
     </div>
-    
+
 
   </div>
 
@@ -213,7 +213,7 @@
         </div>
         {{ data['devices']|detail_view | safe }}
       </div>
-            
+
 
       <!-- DEVICE YAML VIEW -->
       <div class="tab-pane fade" id="v-pills-devices-raw" role="tabpanel" aria-labelledby="v-pills-devices-raw-tab">
@@ -274,7 +274,7 @@ Use comma for multiple entries, example PE-1:10.0.0.1, PE-2:10.0.0.2" />
             Resident blocks:
           </label>
           <input class="col-sm-6 form-control form-control-sm devices-add-device" name="devices-add-device-resident-block" id="devices-add-device-resident-block" title="Format:
-          network-address/subnet-mask 
+          network-address/subnet-mask
           logical-system-name:network-address/subnet-mask
 Example:
           10.0.0.0/24 or PE:10.0.0.0/24
@@ -350,7 +350,7 @@ Use comma for multiple entries, example 10.0.0.0/24, 172.16.0.0/16"/>
         </div>
 
       </div>
-    </div>    
+    </div>
   </div>
 
 
@@ -362,7 +362,7 @@ Use comma for multiple entries, example 10.0.0.0/24, 172.16.0.0/16"/>
       <strong>Tip:</strong>
       only issue commands with finite output lines.<br/>
       Commands producing endless output eg: continous ping are not supported<br/>
-      Multiple commands or devices entered manually should be separated by comma sign.            
+      Multiple commands or devices entered manually should be separated by comma sign.
     </p>
     <hr><br/>
 
@@ -626,7 +626,7 @@ Use comma for multiple entries, example 10.0.0.0/24, 172.16.0.0/16"/>
             <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
               Server address:
             </label>
-            <input class="col-sm-6 form-control form-control-sm settings-burst" name="burst-server" value="{{data['settings']['burst-server']}}" > 
+            <input class="col-sm-6 form-control form-control-sm settings-burst" name="burst-server" value="{{data['settings']['burst-server']}}" >
           </div>
 
           <div class="form-group row">
@@ -673,7 +673,7 @@ Use comma for multiple entries, example 10.0.0.0/24, 172.16.0.0/16"/>
             <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
               Server address:
             </label>
-            <input class="col-sm-6 form-control form-control-sm settings-on-demand" name="ondemand-server" value="{{data['settings']['ondemand-server']}}" > 
+            <input class="col-sm-6 form-control form-control-sm settings-on-demand" name="ondemand-server" value="{{data['settings']['ondemand-server']}}" >
           </div>
 
           <div class="form-group row">
@@ -730,7 +730,7 @@ Use comma for multiple entries, example 10.0.0.0/24, 172.16.0.0/16"/>
 
         <!-- NMS/IPAM INTERGRATION SETTINGS -->
         <div class="tab-pane fade" id="v-pills-settings-api" role="tabpanel" aria-labelledby="v-pills-settings-api-tab">
-  
+
           <div class="form-group row">
             <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
               NetDot URL:
@@ -753,6 +753,13 @@ Use comma for multiple entries, example 10.0.0.0/24, 172.16.0.0/16"/>
             <input class="col-sm-6 form-control form-control-sm settings-api" name="api-orion-engine-id" value="{{data['settings']['api-orion-engine-id']}}" >
           </div>
 
+          <div class="form-group row">
+            <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+              Oxidized URL:
+            </label>
+            <input class="col-sm-6 form-control form-control-sm settings-api" name="api-oxidized" value="{{data['settings']['api-oxidized']}}" >
+          </div>
+
           <br/>
 
           <div class="form-group col text-center">
@@ -764,13 +771,13 @@ Use comma for multiple entries, example 10.0.0.0/24, 172.16.0.0/16"/>
 
         <!-- BGP MONITOR SETTINGS -->
         <div class="tab-pane fade" id="v-pills-settings-bgp-monitor" role="tabpanel" aria-labelledby="v-pills-settings-bgp-monitor-tab">
-  
+
           <div class="form-group row">
             <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
               Refresh rate (minutes):
             </label>
             <input class="col-sm-6 form-control form-control-sm" name="bgp-neighbor-monitor-timer"  id="bgp-neighbor-monitor-timer" value="{{data['settings']['bgp-neighbor-monitor-timer']}}" pattern="^[5-9]$|^[1-5][0-9]?$|^60$">
-            </label>
+            </input>
           </div>
 
           <br/>
@@ -813,13 +820,13 @@ Use comma for multiple entries, example 10.0.0.0/24, 172.16.0.0/16"/>
         Editing of device parameters in the database is no currently supported, to edit the device you have to re-add it with new attributes
       </p>
       <h2>
-        <div>Command 
+        <div>Command
           <a class="anchorjs-link " href="#" aria-label="Anchor" data-anchorjs-icon="#" style="padding-left: 0.375em;"></a>
         </div>
       </h2>
       <p>
         Provides use with a window to input arguments.
-        Allows user to specify two arguments. 
+        Allows user to specify two arguments.
         First argument is <samp>commands</samp> which can be a string or list of commands separated by <samp>:</samp> or user can upload a text file containing commands separated by a newline.
         Second argument is <samp>ip address</samp> which can be a string or user can upload a text file containing ip addresses each separated by a new line.
       </p>
@@ -830,14 +837,14 @@ Use comma for multiple entries, example 10.0.0.0/24, 172.16.0.0/16"/>
       </h2>
       <ul>
         <li>
-          General settings section includes the authentication server and the file path to the device database. 
+          General settings section includes the authentication server and the file path to the device database.
           User must only specify the path of the directory that will contain the device database file, the database file is a <samp>yaml</samp> formated file.</li>
         <li>
           Burst packages section provides user with settings to specify the burst package server address and the full path to the burst client file.
           Full path includes the file name and extension. If these settings are not specified the burst package operations will be disabled.</li>
         <li>
-          Bandwidth on-demand section provides settings associated with the server for bandwidth on demand services. 
-          User must manually create two directories in the working directory path sepecified in settings. 
+          Bandwidth on-demand section provides settings associated with the server for bandwidth on demand services.
+          User must manually create two directories in the working directory path sepecified in settings.
           The two directories to be created in the server are <samp>PendingTickets</samp> and <samp>Logs</samp>. The directory names are case sensitive.
           If these settings are not specified the bandwidth on demand operations will be disabled.</li>
         <li>
@@ -880,7 +887,7 @@ Use comma for multiple entries, example 10.0.0.0/24, 172.16.0.0/16"/>
         </div>
       </h2>
       <div class="highlight">
-        <strong>Locate address:</strong><br/> 
+        <strong>Locate address:</strong><br/>
         Provides user with a form to input an IP address (with prefix length) or subnet (with prefix length)
         The program then returns the list of IP addresses from the devices database in which the network or its subnets have been used.
         Includes support for VRFs and logical systems for JunOS.<br/>
@@ -915,7 +922,7 @@ Use comma for multiple entries, example 10.0.0.0/24, 172.16.0.0/16"/>
       </div>
       <br/>
       <h2>
-        <div>Burst packages 
+        <div>Burst packages
           <a class="anchorjs-link " href="#" aria-label="Anchor" data-anchorjs-icon="#" style="padding-left: 0.375em;"></a>
         </div>
       </h2>
@@ -1023,7 +1030,7 @@ Use comma for multiple entries, example 10.0.0.0/24, 172.16.0.0/16"/>
       </div>
       <div class="bd-example" style="margin-top: 0px;">
         <strong>Layer 3 MPLS:</strong><br/>
-        The application offers partial support for VRF configuration. When provisioning L3MPLS a service can only be provisioned on existing 
+        The application offers partial support for VRF configuration. When provisioning L3MPLS a service can only be provisioned on existing
         VRFs. VRF cannot be created from scratch because there is no support for advanced layer 3 MPLS VRFs and routing configurations.
       </div>
       <div class="highlight" style="margin-bottom: 0px;">
@@ -1036,7 +1043,7 @@ Use comma for multiple entries, example 10.0.0.0/24, 172.16.0.0/16"/>
       <p><br/>
         <strong>Testing methodology:</strong><br>
         For layer 2 MPLS the latest device to commit the configuration will have the most accurate reachability test. Despite the fact that the devices will be configured simultaneously,
-        one of the device will complete the configuration faster than the other and will ran tests while the other device is still provisioning the test. 
+        one of the device will complete the configuration faster than the other and will ran tests while the other device is still provisioning the test.
         This is not an error as the processing speed of the device depends on the device hardware resources and response time with respect to this program.
         Therefore if the output of the tests from the two devices are similar the test is conclusive.
         If they differ the successful test is the conlusive test.
@@ -1152,7 +1159,7 @@ Use comma for multiple entries, example 10.0.0.0/24, 172.16.0.0/16"/>
             INFO: username and password auto-retrieved<br/>
             Sun Apr  7 06:09:22 2019 (user = paul) initializing connection   192.168.56.36<br/>
             Sun Apr  7 06:09:22 2019 (user = paul) authentication starting 192.168.56.36<br/>
-            Sun Apr  7 06:09:22 2019 (user = paul) passed authentication > 192.168.56.36<br/>  
+            Sun Apr  7 06:09:22 2019 (user = paul) passed authentication > 192.168.56.36<br/>
             Credential saved successfully
             </samp>
           </div><br/>
@@ -2221,7 +2228,7 @@ User('rancid', 'rancid@bassonation.org')</pre>
               <label class="col-sm-4 col-form-label col-form-label-sm l3-fields" align="right">
               </label>
               <input class="col-sm-6 form-control form-control-sm l3-fields" name="provision-ipv4-input" id="provision-ipv4-input" required placeholder="enter ip address for the service here" style="display: block;" onfocusout="validateIpv4( $('#provision-ipv4-input'), 'net' )"/>
-            </div> 
+            </div>
 
             <div class="form-group row l3-fields">
               <label class="col-sm-4 col-form-label col-form-label-sm l3-fields" align="right" id="provision-ipv6-label">
@@ -2299,4 +2306,3 @@ User('rancid', 'rancid@bassonation.org')</pre>
 {% endif %}
 
 {% endblock content %}
-

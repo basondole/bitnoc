@@ -34,7 +34,7 @@ def provision_ipv4(user,passwd, ipDict, res_block, netdotURL):
                 raise assigned_ipv4
 
         else: raise AttributeError
-        
+
         # split the /30 to four /32 to easily get the host addresses and
         # get the second /32 (list index 1) the first is the network address
         address_on_pe = (ipaddr.IPNetwork(assigned_ipv4).subnet(new_prefix=32))[1]
@@ -87,7 +87,7 @@ class CONFIGURE():
         self.netdotURL = netdotURL
         self.orion_server = orion_server
         self.engine_id = engine_id
-        self.netWind = NetdotOrionServers('noc','snet123')
+        self.netWind = NetdotOrionServers(user,key)
         self.confDict = {}
         self.context_output = context_output
 
@@ -103,7 +103,7 @@ class CONFIGURE():
         VL = data['VL']
         P4 = data['P4']
         P6 = data['P6']
-        BW = data['BW']      
+        BW = data['BW']
         DS = data['DS']
         ND = data['ND']
         SO = data['SO']
@@ -145,7 +145,7 @@ class CONFIGURE():
 
 
 
-        # updating netdot and orion servers 
+        # updating netdot and orion servers
 
         assignedIPNet = ipaddress.ip_network(P4,strict=False)
         # get the second /32 from the assigned /30
@@ -164,7 +164,7 @@ class CONFIGURE():
             info += "\n"
 
         if ND:
-            
+
             if self.netdotURL:
                 # save subnet to netdot
                 saved_status = self.netWind.saveToNetdot(self.netdotURL,assignedIPNet,service_description=DS)
@@ -185,7 +185,7 @@ class CONFIGURE():
 
 
         if SO:
-            
+
             if self.orion_server:
                 # print(orion_server)
                 orion_node = self.netWind.addNodeToOrion(self.orion_server,address_on_ce,service_description=DS,engine_id=self.engine_id)
@@ -205,7 +205,8 @@ class CONFIGURE():
         # Send commands to device
 
         result, prompt = send_command(self.confDict,self.user,self.key, self.context_output)
-        result += f'\n{info}'
+        if ND or SO:
+            result += f'\n{info}'
 
         return { 'result': result, 'prompt': prompt }
 
@@ -264,7 +265,7 @@ class CONFIGURE():
 
 
 
-        # updating netdot and orion servers 
+        # updating netdot and orion servers
 
 
         assignedIPNet = ipaddress.ip_network(P4,strict=False)
@@ -284,7 +285,7 @@ class CONFIGURE():
             info += "\n"
 
         if ND:
-            
+
             if self.netdotURL:
                 # save subnet to netdot
                 saved_status = self.netWind.saveToNetdot(self.netdotURL,assignedIPNet,service_description=DS)
@@ -305,7 +306,7 @@ class CONFIGURE():
 
 
         if SO:
-            
+
             if self.orion_server:
                 # print(orion_server)
                 orion_node = self.netWind.addNodeToOrion(self.orion_server,address_on_ce,service_description=DS,engine_id=self.engine_id)
@@ -336,7 +337,7 @@ class CONFIGURE():
 
 
     def l2mpls(self,ipDict, data):
-        
+
 
         PE1 = data['PE']
         LS1 = data['LS']
@@ -348,7 +349,7 @@ class CONFIGURE():
         IF2 = data['IF2']
         BW2 = data['BW2']
 
-        MTU = "1500"         
+        MTU = "1500"
 
         VL = data['VL']
         VC = data['VL']
@@ -401,7 +402,7 @@ class InetConfigPrep:
 
     @staticmethod
     def junos(system,iface,vlan,ipaddr4,ipaddr6,cap,alias):
-        ''' Create  junos config  
+        ''' Create  junos config
         '''
 
         commandList = []
@@ -719,5 +720,3 @@ class L2ConfigPrep:
         commandList.append('ping mpls pseudowire '+neighbor+' '+vc+' timeout 0')
 
         return commandList
-
-

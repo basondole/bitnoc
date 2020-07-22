@@ -7,7 +7,7 @@
     <meta name="author" content="Paul S.I. Basondole">
     <link href="{{ url_for('static', filename='images/paul-icon.ico') }}" rel="shortcut icon" type="image/x-icon">
     <title>Basondole Systems</title>
-    
+
     <style>
       * {box-sizing: border-box}
       .tooltip-inner {
@@ -81,7 +81,7 @@
       }
       a:active {
         color: blue;
-      } 
+      }
       .alert {
         padding: 20px;
         background-color: #f44336;
@@ -130,7 +130,7 @@
       <a class="navbar-brand mr-0 mr-md-2" aria-label="Bootstrap" href="https://basondole.github.io">
         <svg width="32" height="32" class="d-block" viewBox="0 0 64 64" role="img">
           <title>Basondole it systems</title>
-          <path fill="currentColor" fill-rule="evenodd" d="M16 0h32c8.837 0 16 7.163 16 16v32c0 8.837-7.163 16-16 16H16C7.163 64 0 56.837 0 48V16C0 7.163 7.163 0 16 0zm18.14 49c7.22 0 11.555-3.633 11.555-9.586 0-4.406-3.047-7.664-7.617-8.133v-.398c3.328-.563 5.93-3.727 5.93-7.266 0-5.203-3.82-8.437-10.172-8.437H20.242V49h13.899zm-8.648-29.367h7.125c3.89 0 6.164 1.828 6.164 4.945 0 3.211-2.414 4.922-7.054 4.922h-6.235v-9.867zm0 24.914V33.648h7.29c4.945 0 7.546 1.852 7.546 5.391 0 3.586-2.508 5.508-7.242 5.508h-7.594z">   
+          <path fill="currentColor" fill-rule="evenodd" d="M16 0h32c8.837 0 16 7.163 16 16v32c0 8.837-7.163 16-16 16H16C7.163 64 0 56.837 0 48V16C0 7.163 7.163 0 16 0zm18.14 49c7.22 0 11.555-3.633 11.555-9.586 0-4.406-3.047-7.664-7.617-8.133v-.398c3.328-.563 5.93-3.727 5.93-7.266 0-5.203-3.82-8.437-10.172-8.437H20.242V49h13.899zm-8.648-29.367h7.125c3.89 0 6.164 1.828 6.164 4.945 0 3.211-2.414 4.922-7.054 4.922h-6.235v-9.867zm0 24.914V33.648h7.29c4.945 0 7.546 1.852 7.546 5.391 0 3.586-2.508 5.508-7.242 5.508h-7.594z">
           </path>
         </svg>
       </a>
@@ -152,7 +152,7 @@
             <a class="nav-item nav-link" id="nav-doc-tab" data-toggle="tab" href="#nav-doc" role="tab" aria-controls="nav-doc" aria-selected="false" style="color: #ffffff;background-color: #fff0;" onclick="updateLeftTabs('clear-div');resizeDivs($('#nav-doc'));">Documentation</a>
 
             <a class="nav-item nav-link" id="nav-about-tab" data-toggle="tab" href="#nav-about" role="tab" aria-controls="nav-about" aria-selected="false" style="color: #ffffff;background-color: #fff0;" onclick="updateLeftTabs('clear-div');resizeDivs($('#nav-about'));">About</a>
-                  
+
           </div>
         </nav>
       </div>
@@ -173,7 +173,7 @@
           <a class="dropdown-item" href="#" onclick="$('#nav-settings-tab').click();">Settings</a>
         </div>
 
-        
+
       </div>
       {% endif %}
 
@@ -203,6 +203,8 @@
           <ul class="section-nav">
             <li class="toc-entry toc-h2"><a href="#" onclick="refreshDevicesData('all')">Refresh device data</a></li>
             <li class="toc-entry toc-h2" id="bgp-refresh-link">
+              <a href="http://41.221.32.208:8888">Configuration database</a></li>
+            <li class="toc-entry toc-h2" id="bgp-refresh-link">
               <a href="#" onclick="window.open('/bgp-monitor')">BGP status monitor</a></li>
             <li class="toc-entry toc-h2 link-state-output-link" style="display: none;">
               <a href="#" onclick="showLinkState('text')">View link state info</a></li>
@@ -214,12 +216,12 @@
               <a href="#" onclick="showLinkState('gefx')">Download link state gefx</a></li>
           </ul>
         </div>
-         
+
         <main class="col-12 col-md-9 col-xl-8 py-md-3 pl-md-5 bd-content" role="main" id="main" style="opacity:0;">
           <div>
             {% if error %}
               <div class="alert">
-                <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span> 
+                <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
                 <strong>Error!</strong> {{error}}
               </div>
               <br/>
@@ -235,7 +237,7 @@
               {% endif %}
             {% endwith %}
           </div>
-          <div>       
+          <div>
             {% block content %}
             {% endblock %}
           </div>
@@ -249,10 +251,10 @@
 
   </body>
 
-  
+
   <script src="{{ url_for('static', filename='jquery/jquery-3.3.1.min.js') }}"></script>
   <script src="{{ url_for('static', filename='jquery/jquery-ui.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/popper.min.js') }}" crossorigin="anonymous"></script> 
+  <script src="{{ url_for('static', filename='js/popper.min.js') }}" crossorigin="anonymous"></script>
   <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}" crossorigin="anonymous"></script>
   <script src="{{ url_for('static', filename='js/jquery.validate.min.js') }}"></script>
 
@@ -338,7 +340,7 @@
 
   <!-- script to load file and return list  -->
   <script type="text/javascript">
-    
+
 
     function loadFile(input, output) {
 
@@ -375,7 +377,7 @@
       function processFile(e) {
         var file = e.target.result,
             results;
-            
+
         if (file && file.length) {
           results = file.split("\n");
           console.log(results)
@@ -458,7 +460,7 @@
     }
 
     function devicesRemoveDevice(){
-      
+
       if ( ! $('#devices-remove-device-hostname') ) {
         alert('Please select a device from drop down')
         $('#devices-remove-device-hostname').focus()
@@ -513,7 +515,7 @@
           resetFormValues('devices-add-device');
           refreshDevicesData( ip_address );
           return
-        } 
+        }
         if ( data.data ) {
           document.open();
           document.write(data.data);
@@ -546,7 +548,7 @@
         }
       }
       if ( logical_system.val() ) {
-        let 
+        let
           systems = logical_system.val().split(',');
         for ( i=0; i < systems.length; i++ ) {
           if ( !systems[i].includes(':') ) {
@@ -685,7 +687,7 @@
              // update right navbar stuff
              $(".link-state-output-link").each(function() {
                 $(this).css('display', 'block');
-            }); 
+            });
              return
           }
       });
@@ -695,13 +697,13 @@
     // LINK STATE OUTPUT PRESENTATION
     function download(file, text) {
       var
-        element = document.createElement('a'); 
-        element.setAttribute('href', 'data:text/plain;charset=utf-8, ' + encodeURIComponent(text)); 
+        element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8, ' + encodeURIComponent(text));
       element.setAttribute('download', file);
       element.style.display = 'none';
-      document.body.appendChild(element); 
-      element.click(); 
-      document.body.removeChild(element); 
+      document.body.appendChild(element);
+      element.click();
+      document.body.removeChild(element);
     }
 
     function showLinkState(output_format) {
@@ -710,7 +712,7 @@
           if ( output_format == 'text' && data) {
             window.open(data);
           } else if ( output_format == 'csv' && data) {
-            var filename = "link_state.csv"; 
+            var filename = "link_state.csv";
             download(filename, data);
           } else if ( output_format == 'gefx' && data) {
             var filename = "link_state.gefx";
@@ -729,12 +731,12 @@
             if ( $("#command-link-state-output").val() == 'text' && data) {
               window.open(data);
             } else if ( $("#command-link-state-output").val() == 'csv' && data) {
-              var filename = "link_state.csv"; 
+              var filename = "link_state.csv";
               if ( confirm("Clink OK to download file "+ filename)) {
                 download(filename, data);
               }
             } else if ( $("#command-link-state-output").val() == 'gefx' && data) {
-              var filename = "link_state.gefx"; 
+              var filename = "link_state.gefx";
               if (confirm("Clink OK to download file "+ filename)) {
                 download(filename, data);
               }
@@ -849,7 +851,7 @@
           $(this).val([]);
           $(this).hide();
           $(this).prop('required',false);
-          $("#"+partial_id+"-searchtype-label").html(""); 
+          $("#"+partial_id+"-searchtype-label").html("");
         }
       });
     }
@@ -1128,7 +1130,7 @@
     function hideAllLogicalSystemsFromAllDevicesPS(l2) {
       $("#provision-logical-system"+l2+" option").each(function() {
           $(this).css('display', 'none');
-      }); 
+      });
     }
 
     var router = $("#provision-edge-router");
@@ -1160,7 +1162,7 @@
     function hideAllInstancesFromAllDevicesPS() {
       $("#provision-vrf option").each(function() {
         $(this).css('display', 'none');
-      });   
+      });
     }
 
     $('#provision-edge-router').on('change', function () {
@@ -1181,13 +1183,13 @@
         for (i = 0; i < interfaces.length; i++) {
           interfaces[i].style.display = "block";
         }
-        
+
     }
 
     function hideAllInterfacesFromAllDevicesPS(l2) {
       $("#provision-interface"+l2+" option").each(function() {
           $(this).css('display', 'none');
-      });   
+      });
     }
 
     $('#provision-edge-router').on('change', function () {
@@ -1213,13 +1215,13 @@
         for (i = 0; i < policers.length; i++) {
           policers[i].style.display = "block";
         }
-        
+
     }
 
     function hideAllBandwidthFromAllDevicesPS(l2) {
       $("#provision-bandwidth"+l2+" option").each(function() {
           $(this).css('display', 'none');
-      });   
+      });
     }
 
     $('#provision-edge-router').on('change', function () {
@@ -1325,7 +1327,7 @@
               $("#provision-auto-vlanid").append(option);
               $("#provision-auto-vlanid").prop('disabled', true);
               // end of displaying loading
-     
+
               $.ajax(
                   {
                       url: "/service-provision/:vlan-ids",
@@ -1372,7 +1374,7 @@
               $("#provision-auto-vlanid").append(option);
               $("#provision-auto-vlanid").prop('disabled', true);
               // end of displaying loading
-     
+
               $.ajax(
                   {
                       url: "/service-provision/:vlan-id",
@@ -1427,7 +1429,7 @@
               $("#provision-ipv4-input").val(option);
               $("#provision-ipv4-input").prop('disabled', true);
               // end of displaying loading
-     
+
               $.ajax(
                   {
                       url: "/service-provision/:ipv4",

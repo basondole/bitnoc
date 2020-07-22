@@ -112,15 +112,14 @@ class Getters:
 
      for line in lines:
         if ('show interface' in line or 'show ip interface' in line) and not re.search(r'^show',line):
-           print('LINE LOOP: ' +str(line))
            index = lines.index(line)
            break
 
      # if the show command is not found in the output return
      try: index
      except: return usedVlans
-     
-     for line in lines[index+1:]:      
+
+     for line in lines[index+1:]:
         if re.search(r'^\S',line): usedVlans.append(line) #match word character except white space
 
      return  usedVlans #list
@@ -143,10 +142,10 @@ class Getters:
              continue #if the admin status doesnot start with u or d for up or down skip the line
            # hostname plus last octate of ip
            context_output['_match_']+=((ipDict[loopbackIp])['hostname']+'.'+(loopbackIp.split('.'))[-1]).ljust(20)
-           # interface name admin status and operation state 
+           # interface name admin status and operation state
            context_output['_match_']+=vlan.split()[0].rjust(13)+vlan.split()[1].rjust(7)+vlan.split()[2].rjust(8)
            context_output['_match_']+=("\n")
-        
+
         return
 
      # if the show command is not found in the output return
@@ -158,9 +157,9 @@ class Getters:
              continue #if the admin status doesnot start with u or d for up or down skip the line
            # hostname plus last octate of ip
            context_output['_match_']+=((ipDict[loopbackIp])['hostname']+'.'+(loopbackIp.split('.'))[-1]).ljust(20)
-           # interface name admin status and operation state 
+           # interface name admin status and operation state
            context_output['_match_']+=vlan.split()[0].rjust(13)+vlan.split()[1].rjust(7)+vlan.split()[2].rjust(8)
-           context_output['_match_']+=("\n")        
+           context_output['_match_']+=("\n")
         return
 
      for vlan in vlan_list:
@@ -171,7 +170,7 @@ class Getters:
            if vlan.split()[0] == name.split()[0] or ipDict[loopbackIp]['software'] == 'ios':
               # hostname plus last octate of ip
               context_output['_match_']+=((ipDict[loopbackIp])['hostname']+'.'+(loopbackIp.split('.'))[-1]).ljust(20)
-              # interface name admin status and operation state 
+              # interface name admin status and operation state
               context_output['_match_']+=name.split()[0].rjust(13)+name.split()[1].rjust(7)+name.split()[2].rjust(8)
               # actual description from the 4th item to last
               description = name.split()[3:]
@@ -180,7 +179,7 @@ class Getters:
            else:
               # hostname plus last octate of ip
               context_output['_match_']+=((ipDict[loopbackIp])['hostname']+'.'+(loopbackIp.split('.'))[-1]).ljust(20)
-              # interface name admin status and operation state 
+              # interface name admin status and operation state
               context_output['_match_']+=vlan.split()[0].rjust(13)+vlan.split()[1].rjust(7)+vlan.split()[2].rjust(8)
               context_output['_match_']+=("\n")
 

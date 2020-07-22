@@ -144,6 +144,22 @@ def index():
 def save_settings():
 	global data, showTab
 	settings = request.form
+	try:
+		settings['api-netdot-url']
+	except KeyError:
+		settings['api-netdot-url'] = ''
+	try:
+		settings['api-orion-server']
+	except KeyError:
+		settings['api-orion-server'] = ''
+	try:
+		settings['api-orion-engine-id']
+	except KeyError:
+		settings['api-orion-engine-id'] = ''
+	try:
+		settings['api-oxidized']
+	except KeyError:
+		settings['api-oxidized'] = ''
 	print('====> Updating settings')
 	print(dict(settings))
 	savesettings(dict(settings))
