@@ -302,7 +302,9 @@ class Parse:
 
             if 'interface' in line and 'unit' in line: # convert unit to dotted notation
                line = line.split()
-               interface_index = line.index('interfaces')
+               try: interface_index = line.index('interfaces')
+               except ValueError:
+                   pass #set policy-options prefix-list PLv6-router-addresses apply-path "interfaces <*> unit <*> family inet6 address <*>" wont match interfaces because of " in the list item ['set', 'policy-options', 'prefix-list', 'PLv6-router-addresses', 'apply-path', '"interfaces', '<*>', 'unit', '<*>', 'family', 'inet6', 'address', '<*>"']
                interface = line[interface_index+1]
                vlan = line[interface_index+3]
                line.insert(interface_index+1,interface+'.'+vlan)
@@ -320,7 +322,7 @@ class Parse:
                if 'interface' in line and 'unit' in line: # convert unit to dotted notation from ge-0/0/0 unit 10 to ge-0/0/0.10
                   line = line.split()
                   try: interface_index = line.index('interfaces')
-                  except ValueError: pass # for apply-path regex matching
+                  except ValueError: pass #set policy-options prefix-list PLv6-router-addresses apply-path "interfaces <*> unit <*> family inet6 address <*>" wont match interfaces because of " in the list item ['set', 'policy-options', 'prefix-list', 'PLv6-router-addresses', 'apply-path', '"interfaces', '<*>', 'unit', '<*>', 'family', 'inet6', 'address', '<*>"']
                   interface = line[interface_index + 1]
                   vlan = line[interface_index + 3]
                   line.insert(1,interface+'.'+vlan)
