@@ -5,8 +5,9 @@ from windows.Command import Command
 from core.service_provision import provision_ipv4
 from core.bgp_summary import cool_bgp_summary
 from core.config_backup import config_backup
-from core.link_state import formatOut
-from core.link_state import link_state, id_to_name
+from core.link_state_snmp import formatOut
+from core.link_state_snmp import link_state, id_to_name
+from core.link_state_rpc import link_state_rpc_build
 from core.locate_ip import locate_ip
 from core.locate_name import locate_name
 from core.locate_vlan import locate_vlan
@@ -647,7 +648,7 @@ def command():
 	OUT = context_output[username][random_id]
 
 	commands = values['command-command']
-	if commands.lower() != 'link state':
+	if not commands.lower().startswith('link state'):
 		devices = values['command-devices']
 		if devices == 'devices [junos]':
 			devices_list = devices_to_list(devinfo, 'junos')
@@ -665,6 +666,8 @@ def command():
 			except ValueError:
 				host_ip = data['devices'][devices]['ip']
 				devices_list = [host_ip]
+	else:
+		global final_devices_list, neighborship_dict, link_state_build_end_time
 
 	if commands.lower() in ('upload file','manual'):
 		commands_list = values['command-command-manual']
@@ -768,8 +771,7 @@ def command():
 		_data = '/service-audit-report'
 
 
-	elif commands.lower() == 'link state':
-		global final_devices_list, neighborship_dict, link_state_build_end_time
+	elif commands.lower() == 'link state by snmp':
 		comm = values['command-link-state-community']
 		name = values['command-link-state-device']
 		ip = data['devices'][name]['ip']
@@ -799,6 +801,26 @@ def command():
 						showTab = showTab,
 						alert = {'status': status, 'message': message},
 						user_id = username)
+
+
+	elif commands.lower() == 'link state by rpc':
+		name = values['command-link-state-rpc-device']
+		ip = data['devices'][name]['ip']
+		protocol = values['command-link-state-rpc-protocol']
+		start_time = time.time()
+		graph_data = link_state_rpc_build(ip,username,password)
+		graph_data = str(graph_data).replace("'",'"')
+		with open(f'application/templates/renders/{current_user.username}-network-diagram.html', 'w') as f:
+			f.write(render_template('view-network-diagram-full.html',graph=graph_data))
+
+		end_time = time.time()
+		if graph_data:
+			message = f'Link state topology build completed in {str(round(end_time - start_time,2))} seconds'
+			status = 'success'
+		else:
+			message = 'Could not poll the device. Confirm reachability and(or) community string'
+			status = 'danger'
+		_data = '/present-link-state-logical-view-full'
 
 	info = {
 			'status': status,
@@ -886,7 +908,7 @@ def logical_view():
 	device_list = final_devices_list
 	device_dict = neighborship_dict
 	all_host_ids = {host_id for tuple_of_two_ids in neighborship_dict for host_id in tuple_of_two_ids}
-	from core.link_state import link_state, id_to_name
+	from core.link_state_snmp import link_state, id_to_name
 	polled_node_labels = id_to_name(device_list)
 	all_node_labels = {}
 	for host_id in all_host_ids:
@@ -897,9 +919,13 @@ def logical_view():
 	rasimu = render_template('json/rasimu.json', device_list=all_node_labels, device_dict=device_dict)
 	with open('application/static/miserables.json', 'w') as f:
 		f.write(rasimu)
-	log(command=f'view: link-state-diagram', user_id=current_user.id)
+	log(command=f'view: link-state-diagram-snmp', user_id=current_user.id)
 	return render_template('view-network-diagram.html')
 
+
+@app.route("/present-link-state-logical-view-full")
+def logical_full_view():
+	return render_template(f'renders/{current_user.username}-network-diagram.html')
 
 @app.route("/bgp-summary-table-output", methods=['GET', 'POST'])
 def present_bgp_table_output():

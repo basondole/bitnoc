@@ -608,7 +608,7 @@
     command.on('change', function () {
       $("#command-command-file, #command-command-manual").hide();
       $("#command-command-file, #command-command-manual").removeAttr("required");
-      $("#command-bgp-filter-box, #command-link-state-div").hide();
+      $("#command-bgp-filter-box, #command-link-state-div, #command-link-state-rpc-div").hide();
       $("#command-link-state-community").removeAttr("required");
       devices.required = true;
       $("#devices-table").show();
@@ -617,12 +617,19 @@
       } else if ( $('#command-devices').val() == 'Upload file') {
         $("#command-device-file").attr("required", "");
       }
-      if ( command.val() == 'Link state') {
+      if ( command.val() == 'Link state by SNMP') {
         $("#command-link-state-div").show();
         $("#command-link-state-community").attr("required","");
         $("#command-device-manual").removeAttr("required");
         $("#devices-table").hide();
         $("#command-devices").removeAttr("required");
+        $('#command-link-state-rpc-div').hide();
+      } else if ( $(this).val() == 'Link state by RPC' ) {
+        $('#command-link-state-rpc-div').show();
+        $("#command-device-manual").removeAttr("required");
+        $("#devices-table").hide();
+        $("#command-devices").removeAttr("required");
+        $("#command-link-state-div").hide();
       } else if ( $(this).val() == 'BGP summary' ) {
         $('#command-bgp-filter-box').show();
       } else if ( $(this).val() == 'Manual' ) {
@@ -759,8 +766,10 @@
             });
           },
           submitHandler: function (form) {
-            if ( $('#command-command').val().toLowerCase() == 'link state' ) {
+            if ( $('#command-command').val().toLowerCase() == 'link state by snmp' ) {
               bootstrap_alert.alertify('Polling devices via snmp. This will take a couple of minutes.', 'warning');
+            } else if ( $('#command-command').val().toLowerCase() == 'link state by rpc' ){
+              bootstrap_alert.alertify('Polling base device via rpc. Please wait a few seconds.', 'warning');
             } else if ( $('#command-command').val().toLowerCase() == 'bgp summary' ){
               bootstrap_alert.alertify('Collecting BGP info from devices. This will take a couple of minutes.', 'warning');
             } else if ( $('#command-command').val().toLowerCase() == 'manual' || $('#command-command').val().toLowerCase() == 'upload file' ){
@@ -789,7 +798,10 @@
 
                         'command-link-state-community' : $('#command-link-state-community').val(),
                         'command-link-state-device' : $('#command-link-state-device').val(),
-                        'command-link-state-protocol' : $('#command-link-state-protocol').val()
+                        'command-link-state-protocol' : $('#command-link-state-protocol').val(),
+                        'command-link-state-poll-method' : $('#command-link-state-poll-method').val(),
+                        'command-link-state-rpc-device' : $('#command-link-state-rpc-device').val(),
+                        'command-link-state-rpc-protocol' : $('#command-link-state-rpc-protocol').val()
                       },
                 success: function (data) {
                   console.log(data);
@@ -815,7 +827,11 @@
                       bootstrap_alert.alertify('Services audit report printed on new tab', 'info');
                       window.open(data.data) // needs link as input
                       return
-                    } else if ( $('#command-command').val().toLowerCase() == 'link state' && data.status == 'danger' ) {
+                    } else if ( $('#command-command').val().toLowerCase() == 'link state by rpc' ) {
+                      bootstrap_alert.alertify(data.message, data.status);
+                      window.open(data.data) // needs link as input
+                      return
+                    } else if ( $('#command-command').val().toLowerCase() == 'link state by snmp' && data.status == 'danger' ) {
                       bootstrap_alert.alertify(data.message, data.status);
                       return
                     }

@@ -382,7 +382,10 @@ Use comma for multiple entries, example 10.0.0.0/24, 172.16.0.0/16"/>
             Configuration backup
           </option>
           <option>
-            Link state
+            Link state by RPC
+          </option>
+          <option>
+            Link state by SNMP
           </option>
           <option>
             Manual
@@ -486,6 +489,35 @@ Use comma for multiple entries, example 10.0.0.0/24, 172.16.0.0/16"/>
         </div>
       </div>
 
+
+      <div id="command-link-state-rpc-div" style="display: none">
+
+        <div class="form-group row">
+          <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+            Base device:
+          </label>
+          <select class="col-sm-6 form-control form-control-sm command-command-device" name="command-link-state-rpc-device" id="command-link-state-rpc-device">
+          {% for device, name in data['devices'].items()|sort(attribute='1.hostname') %}
+            {% if data['devices'][device]['software'] == 'junos' %}
+            <option>
+              {{ data['devices'][device]['hostname']}}
+            </option>
+            {% endif %}
+          {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-sm-4 col-form-label col-form-label-sm" align="right">
+            Protocol:
+          </label>
+          <select class="col-sm-6 form-control form-control-sm command-command-device" name="command-link-state-rpc-protocol" id="command-link-state-rpc-protocol">
+            <option>
+              isis
+            </option>
+          </select>
+        </div>
+      </div>
 
       <div id="command-link-state-div" style="display: none">
 
@@ -1406,7 +1438,9 @@ Use comma for multiple entries, example 10.0.0.0/24, 172.16.0.0/16"/>
         </h2>
         <p> To access the database open the python interpreter, import the <samp>db</samp> and the <samp>models.py</samp> classes
           <div class="bd-example pad-8" >
-            <pre style="font-size: 15px">>>> from test import db, LogBook, User</pre>
+            <pre style="font-size: 15px">>>> from test import db, LogBook, User
+from application.models import LogBook, User
+from application import db</pre>
           </div>
         </p>
         <p>

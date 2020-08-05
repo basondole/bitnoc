@@ -4,7 +4,7 @@ The topology database can then be used to generate network diagram.
 Pre-requisites:
     - Link type should be point-to-point links
     - For juniper equipment JunOS 11.4R9 or later is required
-    
+
 NB: If pre-requisites are not met diagram data will still be useful but just not very accurate
 '''
 
@@ -37,7 +37,7 @@ def snmp_get(ip,comm,protocol):
     nbridlist = []
     nbriplist = []
     _device = {}
-    
+
 
     hostname_oid = '1.3.6.1.2.1.1.5'
     interface_oid = '1.3.6.1.2.1.31.1.1.1.1'
@@ -46,7 +46,7 @@ def snmp_get(ip,comm,protocol):
         router_id_oid = ['1.3.6.1.2.1.14.1.1']
         neighbor_router_id_oid = ['1.3.6.1.2.1.14.10.1.3']
         neighbor_router_ip_oid = ['1.3.6.1.2.1.14.10.1.1']
-        protocol_ifindex_oid = [] 
+        protocol_ifindex_oid = []
 
     if protocol == 'isis':
         ''' to match possible oids from
@@ -68,16 +68,16 @@ def snmp_get(ip,comm,protocol):
 
     #Creating command generator object
     cmdGen = cmdgen.CommandGenerator()
-    
+
     '''
     Performing SNMP GETNEXT operations on the OIDs
     The basic syntax of nextCmd: nextCmd(authData, transportTarget, *varNames)
     The nextCmd method returns a tuple of (errorIndication, errorStatus, errorIndex, varBindTable)
     '''
-    
+
     hostname = False
     errIndication,errStatus,errIndex, hostname = cmdGen.nextCmd(cmdgen.CommunityData(comm),
-                                                                cmdgen.UdpTransportTarget((ip, 161)),                                                                  
+                                                                cmdgen.UdpTransportTarget((ip, 161)),
                                                                 hostname_oid)
 
     for item in hostname:
@@ -97,7 +97,7 @@ def snmp_get(ip,comm,protocol):
 
         interfaces = False
         errIndication,errStatus,errIndex, interfaces = cmdGen.nextCmd(cmdgen.CommunityData(comm),
-                                                                      cmdgen.UdpTransportTarget((ip, 161)),                                                                  
+                                                                      cmdgen.UdpTransportTarget((ip, 161)),
                                                                       interface_oid)
 
         all_interfaces = {}
@@ -137,7 +137,7 @@ def snmp_get(ip,comm,protocol):
             nbr_r_id = '.'.join([str(octate) for octate in nbrid])
             nbridlist.append(nbr_r_id)
 
-            
+
 
     varBindNbrIpTable = False
     for oid in neighbor_router_ip_oid:
@@ -145,13 +145,13 @@ def snmp_get(ip,comm,protocol):
                                                                                      cmdgen.UdpTransportTarget((ip, 161)),
                                                                                      oid)
         if varBindNbrIpTable: break
-    
+
 
     for varBindNbrIpTableRow in varBindNbrIpTable:
         for oid, nbrip in varBindNbrIpTableRow:
 
             _ip = '.'.join([str(octate) for octate in nbrip])
-            
+
             try:
                ip_network(_ip,strict=False) # check if the ip is a valid ipaddress
                nbriplist.append(_ip)
@@ -172,6 +172,10 @@ def snmp_get(ip,comm,protocol):
             ifnames = []
             for item in varIfIndex:
                 for oid, ifindex in item:
+                    try:
+                        all_interfaces[interface_oid+'.'+str(ifindex)]
+                    except KeyError:
+                        continue
                     if str(all_interfaces[interface_oid+'.'+str(ifindex)]).lower().startswith('lo'):
                         continue
                     else: ifnames.append(all_interfaces[interface_oid+'.'+str(ifindex)])
@@ -199,7 +203,7 @@ def snmp_get(ip,comm,protocol):
 
     for nid in _device["NbrRtrId"]:
         unquerried_neighbors.append(nid)
-    
+
     devices_list.append(_device)
 
     return devices_list
@@ -212,9 +216,9 @@ def find_unqueried_neighbors(ip,comm,protocol,popup=False):
     '''
 
     global devices_list, querried_neighbors, unquerried_neighbors, failed_neighbors
-    
+
     querried_neighbors = list(set(querried_neighbors))
-    
+
     # Neighbor Router IDs
     all_nbr_ids = []
 
@@ -222,14 +226,14 @@ def find_unqueried_neighbors(ip,comm,protocol,popup=False):
     for n in range(0, len(devices_list)):
 
         for nid in devices_list[n]["NbrRtrId"]:
-        
+
             if nid == "0.0.0.0": pass
-        
+
             else:
                 if nid not in querried_neighbors: all_nbr_ids.append(nid)
 
 
-                    
+
     all_nbr_ids = list(set(all_nbr_ids)) # remove duplicates
 
 
@@ -238,7 +242,7 @@ def find_unqueried_neighbors(ip,comm,protocol,popup=False):
 
 
     print("lenght of devices_list",len(devices_list))
-    
+
     # Running the snmp_get() function for each unqueried neighbor
     for q in all_nbr_ids:
         for r in range(0, len(devices_list)):
@@ -298,15 +302,18 @@ def ip_to_name(final_devices_list,neighborship_dict):
 
         if len(item["NbrRtrId"]) > len(item['Interface']):
             # to compensate for non point-to-point links where one interface has many adjancencies
-            assumed_interface = item['Interface'][0]
-            item['Interface'] = [assumed_interface for x in range(len(item['NbrRtrId']))]
+            try:
+                assumed_interface = item['Interface'][0]
+                item['Interface'] = [assumed_interface for x in range(len(item['NbrRtrId']))]
+            except IndexError:
+                item['Interface'] = ['na']
 
         for index, each_neighbor in enumerate(item["NbrRtrId"]):
             each_tuple = (each_neighbor,item["HostId"])
             ip_iface[each_tuple] = item['Interface'][index] + '\n'+ item["NbrRtrIp"][index]
             try: neighborship_dict[each_tuple]= item['Interface'][index] + '\n'+ neighborship_dict[each_tuple]
             except KeyError: pass
-    
+
     return neighborship_dict
 
 
@@ -320,8 +327,9 @@ def build(ip,comm,protocol):
     unquerried_neighbors = [] # we start with one unquerried router assumin the router id to be 0
     failed_neighbors = []
 
-    try: devices_list = snmp_get(ip,comm,protocol)
-    except: return [],{} # if polling of first device fails
+    # try:
+    devices_list = snmp_get(ip,comm,protocol)
+    # except: return [],{} # if polling of first device fails
 
     # before running the snmp get the number of unquerried neighbors should have been 1
     # which is the router we start to poll initially this is the base router
@@ -389,15 +397,15 @@ class formatOut:
 
 
      def exportcsv(final_devices_list):
-                
+
           csv_file = ("Hostname" + ";" + "RouterID" + ";" + "NeighborRouterID" + ";" + "NeighborIP" + ";" + "Interface")
           csv_file += ("\n")
 
           for each_dict in final_devices_list:
               csv_file += str(each_dict["Host"])  + ";"
-              csv_file += str(each_dict["HostId"]) + ";" 
-              csv_file += (', '.join(each_dict["NbrRtrId"])) + ";" 
-              csv_file += (', '.join(each_dict["NbrRtrIp"])) + ";" 
+              csv_file += str(each_dict["HostId"]) + ";"
+              csv_file += (', '.join(each_dict["NbrRtrId"])) + ";"
+              csv_file += (', '.join(each_dict["NbrRtrIp"])) + ";"
               csv_file += (', '.join(each_dict["Interface"]))
               csv_file += ("\n")
           return csv_file
@@ -408,18 +416,18 @@ class formatOut:
 
           G = nx.Graph()
           G.add_edges_from(neighborship_dict.keys())
-          
+
           #loop through and add label for edges
-          for edge in neighborship_dict.keys(): 
+          for edge in neighborship_dict.keys():
             G.edges[edge]['label'] = neighborship_dict[edge]
 
           nodes =id_to_name(final_devices_list)
-  
+
           #loop through and add label attribute for nodes
-          for node in nodes.keys(): 
+          for node in nodes.keys():
             G.add_node(node)
             G.node[node]['label'] = nodes[node]
-            
+
           s = '\n'.join([line for line in nx.generate_gexf(G)])
 
           return s
@@ -434,13 +442,13 @@ class formatOut:
             output+=("RID: %s\n" % each_dict["HostId"])
             output+=("Neighbors by ID: %s\n" % ', '.join(each_dict["NbrRtrId"]))
             output+=("Neighbors by IP: %s\n" % ', '.join(each_dict["NbrRtrIp"]))
-            output+=("Interraces: %s\n" % ', '.join(each_dict["Interface"]))
+            output+=("Interfaces: %s\n" % ', '.join(each_dict["Interface"]))
             output+=("\n")
             output+=("\n")
         output+=("Total number of devices: %d"%(len(final_devices_list)))
         output+=("\n")
         output+=("\n")
-        
+
         return output
 
 
@@ -450,7 +458,7 @@ class formatOut:
 
             if choice == 'text':
                 return formatOut.raw(final_devices_list, time_count)
-                 
+
 
             elif choice == 'csv':
                 return formatOut.exportcsv(final_devices_list)
