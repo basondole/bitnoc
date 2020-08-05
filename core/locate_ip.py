@@ -99,8 +99,8 @@ class Parse:
             source = []
             for octate in range(4):
                source.append(str(int(ip_addresses[0].split('.')[octate])+int(ip_addresses[1].split('.')[octate])))
-            
-            try: 
+
+            try:
                source_ip = IP(ip_addresses[0]+'-'+('.'.join(source)))
                ipaddress.ip_network(source_ip) # test if it a valid ip network
                destination_ip = ip_addresses[2]+'/32'
@@ -136,7 +136,7 @@ class Parse:
             address = []
             for octate in range(4):
                address.append(str(int(ip_addresses[0].split('.')[octate])+int(ip_addresses[1].split('.')[octate])))
-            
+
             address_ip = IP(ip_addresses[0]+'-'+('.'.join(address)))
 
             key = key.split()
@@ -187,7 +187,7 @@ class Parse:
          return key
 
       # match any other address available
-      else: 
+      else:
          if re.search(r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}',key):
             ip_addresses = re.search(r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}',key)
             address_ip = ip_addresses[0]+'/32'
@@ -212,9 +212,9 @@ class Parse:
             key = line.strip()
             continue
 
-         try: 
+         try:
             if not re.search(r'^\S',line): # match lines starting with non word character as lines within a section start with space
-               if line: sections[key].append(line.strip()) 
+               if line: sections[key].append(line.strip())
          except UnboundLocalError:
             pass #the key is undefined, the regex wasnt matched
          except KeyError:
@@ -248,7 +248,7 @@ class Parse:
                   context_output['matching_subnets'] +=((ipDict[loopbackIp])['hostname']+'.'+(loopbackIp.split('.'))[-1]).ljust(20)
                   context_output['matching_subnets'] +=": "+key.strip()+"\n"
             except (IndexError,TypeError):  pass # no ip address found
-    
+
 
          elif 'access-list' in key:
             # access-lis section
@@ -294,7 +294,7 @@ class Parse:
 
 
    @staticmethod
-   def parseJunosOutput(output,ipDict,loopbackIp,subnet):
+   def parseJunosOutput(output,ipDict,loopbackIp,subnet, context_output):
       sections = {}
       regex = r'inet address|static route|route-filter|prefix-list'
       for line in output.split('\n'):
@@ -319,7 +319,8 @@ class Parse:
             if line:
                if 'interface' in line and 'unit' in line: # convert unit to dotted notation from ge-0/0/0 unit 10 to ge-0/0/0.10
                   line = line.split()
-                  interface_index = line.index('interfaces')
+                  try: interface_index = line.index('interfaces')
+                  except ValueError: pass # for apply-path regex matching
                   interface = line[interface_index + 1]
                   vlan = line[interface_index + 3]
                   line.insert(1,interface+'.'+vlan)
@@ -328,7 +329,7 @@ class Parse:
                   line.remove(vlan)
                   line = ' '.join(line)
 
-               sections[key].append(line.strip()) 
+               sections[key].append(line.strip())
 
          except UnboundLocalError: pass #the key is undefined, the regex wasnt matched
          except KeyError: pass #key is not in the dictionary
@@ -379,6 +380,17 @@ class kazi:
             secureCli.send('show configuration routing-options | display set | match routing-options.*static \n')
             secureCli.send('show configuration policy-options | display set | match policy-options.*route-filter \n')
             secureCli.send('show configuration policy-options | display set | match policy-options.*prefix-list |except statement \n')
+
+
+            if type(ipDict[loopbackIp]['logicalsystem']) is dict or str(type(ipDict[loopbackIp]['logicalsystem'])) == "<class 'other.Essential.dotted'>":
+                for LS in ipDict[loopbackIp]['logicalsystem'].keys():
+                    secureCli.send(f'set cli logical-system {LS}\n')
+                    secureCli.send('show configuration interfaces| display set | match "interfaces.*inet.*address" \n')
+                    secureCli.send('show configuration routing-options | display set | match routing-options.*static \n')
+                    secureCli.send('show configuration policy-options | display set | match policy-options.*route-filter \n')
+                    secureCli.send('show configuration policy-options | display set | match policy-options.*prefix-list |except statement \n')
+                    secureCli.send('clear cli logical-system\n')
+
             time.sleep(10)
             secureCli.close()
             while True:
@@ -388,7 +400,7 @@ class kazi:
                for line in cli_output:
                   console_output += str(line)
             sshClient.close()
-            Parse.parseJunosOutput(console_output,ipDict,loopbackIp,subnet)
+            Parse.parseJunosOutput(console_output,ipDict,loopbackIp,subnet,context_output)
 
          elif ipDict[loopbackIp]['software'] == 'ios':
             secureCli.send('terminal length 0\n')
@@ -492,7 +504,3 @@ def locate_ip(username,password,ipDict,subnet,context_output):
    run_time = round(time.time()-start_time)
    result = result + '\n\n'+ '[Finished in %s seconds]'%str(run_time)
    return result
-
-
-
-
