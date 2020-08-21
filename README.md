@@ -53,7 +53,7 @@ Offloads manual tracking of temporary bandwidth change requests that is not very
 #### Supported platforms
 -    JunOS 11.4R9 and later
 -    Cisco IOS 12 and later, IOS XE
--    NETCONF is required for all devices except those running IOS 
+-    NETCONF is required for all devices except those running IOS
 
 #### Consumable APIs
 -    Solarwinds Orion Swis
@@ -205,7 +205,7 @@ python run.py
  * Debugger PIN: XXX-XXX-XXX
  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
  </pre>
- 
+
 Open the browser and access <code>http://127.0.0.1:5000/</code> or <code>http://localhost:5000/</code>
 Once the web portal loads complete the setup by
 
@@ -241,7 +241,7 @@ Create a virtual environment and install required packages
 
 [root@basondole bitnoc]# source bitnoc/bin/activate
 
-(bitnoc) [root@basondole bitnoc]# pip3 install -r requirements.txt 
+(bitnoc) [root@basondole bitnoc]# pip3 install -r requirements.txt
 Collecting bcrypt==3.1.7 (from -r requirements.txt (line 1))
 .
 .
@@ -259,13 +259,13 @@ Collecting bcrypt==3.1.7 (from -r requirements.txt (line 1))
   Running setup.py install for pynetdot ... done
   Running setup.py install for yamlordereddictloader ... done
 Successfully installed Flask-1.1.1 Flask-Bcrypt-0.7.1 Flask-Login-0.5.0 ...
-(bitnoc) [root@basondole bitnoc]# 
+(bitnoc) [root@basondole bitnoc]#
 </pre>
 
 > If you run the server at this point as <code>python run.py</code>, you will notice that the server is only available from your own computer, not from any other in the network. This is the default because in debugging mode a user of the application can execute arbitrary Python code on your computer. If you have debug disabled or trust the users on your network, you can make the server publicly available.
 
 You need to make some changes to make it run on your machines IP address.
-Edit the file <code>run.py</code> 
+Edit the file <code>run.py</code>
 and change the line <code>app.run(debug=True)</code>
 to <code>app.run(host= '0.0.0.0',debug=True)</code>
 
@@ -311,7 +311,7 @@ Verify the zone
     &lt;accept/&gt;
   &lt;/rule&gt;
 &lt;/zone&gt;
-[root@basondole bitnoc]# 
+[root@basondole bitnoc]#
 </pre>
 
 Check newly added port status
@@ -336,7 +336,7 @@ Nmap done: 1 IP address (1 host up) scanned in 2.59 seconds
 
 Run the app
 <pre>
-(bitnoc) [root@basondole bitnoc]# python run.py 
+(bitnoc) [root@basondole bitnoc]# python run.py
  * Serving Flask app "application" (lazy loading)
  * Environment: development
  * Debug mode: on
@@ -346,6 +346,31 @@ Run the app
  * Debugger PIN: XXX-XXX-XXX
  </pre>
  </pre>
- 
+
  Browse any of the IP configured on this server to access the application from the host <code>10.18.17.28</code>  
  http://10.21.2.8:5000
+
+### Start application on boot
+## supervisord
+<pre>
+sudo yum install supervisor
+sudo nano /etc/supervisor/conf.d/bitnoc.conf or sudo nano /etc/supervisord.conf
+[program:bitnoc]
+directory=/home/paul/bitnoc
+command=/home/paul/bitnoc/bitnoc/bin/python3 run.py
+user=Paul
+autostart=True
+autorestart=true
+stopasgroup=true
+killasgroup=true
+stderr_logfile=/var/log/bitnoc/bitnoc.err.log
+stdout_logfile=/var/log/bitnoc/bitnoc.out.log
+
+sudo mkdir -p /var/log/bitnoc/
+sudo touch /var/log/bitnoc/bitnoc.err.log
+sudo touch /var/log/bitnoc/bitnoc.out.log
+
+sudo supervisorctl reload or sudo service supervisord start
+sudo systemctl status supervisord.service
+sudo systemctl enable supervisord
+</pre>
