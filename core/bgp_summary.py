@@ -16,7 +16,7 @@ __email__ = "bassosimons@me.com"
 
 class getBGPdata:
 
-    def kazi(ipdict,username,password,context_output,filtering={'state': False}, monitor=False):
+    def kazi(ipdict,username,password,context_output,filtering, monitor=False):
 
         context_output['_out_'] = f'Last refresh {time.ctime()}\n'
         context_output['errors'] = ''
@@ -49,7 +49,7 @@ class getBGPdata:
 
 
 
-    def bgp_summary(host,ipdict,username,password,lock,context_output,filtering={'state': False}, monitor=False):
+    def bgp_summary(host,ipdict,username,password,lock,context_output,filtering, monitor=False):
 
 
         def rpc_to_dict(rpc_element):
@@ -638,20 +638,21 @@ Start
 
 
 
-def cool_bgp_summary(ipdict,username,password,context_output,filtering={'state': False}, monitor=False):
+def cool_bgp_summary(ipdict,username,password,context_output,filtering=None, monitor=False):
 
 
 
     start_time = time.time()
     print(f'[{time.ctime()}] INFO: bgp_summary.py via function cool_bgp_summary says: started collecting bgp data')
 
-    if monitor:
+    if monitor and not filtering:
       filtering = {
                       'state': False,
                       'arp': False,
                       'alias': False,
                       'loss': False,
                   }
+
     result = getBGPdata.kazi(ipdict,username,password,context_output,filtering=filtering, monitor=monitor)
 
     run_time = round(time.time()-start_time)
