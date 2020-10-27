@@ -6,7 +6,7 @@ ciscoconfparse==1.5.1
 click==7.1.1
 colorama==0.4.3
 crypto==1.4.1
-cryptography==2.8
+cryptography==3.2
 decorator==4.4.2
 dnspython==1.16.0
 Flask==1.1.1
