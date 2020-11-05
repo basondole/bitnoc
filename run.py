@@ -532,7 +532,7 @@ def service_provision():
 		if service_type == 'l3mpls':
 			vrf = values['provision-vrf']
 			conf_data['VF'] = vrf
-			result, prompt = d.l3mpls(devinfo, conf_data)
+			result = d.l3mpls(devinfo, conf_data)
 
 		elif service_type == 'internet':
 			result = d.internet(devinfo, conf_data)
