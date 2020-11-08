@@ -144,7 +144,7 @@ def index():
 @app.route("/save-settings", methods=['GET', 'POST'])
 def save_settings():
 	global data, showTab
-	settings = request.form
+	settings = dict(request.form)
 	try:
 		settings['api-netdot-url']
 	except KeyError:
