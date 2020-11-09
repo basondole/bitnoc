@@ -213,7 +213,8 @@ Once the web portal loads complete the setup by
 - Set Path to device database: as <code>./application/database/</code>
 - Specify the ssh authentication server with its port number.
 - Save the settings and you will be redirected back to the login page
-- Create a user account via the sign up link.
+- Create a user account via the sign up link. 
+> Note: The username and password must be the same as the credentials used for ssh access to your network.
 
 It may take a minute for a user to be registered as the server tries to verify the user credentials against the specified authentication server.
 > Note: this installation will only be availbale on local host, further windows firewall tweaking must be done to allow external
