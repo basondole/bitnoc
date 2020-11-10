@@ -4,9 +4,21 @@ This framework povides efficient and easier ways to perform common operational t
 
 The functionality offered provides simple means to execute common time consuming; when caried out with conventional methods; and critical tasks. Embeded subsystems that consume API to interface with some popular network systems such as Solarwinds Orion NMS and Netdot help to bridge the gap between systems and databases hence forth providing seemless workflows.
 
+### Example use case
+A service activation tickets would require an operator to
+- Check an IP Address Management (IPAM) tool for available address space
+- Reserve an address space in IP Address Management (IPAM) tool
+- Consult existing vlan database to make sure you get a free vlan-id
+- Configure the L3 gateway interface
+- Configure traffic policing to ensure access to/from the service is billed accordingly
+- Update monitoring system
+
+It is obvious here that some kind of automation would be beneficial for this repetitive task.
+The best part is, the user does not need to know the underlying CLI command for any particular vendor, everything is a mouse click away.
+
 ### Key features
 -    Quickly deploy new service by collecting data from your IT infrastructure in a few minutes.
--   Maintain consistent configuration and data records for your infrastructure databases
+-    Maintain consistent configuration and data records for your infrastructure databases
 -    Issue commands to all network devices at once via centralized interface to quickly pinpoint issues or gather information.
 -    Automatically schedule bandwidth changes for different services at any time
 -    Get email alerts on bandwidth changes performed automatically
@@ -20,10 +32,13 @@ The functionality offered provides simple means to execute common time consuming
 -    VLAN operations
 -    IPv4 operations
 -    Service provisioning
--    BGP Neighbor monitoring
+-    BGP session monitoring
 -    Services auditing
 -    Burst packages management
 -    Bandwidth on demand management
+-    Network diagram generation for link state protocols (ISIS & OSPF)
+-    Report generation for customers services availbale on PE routers
+-    Configuration archiving
 
 ### Service search
 The search can be performed against a vlan-id, service description or ipv4 address.
@@ -37,7 +52,7 @@ On edge routers with high customer density this tools automates the task of find
 
 ### Service provisioning
 Auto provisioning of internet and L2MPLS services on edge routers on a single click.
-Automatically assigns a vlan-id and IPv4 addresses and adds node to NPM
+Automatically assigns a vlan-id and IPv4 addresses from IPAM and adds node to NPM for monitoring.
 Drastically reduces the amount of time (at least 50%) an administrator would use to gather config details and extra time to update documentation/monitoring databases
 
 > ### Burst packages management (in development)
@@ -53,7 +68,7 @@ Offloads manual tracking of temporary bandwidth change requests that is not very
 #### Supported platforms
 -    JunOS 11.4R9 and later
 -    Cisco IOS 12 and later, IOS XE
--    NETCONF is required for all devices except those running IOS
+-    NETCONF is required for all devices except those running native IOS where SSH is used.
 
 #### Consumable APIs
 -    Solarwinds Orion Swis
