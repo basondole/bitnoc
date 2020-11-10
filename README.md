@@ -1,3 +1,4 @@
+[![published](https://static.production.devnetcloud.com/codeexchange/assets/images/devnet-published.svg)](https://developer.cisco.com/codeexchange/github/repo/basondole/bitnoc)
 # bitnoc
 
 This framework povides efficient and easier ways to perform common operational tasks in the service provider edge and core network.
