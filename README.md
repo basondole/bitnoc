@@ -66,8 +66,8 @@ User has the ability to view scheduled bandwidth changes and to delete or modify
 Offloads manual tracking of temporary bandwidth change requests that is not very efficient.
 
 #### Supported platforms
--    JunOS 11.4R9 and later
 -    Cisco IOS 12 and later, IOS XE
+-    JunOS 11.4R9 and later
 -    NETCONF is required for all devices except those running native IOS where SSH is used.
 
 #### Consumable APIs
