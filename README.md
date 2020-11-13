@@ -173,7 +173,6 @@ tree
 ├── other
 │   ├── Essential.py
 │   ├── __init__.py
-│   ├── cryptoengine.py
 │   └── getDeviceData.py
 ├── requirements.txt
 ├── run.py
