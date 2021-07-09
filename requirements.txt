@@ -45,7 +45,7 @@ pysmi==0.3.4
 pysnmp==4.4.12
 python-dateutil==2.8.1
 python-dotenv==0.12.0
-PyYAML==5.3
+PyYAML==5.4
 requests==2.23.0
 scp==0.13.2
 shellescape==3.8.1
