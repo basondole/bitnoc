@@ -20,7 +20,7 @@ itsdangerous==1.1.0
 Jinja2==2.11.1
 junos-eznc==2.2.1
 jxmlease==1.0.1
-lxml==4.5.0
+lxml==4.6.5
 MarkupSafe==1.1.1
 Naked==0.1.31
 napalm==2.5.0
