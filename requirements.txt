@@ -30,7 +30,7 @@ netmiko==2.4.2
 networkx==2.4
 nxapi-plumbing==0.5.2
 orionsdk==0.3.0
-paramiko==2.7.1
+paramiko==2.10.1
 passlib==1.7.2
 ply==3.11
 pyasn1==0.4.8
